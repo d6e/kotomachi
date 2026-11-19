@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Kotomachi art mockups</title>
+<style>
+  body { margin: 0; background: #222; color: #eee; font: 14px sans-serif; }
+  canvas { display: block; image-rendering: pixelated; margin: 0 0 8px; }
+</style>
+</head>
+<body>
+<script type="module">
+  // Renders each style's street and dialogue sample. Open through any static server,
+  // e.g. `npx esbuild --servedir=mockups/src` or the dev server, to look at them live.
+  import { STYLES, drawStreet, drawDialogue, paint, writeDialogueText } from './draw.js';
+  await Promise.all([
+    document.fonts.load('16px "Unifont-JP"'),
+    document.fonts.load('bold 34px "IPAPGothic"'),
+  ]).catch(() => {});
+  for (const [id, st] of Object.entries(STYLES)) {
+    const town = document.createElement('canvas');
+    town.id = `${id}-town`;
+    paint(drawStreet(st), st, town);
+    const talk = document.createElement('canvas');
+    talk.id = `${id}-dialogue`;
+    writeDialogueText(paint(drawDialogue(st), st, talk), st);
+    document.body.append(town, talk);
+  }
+  document.body.dataset.ready = '1';
+</script>
+</body>
+</html>
