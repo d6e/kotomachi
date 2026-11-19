@@ -31,6 +31,9 @@ export class DialogueView {
   private lastLineNode: string | null = null;
   private keyHandler: ((e: KeyboardEvent) => void) | null = null;
   private cursor = 0;
+  /** NPC lines still typing out, oldest first; the input waits until they're done. */
+  private typing: { bubble: HTMLElement; units: { el: HTMLElement; cost: number }[] }[] = [];
+  private typeTimer: number | null = null;
 
   constructor(root: HTMLElement) {
     this.header = h('div', { class: 'dlg-header' });
@@ -38,6 +41,8 @@ export class DialogueView {
     this.input = h('div', { class: 'dlg-input' });
     this.el = h('div', { class: 'dialogue', hidden: true, role: 'dialog' }, this.header, this.log, this.input);
     root.append(this.el);
+    // Clicking the log skips the typing.
+    this.log.addEventListener('click', () => this.finishTyping());
   }
 
   get open(): boolean {
@@ -56,6 +61,7 @@ export class DialogueView {
   }
 
   close(): void {
+    this.finishTyping();
     this.el.hidden = true;
     if (this.keyHandler) window.removeEventListener('keydown', this.keyHandler);
     this.keyHandler = null;
@@ -65,6 +71,14 @@ export class DialogueView {
   private onKey(e: KeyboardEvent): void {
     if (!this.run || (e.target instanceof HTMLInputElement)) return;
     if (document.querySelector('.popup:not([hidden])')) return;
+    if (this.typing.length) {
+      // While a line is typing out, the usual keys skip to the end of it.
+      if (['Enter', ' ', 'e', 'E', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key) || /^[1-9]$/.test(e.key)) {
+        e.preventDefault();
+        this.finishTyping();
+      }
+      return;
+    }
     const rows = [...this.input.querySelectorAll<HTMLElement>('.choice')];
     if (rows.length) {
       // A menu with a ▶ cursor: arrows or W/S move it, Enter, Space or E picks.
@@ -120,7 +134,82 @@ export class DialogueView {
       gloss ? h('div', { class: 'gloss' }, gloss) : null,
     );
     this.log.append(b);
+    if (who === 'npc') {
+      for (const old of this.log.querySelectorAll('.bubble.latest')) old.classList.remove('latest');
+      b.classList.add('latest');
+      this.typeOut(b);
+    }
     this.log.scrollTop = this.log.scrollHeight;
+  }
+
+  // ---------------------------------------------------------------- typing
+
+  /** Type an NPC line out a character at a time, like a text box in an old handheld game. */
+  private typeOut(b: HTMLElement): void {
+    if (globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const units: { el: HTMLElement; cost: number }[] = [];
+    for (const tok of b.querySelectorAll<HTMLElement>('.jp > .tok')) {
+      for (const child of [...tok.childNodes]) {
+        if (child.nodeType === Node.TEXT_NODE) {
+          const frag = document.createDocumentFragment();
+          for (const ch of child.textContent ?? '') {
+            const span = h('span', { class: 'ch ch-hide' }, ch);
+            units.push({ el: span, cost: 1 });
+            frag.append(span);
+          }
+          child.replaceWith(frag);
+        } else if (child instanceof HTMLElement) {
+          // A word with furigana appears whole, after as long as its letters would take.
+          child.classList.add('ch-hide');
+          const base = [...child.childNodes].filter((n) => n.nodeType === Node.TEXT_NODE).map((n) => n.textContent).join('');
+          units.push({ el: child, cost: Math.max(1, [...base].length) });
+        }
+      }
+    }
+    if (!units.length) return;
+    b.classList.add('typing');
+    this.typing.push({ bubble: b, units });
+    this.input.classList.add('pending');
+    if (this.typeTimer === null) this.tick(0);
+  }
+
+  private tick(wait: number): void {
+    this.typeTimer = window.setTimeout(() => {
+      const cur = this.typing[0];
+      if (!cur) return this.doneTyping();
+      const u = cur.units.shift();
+      if (u) u.el.classList.remove('ch-hide');
+      if (!cur.units.length) {
+        cur.bubble.classList.remove('typing');
+        this.typing.shift();
+        if (!this.typing.length) return this.doneTyping();
+        this.log.scrollTop = this.log.scrollHeight;
+      }
+      this.tick(30 * (u?.cost ?? 1));
+    }, wait);
+  }
+
+  private finishTyping(): void {
+    if (!this.typing.length) return;
+    for (const t of this.typing) {
+      for (const u of t.units) u.el.classList.remove('ch-hide');
+      t.bubble.classList.remove('typing');
+    }
+    this.typing = [];
+    this.doneTyping();
+  }
+
+  private doneTyping(): void {
+    if (this.typeTimer !== null) window.clearTimeout(this.typeTimer);
+    this.typeTimer = null;
+    this.typing = [];
+    this.input.classList.remove('pending');
+    this.log.scrollTop = this.log.scrollHeight;
+    this.input.querySelector<HTMLElement>('input.blank, button.primary')?.focus();
+  }
+
+  get isTyping(): boolean {
+    return this.typing.length > 0;
   }
 
   private renderHeader(view: PromptView): void {

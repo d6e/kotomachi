@@ -56,6 +56,7 @@ export class Game {
       onInteract: (t) => this.interact(t),
       onSignClick: (word, x, y) => this.lookup({ surface: word, lemma: word, ruby: [] }, { left: x, top: y, bottom: y }, true),
       neighborAvailable: () => !this.g.today.greeted && this.g.minutes < 21 * 60,
+      busy: () => this.phase !== 'town' || this.notebook.open || this.popup.open,
     });
     const game = this;
     this.popup = new Popup(root, {
@@ -87,8 +88,7 @@ export class Game {
   // ------------------------------------------------------------------ frame
 
   private frame(dt: number): void {
-    const busy = this.phase !== 'town' || this.notebook.open || this.popup.open;
-    this.town.paused = busy;
+    const busy = this.town.paused;
     const { walked } = this.town.update(dt, this.input);
     if (this.phase === 'town' && !busy && walked > 0) {
       this.g.minutes += dt * MINUTES_PER_SECOND;
@@ -402,14 +402,7 @@ export class Game {
 
   /** Teleport next to a door or the neighbor (play-test helper). */
   debugGoTo(place: DoorPlace | 'tanaka'): void {
-    if (place === 'tanaka') {
-      this.town.player.x = this.town.neighbor.x;
-      this.town.player.y = this.town.neighbor.y + 20;
-      return;
-    }
-    const door = { home: 3, cafe: 9, konbini: 16, pharmacy: 23 }[place];
-    this.town.player.x = door * 32 + 16;
-    this.town.player.y = 7 * 32 + 16;
+    this.town.debugGoTo(place);
   }
 
   get place(): PlaceId | null {

@@ -17,16 +17,18 @@ npm run dev        # http://127.0.0.1:8000, rebuilds on save
 | --- | --- |
 | `npm run dev` | esbuild watches `src/` and serves `www/`. Set `PORT` to change the port and `HOST=0.0.0.0` to try it from a phone on the same network. |
 | `npm run build` | Writes a minified bundle to `www/build/`. Serve `www/` from any static host. |
+| `npm run single` | Writes the whole game as one self-contained HTML file, `dist/kotomachi.html`, with the CSS and JavaScript inlined. It opens straight from disk. |
 | `npm test` | Unit tests with `node:test`. Node runs the `.ts` files directly, so there's no test framework. |
 | `npm run typecheck` | `tsc --noEmit` in strict mode. |
 | `npm run check` | Typecheck, tests and build in one go. |
 
 ## Controls
 
-- **Walk:** arrow keys or WASD, or click or tap where you want to go. Clicking a door walks there and goes in.
-- **Interact:** Space, E or Enter, at a door or next to 田中さん.
+- **Walk:** arrow keys or WASD, one tile at a time. A quick tap of a new direction just turns you. Or click or tap where you want to go: clicking a shop walks to its door and goes in, and clicking 田中さん walks over to say hello.
+- **Interact:** walk up into a door, or press Space, E or Enter at a door or next to 田中さん.
 - **Look a word up:** click or tap it, in dialogue, on signs, in the errands list or in the notebook.
-- **Answer:** click a row or press its number. With tiles, tap them in order, then press "Say it". In a fill-in blank, type romaji and press Enter. Capital letters give katakana, so `HOTTO` gives ホット.
+- **Talk:** lines type out a letter at a time. Enter, Space or a click on the text shows the whole line at once.
+- **Answer:** move the ▶ with the arrow keys and press Enter, or click a row, or press its number. With tiles, tap them in order, then press "Say it". In a fill-in blank, type romaji and press Enter. Capital letters give katakana, so `HOTTO` gives ホット.
 - **Notebook:** N, or the Notebook button. **Go home:** the button, or walk into the アパート door.
 
 ## How it fits together
@@ -39,15 +41,17 @@ src/
   scenario/  types.ts (content schema), engine.ts (one conversation as a state machine)
   judge/     freeform.ts (interface for a free-text judge; stubbed)
   game/      content.ts, errands.ts, state.ts (save data), game.ts (day loop, glue)
-  town/      map.ts, town.ts (Canvas 2D town: tiles, collision, NPC, signs)
+  town/      map.ts (tile grid, collision, path finding), art.ts (the town as pixel art), sprites.ts,
+             palette.ts, pixels.ts (a tiny pixel buffer), town.ts (movement, camera, drawing, clicks)
   engine/    input.ts, loop.ts (keyboard state, requestAnimationFrame loop)
   ui/        dialogue.ts, popup.ts, notebook.ts, text.ts, dom.ts (plain DOM)
+mockups/     the four art direction mockups (A to D) the look was picked from
 data/        vocab.json, forms.json, grammar.json, npcs.json, scenarios/*.json
 test/        node:test unit tests
 www/         index.html, style.css (the bundle lands in www/build/)
 ```
 
-There's no framework. The town is a 30×17 grid of 32 px tiles drawn on a `<canvas>` with a fixed-step loop. Dialogue, the notebook and popups are plain DOM built with a tiny `h()` helper. The romaji converter and the FSRS scheduler are written from scratch as separate modules, with no wanakana and no ts-fsrs, so either can be swapped for a library later without touching anything else.
+There's no framework. The town is a 32×13 grid of 16 px tiles. All the art is drawn in code as pixel data at 1×, into a 320×208 view that follows you sideways, then scaled up by a whole number so pixels stay square and crisp. Sign lettering, furigana and the "Space ▶" hint are drawn on top at full resolution, so they stay readable at any size. Dialogue, the notebook and popups are plain DOM built with a tiny `h()` helper. The romaji converter and the FSRS scheduler are written from scratch as separate modules, with no wanakana and no ts-fsrs, so either can be swapped for a library later without touching anything else.
 
 ### Lines and words
 
@@ -92,14 +96,18 @@ All of these numbers are constants at the top of `src/scenario/engine.ts` and `s
 - Voice, audio and music.
 - Stages 2 to 4 at the konbini and pharmacy. The data format supports them, and their nodes just need tiles and blanks written.
 - A morphological analyser (kuromoji or Sudachi) and a real dictionary (JMdict). Lines are segmented by hand and `vocab.json` has 124 entries.
-- Art. Buildings and people are drawn with rectangles.
+- Indoor maps. Going into a shop opens the conversation window over the street.
 
 ## Please get the Japanese reviewed
 
 All of the Japanese here, including lines, readings, glosses, grammar notes and which answers count as natural or rude, was written without a native speaker. Have a native speaker go through `data/` before anyone learns from it. The places most likely to need a second look are the casual lines at friendship level 2, the 敬語 at the pharmacy, and which wrong answers get a puzzled reaction and which get a recast.
 
+## Art
+
+All the art is original and drawn in code: the palette is in `src/town/palette.ts`, the characters are 16×16 character maps in `src/town/sprites.ts`, and the street, shops and park are drawn by `src/town/art.ts`. The look ("style D": full-colour handheld, soft shading, a plum outline and a blue rounded window frame) was picked from four mockups kept in `mockups/`. No fonts or images are bundled; Japanese text uses the system's Japanese font.
+
 ## Notes
 
 - The design first suggested Phaser and Vite. This version uses plain TypeScript instead, with as little framework as possible.
-- The game was tested in headless Chromium with Playwright, through a script kept outside this repo. It walked the town, played every scenario, pushed the cafe from stage 1 to stage 4 and played the fill-in stage, then checked that sleep, reload and Continue restore the save. If you want that as part of the repo, a `test/e2e` folder with Playwright as a dev dependency would be the next step.
+- The game was tested in headless Chromium with Playwright, through a script kept outside this repo. It walked the town tile by tile, checked that walls and fences block, looked up a shop sign and the 準備中 plate, clicked a shop and the neighbour to walk over to them, played every scenario, pushed the cafe from stage 1 to stage 4 and played the fill-in stage, then checked that sleep, reload and Continue restore the save. If you want that as part of the repo, a `test/e2e` folder with Playwright as a dev dependency would be the next step.
 - `globalThis.__kotomachi` exposes the game object in the browser console for debugging, for example `__kotomachi.debugState()` or `__kotomachi.debugGoTo('cafe')`.
