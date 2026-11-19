@@ -4,7 +4,7 @@
       "id": "yuki",
       "place": "cafe",
       "loves": ["okashi", "aisu", "cocoa"],
-      "likes": ["nikuman", "onigiri", "ocha", "gyunyu"],
+      "likes": ["nikuman", "onigiri", "ocha", "gyunyu", "manju"],
       "invites": [
         {
           "variant": "first",
@@ -33,7 +33,7 @@
     {
       "id": "tanaka",
       "place": "street",
-      "loves": ["ocha", "okashi"],
+      "loves": ["ocha", "okashi", "manju"],
       "likes": ["nikuman", "kasa", "gyunyu", "onigiri"],
       "invites": [
         {

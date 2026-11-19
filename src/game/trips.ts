@@ -14,6 +14,8 @@ export interface Trip {
   level: number;
   /** A return ticket, in yen. */
   fare: number;
+  /** Minutes on the train each way. */
+  minutes: number;
   /** Whether there's anything there yet. A town that isn't isn't sold, or shown, at all. */
   built: boolean;
   blurb: string;
@@ -23,13 +25,25 @@ export const TRIPS = tripsJson as Trip[];
 /** What the ticket machine sells: only the towns that are built. */
 export const ON_SALE = TRIPS.filter((t) => t.built);
 
-/** Minutes on the train each way. */
+/** Minutes on the train each way, by default. */
 export const TRIP_MINUTES = 50;
 /** The last train out leaves at 17:00, so there's time to see the place and get back. */
 export const LAST_TRAIN_OUT = 17 * 60;
 
 /** Where a trip's train arrives: the open-air town. */
-export const ARRIVAL: Record<string, TripPlace> = { kamakura: 'kamakura' };
+export const ARRIVAL: Record<string, TripPlace> = { kamakura: 'kamakura', hakone: 'hakone' };
+
+/** Which trip a place belongs to, so the train home takes as long as the ride out. */
+const TRIP_OF: Partial<Record<TripPlace, string>> = {
+  kamakura: 'kamakura', shrine: 'kamakura', omiyage: 'kamakura',
+  hakone: 'hakone', ryokan: 'hakone', washitsu: 'hakone', onsen: 'hakone',
+};
+
+/** How long the ride is between home and wherever this trip place is. */
+export function rideMinutes(place: TripPlace | string | null): number {
+  const trip = TRIPS.find((t) => t.id === TRIP_OF[place as TripPlace]);
+  return trip?.minutes ?? TRIP_MINUTES;
+}
 
 /** Can you go now, and if not, why not. */
 export function canTravel(trip: Trip, level: number, money: number, minutes: number): 'ok' | 'level' | 'closed' | 'money' | 'late' {
@@ -52,6 +66,9 @@ export const SOUVENIRS: Souvenir[] = [
   { id: 'ehagaki', word: '絵はがき', from: 'sato' satisfies NpcId, scenario: 'omiyage_buy', variant: 'ehagaki' },
   // Not from a trip, but the same idea: the goldfish you scoop at the festival comes home in a bowl.
   { id: 'kingyo', word: '金魚', from: 'yamamoto' satisfies NpcId, scenario: 'festival_kingyo' },
+  // From the ryokan in 箱根: the tenugui towel from your room, and a wood mosaic box from its shop.
+  { id: 'tenugui', word: '手ぬぐい', from: 'okami' satisfies NpcId, scenario: 'ryokan_checkout' },
+  { id: 'yosegi', word: '寄木細工', from: 'okami' satisfies NpcId, scenario: 'ryokan_baiten', variant: 'yosegi' },
 ];
 
 /** What a finished conversation brings home, if anything. */

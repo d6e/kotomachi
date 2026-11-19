@@ -1,0 +1,447 @@
+{
+  "id": "onsen_bath",
+  "title": "Manners in the big bath",
+  "place": "onsen",
+  "npc": "suzuki",
+  "maxStage": 4,
+  "start": "greet",
+  "variants": [
+    {
+      "id": "nobose",
+      "slots": {}
+    },
+    {
+      "id": "mizu",
+      "slots": {}
+    }
+  ],
+  "nodes": {
+    "greet": {
+      "line": "あ 、 どうも 。 いい お湯 です よ 。",
+      "gloss": "Oh, hello. The water's lovely.",
+      "targets": [
+        "お湯",
+        "おはようございます",
+        "こんにちは",
+        "こんばんは"
+      ],
+      "grammar": [
+        "greetings_time"
+      ],
+      "choices": [
+        {
+          "text": "おはようございます 。",
+          "gloss": "Good morning.",
+          "result": "success",
+          "correctWhen": "morning",
+          "reaction": "$greet 。",
+          "note": "Greetings follow the clock: おはようございます in the morning, こんにちは in the day, こんばんは in the evening. Yes, even in the bath.",
+          "grammar": "greetings_time"
+        },
+        {
+          "text": "こんにちは 。",
+          "gloss": "Hello.",
+          "result": "success",
+          "correctWhen": "day",
+          "reaction": "$greet 。",
+          "note": "Greetings follow the clock: おはようございます in the morning, こんにちは in the day, こんばんは in the evening. Yes, even in the bath.",
+          "grammar": "greetings_time"
+        },
+        {
+          "text": "こんばんは 。",
+          "gloss": "Good evening.",
+          "result": "success",
+          "correctWhen": "evening",
+          "reaction": "$greet 。",
+          "note": "Greetings follow the clock: おはようございます in the morning, こんにちは in the day, こんばんは in the evening. Yes, even in the bath.",
+          "grammar": "greetings_time"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "$greet"
+          ]
+        ],
+        "decoys": [
+          "$greet_x",
+          "$greet_y",
+          "ただいま"
+        ]
+      },
+      "blank": {
+        "before": "",
+        "after": "。",
+        "answers": [
+          "$greet"
+        ]
+      },
+      "recast": "あ 、 どうも 。",
+      "next": {
+        "success": "wash"
+      }
+    },
+    "wash": {
+      "line": "どうぞ 、 入って=入る ください 。 あ 、 体 は もう 洗いました=洗う か ？",
+      "gloss": "Come on in. Oh, have you washed already?",
+      "targets": [
+        "入る",
+        "体",
+        "洗う",
+        "先"
+      ],
+      "grammar": [
+        "tekara"
+      ],
+      "choices": [
+        {
+          "text": "いいえ 、 先 に 洗います=洗う 。",
+          "gloss": "No, I'll wash first.",
+          "result": "success"
+        },
+        {
+          "text": "いいえ 。 すぐ 入ります=入る 。",
+          "gloss": "No. I'll get straight in.",
+          "result": "npc_puzzled",
+          "reaction": "あ 、 体 を 洗って=洗う から 入って=入る ください ね 。",
+          "note": "In an onsen you wash at the taps first, then get in. 先に洗います = I'll wash first. ～てから = after doing.",
+          "grammar": "tekara"
+        },
+        {
+          "text": "はい 、 いただきます 。",
+          "gloss": "(said before eating)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 お湯 は 飲みません=飲む よ 。",
+          "note": "いただきます is for food and drink. Have you washed? いいえ、先に洗います.",
+          "grammar": "itadakimasu"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "いいえ 、",
+            "先 に",
+            "洗います=洗う"
+          ]
+        ],
+        "decoys": [
+          "入ります=入る",
+          "すぐ",
+          "あと で"
+        ]
+      },
+      "blank": {
+        "before": "いいえ 、 先 に",
+        "after": "。",
+        "answers": [
+          "あらいます"
+        ]
+      },
+      "recast": "体 を 洗って=洗う から 入って=入る ください ね 。",
+      "next": {
+        "success": "towel"
+      }
+    },
+    "towel": {
+      "line": "それ から 、 タオル は お湯 に 入れないで=入れる ください ね 。",
+      "gloss": "And please don't put your towel in the water.",
+      "targets": [
+        "タオル",
+        "入れる",
+        "頭",
+        "置く"
+      ],
+      "grammar": [
+        "naide"
+      ],
+      "choices": [
+        {
+          "text": "はい 。 タオル は 頭 の 上 に 置きます=置く 。",
+          "gloss": "OK. I'll put my towel on my head.",
+          "result": "success"
+        },
+        {
+          "text": "はい 。 タオル を お湯 に 入れます=入れる 。",
+          "gloss": "OK. I'll put my towel in the water.",
+          "result": "npc_puzzled",
+          "reaction": "いえいえ 、 入れないで=入れる ください ね 。",
+          "note": "～ないでください asks you not to do something. Keep the towel out of the water: on your head is the classic place.",
+          "grammar": "naide"
+        },
+        {
+          "text": "はい 。 お湯 を 飲みます=飲む 。",
+          "gloss": "OK. I'll drink the hot water.",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 飲む お湯 じゃ ありません=ある よ 。",
+          "note": "入れないでください means \"please don't put it in\". Agree, and say where the towel goes instead: 頭の上に置きます.",
+          "grammar": "naide"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "タオル は",
+            "頭 の 上 に",
+            "置きます=置く"
+          ]
+        ],
+        "decoys": [
+          "お湯 に",
+          "入れます=入れる"
+        ]
+      },
+      "blank": {
+        "before": "はい 。 タオル は 頭 の 上 に",
+        "after": "。",
+        "answers": [
+          "おきます"
+        ]
+      },
+      "recast": "タオル は お湯 に 入れないで=入れる ください 。",
+      "next": {
+        "success": "chat"
+      }
+    },
+    "chat": {
+      "line": "どちら から 来ました=来る か ？ 私 は 毎年 来て=来る います=いる 。",
+      "gloss": "Where have you come from? I come here every year.",
+      "targets": [
+        "どちら",
+        "毎年",
+        "から"
+      ],
+      "grammar": [
+        "kara_from"
+      ],
+      "choices": [
+        {
+          "text": "ことまち から 来ました=来る 。",
+          "gloss": "I've come from Kotomachi.",
+          "result": "success"
+        },
+        {
+          "text": "ことまち に 来ました=来る 。",
+          "gloss": "I came to Kotomachi.",
+          "result": "npc_puzzled",
+          "reaction": "ああ 、 ことまち から です ね 。",
+          "note": "Where you come from takes から: ことまちから来ました. に is where you arrive.",
+          "grammar": "kara_from"
+        },
+        {
+          "text": "電車 に 乗ります=乗る 。",
+          "gloss": "I'll get on the train.",
+          "result": "npc_confused",
+          "reaction": "え ？ … どちら から 来ました=来る か ？",
+          "note": "どちらから来ましたか asks where you've come from. Answer [place]から来ました.",
+          "grammar": "kara_from"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "ことまち",
+            "から",
+            "来ました=来る"
+          ]
+        ],
+        "decoys": [
+          "に",
+          "で",
+          "行きます=行く"
+        ]
+      },
+      "blank": {
+        "before": "ことまち",
+        "after": "来ました=来る 。",
+        "answers": [
+          "から"
+        ]
+      },
+      "recast": "どちら から 来ました=来る か ？",
+      "next": {
+        "success": "tip_nobose"
+      }
+    },
+    "tip_nobose": {
+      "onlyFor": [
+        "nobose"
+      ],
+      "line": "長く=長い 入る と のぼせます=のぼせる よ 。 気をつけて=気をつける ね 。",
+      "gloss": "If you stay in too long you'll get dizzy from the heat. Be careful.",
+      "targets": [
+        "長い",
+        "のぼせる",
+        "気をつける"
+      ],
+      "grammar": [
+        "to_when"
+      ],
+      "choices": [
+        {
+          "text": "はい 、 気をつけます=気をつける 。",
+          "gloss": "OK, I'll be careful.",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 のぼせます=のぼせる 。",
+          "gloss": "OK, I'll get dizzy.",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 のぼせないで=のぼせる ね 。",
+          "note": "のぼせる is getting dizzy from too much heat, so it's not something to agree to. Answer 気をつけます: I'll be careful.",
+          "grammar": "to_when"
+        },
+        {
+          "text": "おやすみなさい 。",
+          "gloss": "Good night.",
+          "result": "npc_puzzled",
+          "reaction": "え ？ まだ お風呂=風呂 です よ 。",
+          "note": "おやすみなさい is for going to bed. Answer the warning: 気をつけます.",
+          "grammar": "greetings_time"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "はい 、",
+            "気をつけます=気をつける"
+          ]
+        ],
+        "decoys": [
+          "のぼせます=のぼせる",
+          "入ります=入る"
+        ]
+      },
+      "blank": {
+        "before": "はい 、",
+        "after": "。",
+        "answers": [
+          "きをつけます"
+        ]
+      },
+      "recast": "長く=長い 入る と のぼせます=のぼせる よ 。",
+      "next": {
+        "success": "leave"
+      }
+    },
+    "tip_mizu": {
+      "onlyFor": [
+        "mizu"
+      ],
+      "line": "お風呂=風呂 の あと は 、 水 を 飲んで=飲む ください ね 。",
+      "gloss": "After your bath, drink some water.",
+      "targets": [
+        "風呂",
+        "水",
+        "飲む"
+      ],
+      "grammar": [
+        "wo_object"
+      ],
+      "choices": [
+        {
+          "text": "はい 、 水 を 飲みます=飲む 。",
+          "gloss": "OK, I'll drink some water.",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 水 に 飲みます=飲む 。",
+          "gloss": "(wrong particle)",
+          "result": "npc_puzzled",
+          "reaction": "水 を 、 です ね 。",
+          "note": "What you drink takes を: 水を飲みます.",
+          "grammar": "wo_object"
+        },
+        {
+          "text": "はい 、 お湯 を 飲みます=飲む 。",
+          "gloss": "OK, I'll drink the bath water.",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 お湯 じゃ なくて=ない 、 水 です よ 。",
+          "note": "お湯 is the hot bath water. Drink 水, cold water, afterwards.",
+          "grammar": "wo_object"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "はい 、",
+            "水",
+            "を",
+            "飲みます=飲む"
+          ]
+        ],
+        "decoys": [
+          "に",
+          "お湯"
+        ]
+      },
+      "blank": {
+        "before": "はい 、 水",
+        "after": "飲みます=飲む 。",
+        "answers": [
+          "を"
+        ]
+      },
+      "recast": "水 を 飲んで=飲む ください ね 。",
+      "next": {
+        "success": "leave"
+      }
+    },
+    "leave": {
+      "line": "あ 、 もう 出ます=出る か ？",
+      "gloss": "Oh, getting out already?",
+      "targets": [
+        "出る",
+        "先",
+        "失礼"
+      ],
+      "grammar": [
+        "osakini"
+      ],
+      "choices": [
+        {
+          "text": "はい 。 お先=先 に 失礼 します=する 。",
+          "gloss": "Yes. Excuse me for going first.",
+          "result": "success"
+        },
+        {
+          "text": "はい 。 いただきます 。",
+          "gloss": "(said before eating)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 お湯 は 食べません=食べる よ 。",
+          "note": "Leaving a bath, or work, before others, say お先に失礼します.",
+          "grammar": "osakini"
+        },
+        {
+          "text": "はい 。 いらっしゃいませ 。",
+          "gloss": "Welcome! (what staff say)",
+          "result": "npc_puzzled",
+          "reaction": "… ？ はい 、 また ね 。",
+          "note": "いらっしゃいませ is what shop staff say. Leaving before someone else, say お先に失礼します.",
+          "grammar": "osakini"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "はい 。",
+            "お先=先 に",
+            "失礼 します=する"
+          ]
+        ],
+        "decoys": [
+          "いただきます",
+          "いらっしゃいませ"
+        ]
+      },
+      "blank": {
+        "before": "はい 。 お先=先 に",
+        "after": "します=する 。",
+        "answers": [
+          "しつれい"
+        ]
+      },
+      "recast": "もう 出ます=出る か ？",
+      "end": true
+    }
+  }
+}

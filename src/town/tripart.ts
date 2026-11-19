@@ -131,6 +131,78 @@ function shop(b: Buf, signs: SignSpot[], measure: Measure, x: number, y: number,
   signBoard(b, signs, measure, doorX + TILE / 2, y - 2, 'お土産');
 }
 
+/** The mountains behind 箱根, with Mount Fuji in the distance, over the top rows. */
+function mountains(b: Buf, room: RoomDef): void {
+  let rows = 0;
+  while (room.rows[rows]?.startsWith('M')) rows++;
+  const h = rows * TILE;
+  for (let y = 0; y < h; y++) b.rect(0, y, W, 1, y < h * 0.45 ? 'glass' : 'glassHi');
+  // Fuji, far off on the right, with snow on top.
+  const peak = Math.round(W * 0.68);
+  b.shape(peak - 40, 1, 81, h - 1, (i, j) => Math.abs(i - 40) <= 5 + j * 1.5, (i, j) => (j < 6 ? 'white' : j < 8 && i % 4 < 2 ? 'white' : 'roofE'));
+  // Nearer green ridges in front, and a line of trees.
+  b.shape(0, Math.round(h * 0.35), Math.round(W * 0.5), h - Math.round(h * 0.35), (i, j) => j >= Math.abs(i - W * 0.22) * 0.12, (i, j) => ((i + j) % 9 === 0 ? 'leafSh' : 'leaf'));
+  b.shape(Math.round(W * 0.45), Math.round(h * 0.6), Math.round(W * 0.55), h - Math.round(h * 0.6), (i, j) => j >= Math.abs(i - W * 0.3) * 0.08, () => 'leafSh');
+  for (let x = 0; x < W; x += 6) b.shape(x, h - 7, 6, 7, (i, j) => Math.abs(i - 2.5) <= j * 0.5, () => (x % 12 ? 'leafSh' : 'leaf'));
+}
+
+/** The ryokan: dark wood and white plaster, a deep tiled roof, lanterns and a noren at the door. */
+function ryokan(b: Buf, signs: SignSpot[], measure: Measure, x: number, y: number, w: number, h: number, doorX: number): void {
+  const bottom = y + h;
+  const wallTop = y + 16;
+  b.box(x + 2, wallTop, w - 4, bottom - wallTop, 'wall');
+  // Dark timber frame: posts and a beam.
+  for (let px = x + 4; px < x + w - 4; px += 24) b.rect(px, wallTop, 3, bottom - wallTop, 'trunkSh');
+  b.rect(x + 3, wallTop + 2, w - 6, 3, 'trunkSh');
+  b.rect(x + 3, bottom - 5, w - 6, 4, 'stone');
+  b.rect(x + 3, bottom - 5, w - 6, 1, 'out');
+  // Lattice windows, lit warm.
+  for (const wx of [x + 10, x + 34, doorX + TILE + 10, doorX + TILE + 34]) {
+    if (wx + 18 > x + w - 6 || (wx < doorX + TILE + 6 && wx + 18 > doorX - 6)) continue;
+    b.box(wx, wallTop + 8, 18, 12, 'lampLight');
+    for (let i = 3; i < 18; i += 4) b.rect(wx + i, wallTop + 9, 1, 10, 'trunk');
+    b.rect(wx + 1, wallTop + 14, 16, 1, 'trunk');
+  }
+  // The entrance, with an indigo noren and a paper lantern each side.
+  b.box(doorX - 2, wallTop + 6, TILE + 4, bottom - 5 - wallTop - 6, 'darkSh');
+  for (let i = 0; i < 3; i++) {
+    const nx = doorX - 2 + i * 7;
+    b.box(nx, wallTop + 6, 6, 11, i % 2 ? 'norenSh' : 'noren');
+  }
+  b.rect(doorX + 4, wallTop + 10, 1, 4, 'white');
+  b.rect(doorX + 4, wallTop + 10, 7, 1, 'white');
+  b.rect(doorX + 10, wallTop + 10, 1, 4, 'white');
+  for (const lx of [doorX - 10, doorX + TILE + 4]) {
+    b.rect(lx + 3, wallTop + 4, 1, 3, 'out');
+    b.box(lx, wallTop + 7, 7, 10, 'lantern');
+    b.rect(lx + 1, wallTop + 9, 5, 1, 'lanternSh');
+    b.rect(lx + 1, wallTop + 13, 5, 1, 'lanternSh');
+  }
+  // A deep roof of dark tiles.
+  b.shape(x - 4, y - 6, w + 8, 24, (i, j) => j >= 0 && i >= Math.max(0, 6 - j) && i < w + 8 - Math.max(0, 6 - j), (i, j) => (j < 3 ? 'roofEHi' : (j - 3) % 4 === 3 || (i + (Math.floor(j / 4) % 2) * 2) % 5 === 0 ? 'roofESh' : 'roofE'));
+  b.rect(x, y - 6, w, 2, 'roofESh');
+  signBoard(b, signs, measure, doorX + TILE / 2, y + 2, '旅館');
+}
+
+/** A steaming footbath of hot spring water in a stone rim, with its sign on a post. */
+function footbath(b: Buf, front: Buf, signs: SignSpot[], measure: Measure, room: RoomDef, tx: number, ty: number): void {
+  let w = 0;
+  while (cellAt(room, tx + w, ty) === '~') w++;
+  let h = 0;
+  while (cellAt(room, tx, ty + h) === '~') h++;
+  const x = tx * TILE;
+  const y = ty * TILE;
+  b.ellipseShadow(x + (w * TILE) / 2, y + h * TILE, (w * TILE) / 2, 2.5);
+  b.shape(x - 1, y + 2, w * TILE + 2, h * TILE - 2, roundRect(w * TILE + 2, h * TILE - 2, 5), (i, j) => (i < 4 || j < 4 || i > w * TILE - 3 || j > h * TILE - 8 ? (hash(i >> 2, j >> 2, 6) < 0.4 ? 'stoneSh' : 'stone') : 'water'));
+  for (let i = 0; i < 4; i++) b.rect(x + 8 + i * 9, y + 10 + (i % 2) * 6, 5, 1, 'waterHi');
+  // Steam drifting up over it.
+  for (let i = 0; i < 5; i++) {
+    const sx = x + 6 + i * 9;
+    for (let k = 0; k < 7; k++) if ((k + i) % 3) front.set(sx + Math.round(Math.sin((k + i) * 1.1) * 2), y + 6 - k * 2, 'white');
+  }
+  signBoard(b, signs, measure, x - 10, y + 2, '温泉');
+}
+
 /** The posts of a torii stand on the base; the beams over the path go on top. */
 function torii(b: Buf, front: Buf, lx: number, rx: number, y: number): void {
   for (const px of [lx, rx]) {
@@ -161,7 +233,8 @@ export function drawArea(room: RoomDef, measure: Measure): RoomArt {
   flowerPatch(b, 6 * TILE, 9 * TILE + 4, 2 * TILE, TILE - 6, 3);
   flowerPatch(b, 11 * TILE, 10 * TILE + 2, 2 * TILE, TILE - 6, 5);
   for (let ty = 0; ty < ROOM_ROWS; ty++)
-    for (let tx = 0; tx < ROOM_COLS; tx++) if (cell(tx, ty) === ',' || cell(tx, ty) === '1' || cell(tx, ty) === '2') stonePath(b, tx, ty);
+    for (let tx = 0; tx < ROOM_COLS; tx++) if (cell(tx, ty) === ',' || cell(tx, ty) === '1' || cell(tx, ty) === '2' || cell(tx, ty) === '3') stonePath(b, tx, ty);
+  if (room.rows.some((row) => row.includes('M'))) mountains(b, room);
 
   // The station platform you arrived on, along the bottom.
   const py = 12 * TILE;
@@ -183,6 +256,7 @@ export function drawArea(room: RoomDef, measure: Measure): RoomArt {
     const doorX = room.rows[bl.y + bl.h - 1]!.indexOf(bl.door) * TILE;
     const args = [b, signs, measure, bl.x * TILE, bl.y * TILE, bl.w * TILE, bl.h * TILE, doorX] as const;
     if (bl.door === '1') shrine(...args);
+    else if (bl.door === '3') ryokan(...args);
     else shop(...args);
   }
 
@@ -208,12 +282,15 @@ export function drawArea(room: RoomDef, measure: Measure): RoomArt {
           posts.push(x);
           postsY = y;
           break;
+        case '~':
+          if (cell(tx - 1, ty) !== '~' && cell(tx, ty - 1) !== '~') footbath(b, front, signs, measure, room, tx, ty);
+          break;
       }
     }
   if (posts.length === 2) torii(b, front, posts[0]!, posts[1]!, postsY);
 
   // The station's name board, as on every platform.
-  signBoard(b, signs, measure, 14 * TILE, 10 * TILE + 1, '鎌倉');
+  signBoard(b, signs, measure, 14 * TILE, 10 * TILE + 1, room.station ?? '鎌倉');
   b.box(14 * TILE - 1, 11 * TILE, 3, 5, 'dark');
 
   return { base: b, front, signs };

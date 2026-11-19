@@ -304,5 +304,65 @@
   "title": "これ、どうぞ: giving something",
   "note": "Hold it out and say これ、どうぞ (here, this is for you). ください is for asking to be given something. When they thank you, どういたしまして.",
   "example": "これ 、 どうぞ 。"
+ },
+ {
+  "id": "ippaku",
+  "title": "一泊二食付き",
+  "note": "A ryokan usually quotes a price per person for 一泊二食付き: one night (一泊) with two meals (二食), dinner and breakfast. 泊 is the counter for nights: 一泊 (いっぱく), 二泊 (にはく), 三泊 (さんぱく).",
+  "example": "一泊 お願いします=お願いする 。"
+ },
+ {
+  "id": "shitsurei",
+  "title": "失礼します",
+  "note": "Said as you come into or leave someone's room or space, or hang up the phone. Staff say it when they come into your room at a ryokan.",
+  "example": "失礼 します=する 。"
+ },
+ {
+  "id": "hidari_ue",
+  "title": "左が上: left over right",
+  "note": "A yukata or kimono is always worn with the left side over the right. Right over left is how the dead are dressed for a funeral, so it's the one mistake people will point out.",
+  "example": "左 が 上 です 。"
+ },
+ {
+  "id": "nigate",
+  "title": "苦手",
+  "note": "苦手 is a softer way to say you don't like something, or are not good at it. Staff ask 苦手なものはありますか to check for foods you don't eat.",
+  "example": "苦手 な もの は あります=ある か ？"
+ },
+ {
+  "id": "tekara",
+  "title": "～てから: after doing",
+  "note": "[verb て-form]から = after doing, then. 洗ってから入ります: wash, then get in. 先に～ます says the same thing: 先に洗います.",
+  "example": "体 を 洗って=洗う から 入ります=入る 。"
+ },
+ {
+  "id": "naide",
+  "title": "～ないでください: please don't",
+  "note": "[verb ない-form]でください asks someone not to do something. 入れる → 入れない → 入れないでください.",
+  "example": "タオル を 入れないで=入れる ください 。"
+ },
+ {
+  "id": "kara_from",
+  "title": "から: from",
+  "note": "から after a place marks where you come from: ことまちから来ました. に marks where you arrive: 箱根に来ました.",
+  "example": "ことまち から 来ました=来る 。"
+ },
+ {
+  "id": "to_when",
+  "title": "～と: whenever, if",
+  "note": "[plain verb]と says what always follows: 長く入るとのぼせます = stay in long and you get dizzy.",
+  "example": "長く=長い 入る と のぼせます=のぼせる 。"
+ },
+ {
+  "id": "osakini",
+  "title": "お先に失礼します",
+  "note": "Said when you leave before others: getting out of a shared bath, or going home from work while colleagues stay. The answer is often お疲れさまでした or just どうぞ.",
+  "example": "お先=先 に 失礼 します=する 。"
+ },
+ {
+  "id": "osewa",
+  "title": "お世話になりました",
+  "note": "'Thank you for looking after me.' Said when you leave a place or person who took care of you: a ryokan, a host family, a workplace on your last day.",
+  "example": "お世話=世話 に なりました=なる 。"
  }
 ]

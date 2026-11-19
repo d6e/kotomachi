@@ -34,6 +34,18 @@ export interface DayLog {
   gifted?: NpcId[];
 }
 
+/** A night booked at the ryokan in 箱根. */
+export interface Stay {
+  /** The day you checked in; the morning after, you check out. */
+  day: number;
+  /** When dinner is brought to your room, in minutes from midnight. */
+  dinner: number;
+  /** Whether you've been shown your room (and changed into the yukata). */
+  shown?: boolean;
+  /** Whether you've had dinner (the futon goes down after it). */
+  dined?: boolean;
+}
+
 export interface GameData {
   /** 1: before yen rewards and experience; 2: with them. Old saves are migrated on load. */
   version: 2;
@@ -68,6 +80,10 @@ export interface GameData {
   grammarSeen: string[];
   today: DayLog;
   settings: { gloss: boolean };
+  /** A night at the ryokan, from check-in until you check out. Older saves don't have it. */
+  stay?: Stay;
+  /** Nights stayed at the ryokan so far. */
+  stays?: number;
 }
 
 export function newDayLog(friendship: GameData['friendship']): DayLog {
@@ -147,6 +163,7 @@ export function migrate(raw: unknown): GameData | null {
     g.shelf = g.keepsakes.slice(0, 9);
   }
   g.shelf = (Array.isArray(g.shelf) ? g.shelf : []).filter((id) => (g.bag[id] ?? 0) > 0).slice(0, 9);
+  if (g.stay && (typeof g.stay !== 'object' || typeof g.stay.day !== 'number' || typeof g.stay.dinner !== 'number')) delete g.stay;
   return g;
 }
 

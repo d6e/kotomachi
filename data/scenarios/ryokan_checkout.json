@@ -1,0 +1,311 @@
+{
+  "id": "ryokan_checkout",
+  "title": "Checking out in the morning",
+  "place": "ryokan",
+  "npc": "okami",
+  "maxStage": 4,
+  "start": "morning",
+  "variants": [
+    {
+      "id": "stay",
+      "price": 9800,
+      "slots": {}
+    }
+  ],
+  "nodes": {
+    "morning": {
+      "line": "おはようございます 。 よく 眠れました=眠る か ？",
+      "gloss": "Good morning. Did you sleep well?",
+      "targets": [
+        "よく",
+        "眠る"
+      ],
+      "grammar": [
+        "potential",
+        "greetings_time"
+      ],
+      "choices": [
+        {
+          "text": "はい 、 よく 眠れました=眠る 。",
+          "gloss": "Yes, I slept well.",
+          "result": "success"
+        },
+        {
+          "text": "こんばんは 。 よく 眠れました=眠る 。",
+          "gloss": "Good evening. I slept well.",
+          "result": "npc_puzzled",
+          "reaction": "ふふ 、 おはようございます 。 もう 朝 です よ 。",
+          "note": "In the morning it's おはようございます.",
+          "grammar": "greetings_time"
+        },
+        {
+          "text": "はい 、 いただきます 。",
+          "gloss": "(said before eating)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 朝ご飯 は もう 食べました=食べる よ ね 。",
+          "note": "いただきます is for just before you eat. よく眠れましたか asks if you slept well: はい、よく眠れました.",
+          "grammar": "itadakimasu"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "はい 、",
+            "よく",
+            "眠れました=眠る"
+          ]
+        ],
+        "decoys": [
+          "おいしい",
+          "こんばんは"
+        ]
+      },
+      "blank": {
+        "before": "はい 、 よく",
+        "after": "。",
+        "answers": [
+          "ねむれました"
+        ]
+      },
+      "recast": "よく 眠れました=眠る か ？",
+      "next": {
+        "success": "key"
+      }
+    },
+    "key": {
+      "line": "チェックアウト です ね 。 鍵 を お願いします=お願いする 。",
+      "gloss": "Checking out? The key, please.",
+      "targets": [
+        "チェックアウト",
+        "鍵"
+      ],
+      "grammar": [
+        "douzo"
+      ],
+      "choices": [
+        {
+          "text": "はい 、 どうぞ 。",
+          "gloss": "Here you are.",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 鍵 を ください 。",
+          "gloss": "Yes, give me the key, please.",
+          "result": "npc_confused",
+          "reaction": "あ 、 鍵 を 返して=返す ください ね 。",
+          "note": "鍵をお願いします here means \"the key, please\": hand it back with はい、どうぞ.",
+          "grammar": "douzo"
+        },
+        {
+          "text": "いいえ 、 チェックイン です 。",
+          "gloss": "No, I'm checking in.",
+          "result": "npc_puzzled",
+          "reaction": "え ？ チェックイン は 昨日 でした=です よ 。",
+          "note": "You checked in yesterday. Now hand the key back: はい、どうぞ.",
+          "grammar": "douzo"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "はい 、",
+            "どうぞ"
+          ]
+        ],
+        "decoys": [
+          "ください",
+          "チェックイン"
+        ]
+      },
+      "blank": {
+        "before": "はい 、",
+        "after": "。",
+        "answers": [
+          "どうぞ"
+        ]
+      },
+      "recast": "鍵 を お願いします=お願いする 。",
+      "next": {
+        "success": "bill"
+      }
+    },
+    "bill": {
+      "line": "一泊 二食 付き で 、 $price 円 です 。",
+      "gloss": "One night with two meals: ¥$price.",
+      "targets": [
+        "一泊",
+        "円",
+        "カード"
+      ],
+      "grammar": [
+        "de_choice"
+      ],
+      "effects": {
+        "pay": true
+      },
+      "choices": [
+        {
+          "text": "カード で お願いします=お願いする 。",
+          "gloss": "By card, please.",
+          "result": "success"
+        },
+        {
+          "text": "カード を お願いします=お願いする 。",
+          "gloss": "A card, please.",
+          "result": "npc_puzzled",
+          "reaction": "カード で 、 です ね 。 はい 。",
+          "note": "How you pay takes で: カードでお願いします. With を it sounds like you're asking for a card.",
+          "grammar": "de_choice"
+        },
+        {
+          "text": "いただきます 。",
+          "gloss": "(said before eating)",
+          "result": "npc_amused",
+          "reaction": "ふふ 。 $price 円 です よ 。",
+          "note": "いただきます is for just before you eat. To pay by card, say カードでお願いします.",
+          "grammar": "itadakimasu"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "カード",
+            "で",
+            "お願いします=お願いする"
+          ]
+        ],
+        "decoys": [
+          "を",
+          "に",
+          "ください"
+        ]
+      },
+      "blank": {
+        "before": "カード",
+        "after": "お願いします=お願いする 。",
+        "answers": [
+          "で"
+        ]
+      },
+      "recast": "$price 円 です 。",
+      "next": {
+        "success": "tenugui"
+      }
+    },
+    "tenugui": {
+      "line": "お部屋=部屋 の 手ぬぐい は 、 どうぞ お持ち帰り=持ち帰る ください 。",
+      "gloss": "Please take the tenugui towel from your room home with you.",
+      "targets": [
+        "手ぬぐい",
+        "持ち帰る"
+      ],
+      "grammar": [
+        "tekudasai"
+      ],
+      "choices": [
+        {
+          "text": "ありがとうございます 。 うれしい です 。",
+          "gloss": "Thank you. I'm so pleased.",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 返します=返す 。",
+          "gloss": "OK, I'll give it back.",
+          "result": "npc_puzzled",
+          "reaction": "いえいえ 、 お持ち帰り=持ち帰る ください 。",
+          "note": "お持ち帰りください means \"please take it home\". Say thank you: ありがとうございます.",
+          "grammar": "tekudasai"
+        },
+        {
+          "text": "いらっしゃいませ 。",
+          "gloss": "Welcome! (what staff say)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 それ は 私 の 言葉 です よ 。",
+          "note": "いらっしゃいませ is what staff say. To thank someone for a gift, say ありがとうございます.",
+          "grammar": "irasshaimase"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "ありがとうございます 。",
+            "うれしい",
+            "です"
+          ]
+        ],
+        "decoys": [
+          "返します=返す",
+          "いらっしゃいませ"
+        ]
+      },
+      "blank": {
+        "before": "ありがとうございます 。",
+        "after": "です 。",
+        "answers": [
+          "うれしい"
+        ]
+      },
+      "recast": "手ぬぐい は どうぞ お持ち帰り=持ち帰る ください 。",
+      "next": {
+        "success": "bye"
+      }
+    },
+    "bye": {
+      "line": "ありがとうございました=ありがとうございます 。 また どうぞ お越し=越す ください 。",
+      "gloss": "Thank you so much. Please come again.",
+      "targets": [
+        "越す",
+        "世話"
+      ],
+      "grammar": [
+        "osewa"
+      ],
+      "choices": [
+        {
+          "text": "お世話=世話 に なりました=なる 。",
+          "gloss": "Thank you for everything.",
+          "result": "success"
+        },
+        {
+          "text": "おじゃまします 。",
+          "gloss": "(said going into someone's home)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 それ は 入る 時 の 言葉 です よ 。",
+          "note": "おじゃまします is for going into someone's home. Leaving after a stay, say お世話になりました.",
+          "grammar": "osewa"
+        },
+        {
+          "text": "いってきます 。",
+          "gloss": "I'm off! (said leaving home)",
+          "result": "npc_puzzled",
+          "reaction": "ふふ 、 いってらっしゃいませ=いってらっしゃい 。 … また どうぞ 。",
+          "note": "いってきます is for leaving your own home. Leaving a place that looked after you, say お世話になりました.",
+          "grammar": "osewa"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "お世話=世話",
+            "に",
+            "なりました=なる"
+          ]
+        ],
+        "decoys": [
+          "おじゃまします",
+          "を",
+          "します=する"
+        ]
+      },
+      "blank": {
+        "before": "お世話=世話 に",
+        "after": "。",
+        "answers": [
+          "なりました"
+        ]
+      },
+      "recast": "また どうぞ お越し=越す ください 。",
+      "end": true
+    }
+  }
+}

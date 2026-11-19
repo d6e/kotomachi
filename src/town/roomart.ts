@@ -47,6 +47,9 @@ const COUNTERS: Record<string, Pick<Theme, 'counterTop' | 'counterFront' | 'coun
   home: { counterTop: 'woodHi', counterFront: 'wood', counterBand: 'woodSh' },
   shrine: { counterTop: 'woodHi', counterFront: 'roofA', counterBand: 'white' },
   omiyage: { counterTop: 'woodHi', counterFront: 'wood', counterBand: 'noren' },
+  ryokan: { counterTop: 'woodHi', counterFront: 'woodSh', counterBand: 'noren' },
+  washitsu: { counterTop: 'woodHi', counterFront: 'wood', counterBand: 'woodSh' },
+  onsen: { counterTop: 'stone', counterFront: 'stoneSh', counterBand: 'stone' },
 };
 
 const isWall = (c: string) => c === '#';
@@ -118,7 +121,7 @@ export function drawRoom(room: RoomDef, measure: Measure): RoomArt {
 
   // Rugs first, so what stands on them is drawn over them.
   for (let ty = 0; ty < ROOM_ROWS; ty++)
-    for (let tx = 0; tx < ROOM_COLS; tx++) if (cell(tx, ty) === 'r' || cell(tx, ty) === 'w') rug(b, room, tx, ty);
+    for (let tx = 0; tx < ROOM_COLS; tx++) if ((cell(tx, ty) === 'r' || cell(tx, ty) === 'w') && room.place !== 'washitsu') rug(b, room, tx, ty);
 
   // Furniture.
   for (let ty = 0; ty < ROOM_ROWS; ty++)
@@ -178,7 +181,23 @@ export function drawRoom(room: RoomDef, measure: Measure): RoomArt {
           postbox(b, x, y);
           break;
         case 'b':
-          if (left !== 'b' && cell(tx, ty - 1) !== 'b') bed(b, x, y);
+          if (left !== 'b' && cell(tx, ty - 1) !== 'b') (room.place === 'washitsu' ? futon : bed)(b, x, y);
+          break;
+        case '~':
+          hotWater(b, room, tx, ty);
+          break;
+        case 'S':
+          if (room.place === 'onsen') hotWater(b, room, tx, ty);
+          break;
+        case 'q':
+          washPlace(b, x, y);
+          break;
+        case 'u':
+          if (left !== 'u') {
+            let n = 1;
+            while (cell(tx + n, ty) === 'u') n++;
+            showcase(b, x, y, n);
+          }
           break;
         case 'w':
           if (left !== 'w') lowTable(b, x, y);
@@ -202,6 +221,21 @@ export function drawRoom(room: RoomDef, measure: Measure): RoomArt {
       counter(front, b, tx * TILE, ty * TILE, n, theme);
       for (let i = 0; i < n; i++) if (cell(tx + i, ty) === 'm') register(front, (tx + i) * TILE, ty * TILE);
     }
+
+  // In the bath, whoever is soaking is in the water up to the shoulders, and steam rises.
+  if (room.place === 'onsen') {
+    for (let ty = 0; ty < ROOM_ROWS; ty++)
+      for (let tx = 0; tx < ROOM_COLS; tx++) {
+        if (cell(tx, ty) !== 'S') continue;
+        const x = tx * TILE;
+        const y = ty * TILE;
+        front.rect(x, y + 8, TILE, 8, 'water');
+        front.rect(x, y + 8, TILE, 1, 'waterHi');
+        front.rect(x + 3, y + 11, 4, 1, 'waterHi');
+        front.rect(x + 10, y + 13, 3, 1, 'waterHi');
+      }
+    for (let i = 0; i < 9; i++) steam(front, 2 * TILE + 8 + i * 29 + (i % 2) * 7, 4 * TILE + 2 + (i % 3) * 6);
+  }
 
   return { base: b, front, signs };
 }
@@ -325,6 +359,46 @@ function decorate(b: Buf, signs: SignSpot[], measure: Measure, room: RoomDef, th
         b.box(lx, mid + 3, 6, 9, 'lantern');
         b.rect(lx + 1, mid + 4, 1, 7, 'lanternSh');
       }
+      break;
+    case 'ryokan': {
+      signAt(10 * TILE + 8);
+      // The stairs up to the rooms, and the way through to the bath behind its noren.
+      const stairs = room.rows.findIndex((row) => row.includes('1'));
+      const bath = room.rows.findIndex((row) => row.includes('2'));
+      if (stairs >= 0) stairway(b, signs, measure, room.rows[stairs]!.indexOf('1') * TILE, wallY, wallH);
+      if (bath >= 0) bathDoor(b, signs, measure, room.rows[bath]!.indexOf('2') * TILE, wallY, wallH);
+      // Hanging scrolls either side of the desk.
+      for (const tx of [7, 13]) scroll(b, tx * TILE + 4, mid + 1);
+      // The entrance: a stone floor to leave your shoes on, with slippers set out on the step.
+      const d = room.rows.findIndex((row) => row.includes('D'));
+      if (d > 0) {
+        const dx = room.rows[d]!.indexOf('D');
+        const gy = (d - 1) * TILE;
+        b.rect((dx - 1) * TILE, gy, 3 * TILE, TILE, 'stone');
+        for (let x = (dx - 1) * TILE; x < (dx + 2) * TILE; x += 8) b.rect(x, gy + 7, 1, 9, 'stoneSh');
+        b.rect((dx - 1) * TILE, gy, 3 * TILE, 2, 'woodSh');
+        b.rect((dx - 1) * TILE, gy, 3 * TILE, 1, 'out');
+        for (const sx of [(dx - 1) * TILE + 2, (dx + 1) * TILE + 4]) {
+          b.box(sx, gy - 6, 4, 6, 'roofE');
+          b.box(sx + 5, gy - 6, 4, 6, 'roofE');
+        }
+      }
+      break;
+    }
+    case 'washitsu': {
+      // An alcove with a hanging scroll and a vase, and a window on the mountains.
+      const ax = 5 * TILE;
+      b.rect(ax, wallY + 4, 2 * TILE, wallH - 8, 'creamSh');
+      b.rect(ax, wallY + wallH - 6, 2 * TILE, 2, 'wood');
+      scroll(b, ax + 10, mid + 1);
+      b.box(ax + 24, wallY + wallH - 13, 5, 7, 'roofB');
+      b.rect(ax + 26, wallY + wallH - 19, 1, 6, 'leafSh');
+      b.rect(ax + 24, wallY + wallH - 20, 2, 2, 'flowerA');
+      mountainWindow(b, 10 * TILE + 4, mid + 1, 3 * TILE + 8, 22);
+      break;
+    }
+    case 'onsen':
+      fujiMural(b, 2 * TILE, wallY + 4, 16 * TILE, wallH - 8);
       break;
     case 'home': {
       windowPane(b, 7 * TILE + 6, mid + 3, 30, 18);
@@ -551,6 +625,139 @@ function lowTable(b: Buf, x: number, y: number): void {
   b.box(x + 21, y + 5, 3, 3, 'white');
 }
 
+// ------------------------------------------------------------------ the ryokan
+
+/** A hanging scroll: a strip of paper with a few brush strokes, on a wooden rod. */
+function scroll(b: Buf, x: number, y: number): void {
+  b.box(x, y, 9, 22, 'white');
+  b.rect(x - 1, y, 11, 2, 'woodSh');
+  b.rect(x - 1, y + 21, 11, 2, 'woodSh');
+  b.rect(x + 4, y + 5, 1, 6, 'ink');
+  b.rect(x + 3, y + 13, 3, 1, 'ink');
+  b.rect(x + 4, y + 14, 1, 4, 'ink');
+}
+
+/** The stairs up, in an opening in the back wall, with a board saying where they go. */
+function stairway(b: Buf, signs: SignSpot[], measure: Measure, x: number, wallY: number, wallH: number): void {
+  const bottom = wallY + wallH;
+  b.rect(x - 2, wallY + 4, TILE + 4, wallH - 4, 'woodSh');
+  b.rect(x, wallY + 6, TILE, wallH - 6, 'darkSh');
+  // Steps climbing away into the dark.
+  for (let i = 0; i < 4; i++) {
+    const sy = bottom - 3 - i * 4;
+    b.rect(x + 1, sy, TILE - 2, 3, i % 2 ? 'wood' : 'woodHi');
+    b.rect(x + 1, sy + 2, TILE - 2, 1, 'woodSh');
+  }
+  b.rect(x, bottom, TILE, 4, 'woodHi');
+  signBoard(b, signs, measure, x + TILE / 2, wallY + 2, '二階');
+}
+
+/** The way to the bath: a doorway with an indigo noren. */
+function bathDoor(b: Buf, signs: SignSpot[], measure: Measure, x: number, wallY: number, wallH: number): void {
+  const bottom = wallY + wallH;
+  b.rect(x - 2, wallY + 4, TILE + 4, wallH - 4, 'woodSh');
+  b.rect(x, wallY + 6, TILE, wallH - 6, 'darkSh');
+  for (let i = 0; i < 2; i++) {
+    const nx = x + 1 + i * 7;
+    b.box(nx, wallY + 17, 7, 11, i ? 'norenSh' : 'noren');
+  }
+  // ゆ, the sign for hot water, in white on the curtain.
+  b.rect(x + 4, wallY + 20, 1, 5, 'white');
+  b.rect(x + 4, wallY + 20, 6, 1, 'white');
+  b.rect(x + 9, wallY + 20, 1, 5, 'white');
+  b.rect(x + 7, wallY + 19, 1, 7, 'white');
+  b.rect(x + 5, wallY + 26, 2, 1, 'white');
+  signBoard(b, signs, measure, x + TILE / 2, wallY + 2, '温泉');
+  void bottom;
+}
+
+/** A window with the mountains beyond, in a paper-screen frame. */
+function mountainWindow(b: Buf, x: number, y: number, w: number, h: number): void {
+  b.box(x, y, w, h, 'glass');
+  b.shape(x + 2, y + 6, w - 4, h - 7, (i, j) => j > Math.abs(i - (w - 4) * 0.6) * 0.5 - 1 || j > h - 12, (i, j) => (j < 4 && Math.abs(i - (w - 4) * 0.6) < 4 ? 'white' : j > h - 12 ? 'leafSh' : 'roofE'));
+  for (let i = 1; i < 3; i++) b.rect(x + Math.round((w * i) / 3), y, 1, h, 'wood');
+  b.rect(x, y, w, 1, 'wood');
+  b.rect(x, y + h - 1, w, 1, 'wood');
+}
+
+/** The bathhouse painting of Mount Fuji over a lake, across the whole back wall. */
+function fujiMural(b: Buf, x: number, y: number, w: number, h: number): void {
+  for (let j = 0; j < h; j++) b.rect(x, y + j, w, 1, j < h / 3 ? 'glass' : 'glassHi');
+  const peak = x + Math.round(w * 0.55);
+  const base = y + h - 6;
+  b.shape(peak - 48, y + 2, 97, base - y - 1, (i, j) => Math.abs(i - 48) <= 8 + j * 1.6, (i, j) => (j < 7 ? 'white' : j < 9 && (i % 5) < 3 ? 'white' : 'roofB'));
+  // Green hills in front, then the lake.
+  b.shape(x, base - 8, Math.round(w * 0.35), 9, (i, j) => j >= Math.abs(i - w * 0.17) * 0.18, () => 'leaf');
+  b.shape(x + Math.round(w * 0.7), base - 7, Math.round(w * 0.3), 8, (i, j) => j >= Math.abs(i - w * 0.15) * 0.16, () => 'leafSh');
+  b.rect(x, base, w, 6, 'water');
+  for (let i = 4; i < w; i += 13) b.rect(x + i, base + 2 + (i % 2), 5, 1, 'waterHi');
+  b.rect(x, y, w, 1, 'out');
+  b.rect(x, y + h - 1, w, 1, 'out');
+}
+
+/** Hot water in a bath: a stone rim where it meets the floor, and slow ripples. */
+function hotWater(b: Buf, room: RoomDef, tx: number, ty: number): void {
+  const x = tx * TILE;
+  const y = ty * TILE;
+  const wet = (i: number, j: number) => cellAt(room, i, j) === '~' || cellAt(room, i, j) === 'S';
+  b.rect(x, y, TILE, TILE, 'water');
+  if (hash(tx, ty, 2) < 0.6) b.rect(x + 2 + Math.floor(hash(tx, ty, 3) * 8), y + 4 + Math.floor(hash(tx, ty, 4) * 8), 5, 1, 'waterHi');
+  if (!wet(tx, ty + 1)) {
+    b.rect(x, y + TILE - 4, TILE, 4, 'stone');
+    b.rect(x, y + TILE - 4, TILE, 1, 'out');
+    b.rect(x, y + TILE - 1, TILE, 1, 'stoneSh');
+  }
+  if (!wet(tx - 1, ty)) b.rect(x, y, 3, TILE, 'stone');
+  if (!wet(tx + 1, ty)) b.rect(x + TILE - 3, y, 3, TILE, 'stone');
+}
+
+/** A wisp of steam rising off the water. */
+function steam(b: Buf, x: number, y: number): void {
+  for (let i = 0; i < 6; i++) {
+    const sx = x + Math.round(Math.sin(i * 1.3) * 2);
+    if ((i + x) % 3 === 0) continue;
+    b.set(sx, y - i * 2, 'white');
+  }
+}
+
+/** A place to wash before getting in: a tap and mirror on the wall side, a stool and a bucket. */
+function washPlace(b: Buf, x: number, y: number): void {
+  b.box(x + 3, y - 10, 10, 7, 'glassHi');
+  b.rect(x + 7, y - 3, 2, 3, 'stoneSh');
+  b.rect(x + 6, y - 1, 4, 1, 'out');
+  b.ellipseShadow(x + 8, y + 13, 6, 2);
+  b.box(x + 2, y + 6, 8, 6, 'woodHi');
+  b.rect(x + 3, y + 11, 1, 3, 'woodSh');
+  b.rect(x + 8, y + 11, 1, 3, 'woodSh');
+  b.box(x + 10, y + 7, 5, 5, 'wood');
+  b.rect(x + 10, y + 9, 5, 1, 'woodSh');
+}
+
+/** The ryokan's little shop: a glass case of boxed sweets and wood mosaic boxes. */
+function showcase(b: Buf, x: number, y: number, n: number): void {
+  const w = n * TILE;
+  b.ellipseShadow(x + w / 2, y + 14, w / 2, 2);
+  b.box(x, y + 2, w, 12, 'woodSh');
+  b.box(x + 1, y - 6, w - 2, 10, 'glass');
+  b.rect(x + 2, y - 5, w - 4, 1, 'glassHi');
+  const things: Role[] = ['roofG', 'wood', 'white', 'roofF', 'woodHi', 'roofG'];
+  for (let i = 0; i < Math.floor((w - 4) / 6); i++) {
+    const c = things[i % things.length]!;
+    b.box(x + 3 + i * 6, y - 2, 5, 5, c);
+    if (c === 'wood' || c === 'woodHi') b.rect(x + 4 + i * 6, y, 3, 1, 'woodSh');
+  }
+}
+
+/** A futon laid out on the tatami: a white mattress, a pillow and a patterned quilt. */
+function futon(b: Buf, x: number, y: number): void {
+  for (let i = 1; i < 31; i++) b.shadow(x + i, y + 31);
+  b.box(x + 1, y, 30, 31, 'white');
+  b.box(x + 9, y + 2, 14, 6, 'tatamiSh');
+  b.box(x + 2, y + 10, 28, 20, 'roofBHi');
+  b.rect(x + 3, y + 11, 26, 2, 'white');
+  for (let i = 0; i < 24; i += 6) for (let j = 0; j < 14; j += 6) b.rect(x + 5 + i + (j % 12 ? 3 : 0), y + 15 + j, 2, 2, 'roofB');
+}
+
 // ------------------------------------------------------------------ your room
 
 /** Rows of charms on red cloth, at the shrine's counter. */
@@ -716,6 +923,27 @@ export const KEEPSAKE_ART: Record<string, Mini> = {
     b.box(x, base - 4, 7, 4, 'stationWall');
     b.rect(x + 1, base - 3, 5, 1, 'roofB');
     b.set(x + 5, base - 2, 'ink');
+  },
+  // From the ryokan in 箱根: the tenugui from your room, folded; a wood mosaic box; a box of hot-spring buns.
+  tenugui: (b, x, base) => {
+    b.box(x, base - 4, 7, 4, 'noren');
+    b.rect(x + 1, base - 3, 1, 1, 'white');
+    b.rect(x + 3, base - 2, 1, 1, 'white');
+    b.rect(x + 5, base - 3, 1, 1, 'white');
+  },
+  yosegi: (b, x, base) => {
+    b.box(x, base - 5, 7, 5, 'woodHi');
+    b.rect(x + 1, base - 4, 1, 1, 'trunkSh');
+    b.rect(x + 3, base - 4, 1, 1, 'trunkSh');
+    b.rect(x + 5, base - 4, 1, 1, 'trunkSh');
+    b.rect(x + 2, base - 3, 1, 1, 'wood');
+    b.rect(x + 4, base - 3, 1, 1, 'wood');
+    b.rect(x + 1, base - 2, 5, 1, 'woodSh');
+  },
+  manju: (b, x, base) => {
+    b.box(x, base - 3, 7, 3, 'white');
+    b.shape(x + 1, base - 5, 2, 2, () => true, () => 'dirt');
+    b.shape(x + 4, base - 5, 2, 2, () => true, () => 'dirt');
   },
   // From the souvenir shop in 鎌倉: a box of sweets tied with a ribbon.
   okashi: (b, x, base) => {

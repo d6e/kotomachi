@@ -9,13 +9,15 @@ import { Learner, type WordStatus } from '../learner/model.ts';
 import { finishRun, greetSlots, MODE_NAMES, periodOf, ScenarioRun } from '../scenario/engine.ts';
 import type { Mode, NpcId, PlaceId, ScenarioDef, VariantDef } from '../scenario/types.ts';
 import { Town, type Interactable, type Said } from '../town/town.ts';
-import type { Scene } from '../town/rooms.ts';
+import { washitsuFor, type Scene } from '../town/rooms.ts';
+import type { DoorPlace } from '../town/map.ts';
 import { toCanvas } from '../town/pixels.ts';
 import { drawScene } from '../town/scenes.ts';
 import { drawMemory, isMemoryArt } from '../town/memoryart.ts';
 import { itemIcon } from '../town/roomart.ts';
 import { allKeepsakes, canOrder, CATALOG, catalogById, homeRoom } from './room.ts';
-import { ARRIVAL, canTravel, LAST_TRAIN_OUT, ON_SALE, SOUVENIRS, TRIP_MINUTES, type Trip } from './trips.ts';
+import { ARRIVAL, canTravel, LAST_TRAIN_OUT, ON_SALE, rideMinutes, SOUVENIRS, type Trip } from './trips.ts';
+import { canWaitForDinner, checkIn, checkInVariant, checkOut, CHECK_IN_FROM, CHECK_IN_UNTIL, frontDesk, inYukata, keptOut, roomScenario, roomState, spendable, stayPhase, STAY_PRICE, trainHomeBlocked } from './ryokan.ts';
 import { belongings, goodById, goodFor, receive, shelve, SHELF_SIZE, unshelve } from './inventory.ts';
 import { addPoints, canGiveToday, chatPoints, finishInvite, friendAt, friendById, FRIENDS, GIFT_POINTS, give, heartsFor, inviteReady, inviteScenario, isFriend, MAX_HEARTS, photoId, PHOTOS, POINTS, pointsOf, tasteOf, toNextHeart, type FriendId, type HeartChange, type InviteDef, type Taste } from './friends.ts';
 import { DialogueView } from '../ui/dialogue.ts';
@@ -35,10 +37,11 @@ const yen = (n: number): string => `¥${n.toLocaleString('en-US')}`;
 const PLACE_NAMES: Record<string, string> = {
   cafe: 'Cafe', konbini: 'Konbini', pharmacy: 'Pharmacy', restaurant: 'Restaurant', station: 'Station', post: 'Post office', street: 'Street',
   shrine: 'Shrine in Kamakura', omiyage: 'Souvenir shop in Kamakura', matsuri: 'Festival in the park',
+  hakone: 'Hakone', ryokan: 'Ryokan in Hakone', washitsu: 'Your room at the ryokan', onsen: 'The big bath at the ryokan',
 };
 const SCENARIO_FOR: Partial<Record<Scene, string>> = {
   cafe: 'cafe_order', konbini: 'konbini_buy', pharmacy: 'pharmacy_buy', restaurant: 'restaurant_eat', station: 'station_ticket', post: 'post_send',
-  shrine: 'shrine_visit', omiyage: 'omiyage_buy',
+  shrine: 'shrine_visit', omiyage: 'omiyage_buy', onsen: 'onsen_bath',
 };
 /** In-game minutes per real second of walking around town. */
 const MINUTES_PER_SECOND = 1;
@@ -94,8 +97,17 @@ export class Game {
       neighborAvailable: () => (!this.g.today.greeted || !!inviteReady(this.g, 'tanaka')) && this.g.minutes < 21 * 60,
       busy: () => this.phase !== 'town' || this.notebook.open || this.popup.open,
       staffName: (npc) => (npcs[npc as keyof typeof npcs] ? plainText(parseLine(npcs[npc as keyof typeof npcs].name, vocab)) : ''),
-      thingName: (id) => ({ catalog: 'カタログ', shelf: '棚', tickets: '切符' })[id],
+      thingName: (id) => ({ catalog: 'カタログ', shelf: '棚', tickets: '切符', baiten: '売店', rest: 'ゆっくり' })[id],
       chatter: (who) => this.chatterFor(who),
+      mayEnter: (place) => {
+        const why = keptOut(this.g, place, this.g.minutes);
+        if (why) {
+          this.toast(why);
+          return false;
+        }
+        this.refreshStay();
+        return true;
+      },
     });
     const game = this;
     this.popup = new Popup(root, {
@@ -132,9 +144,11 @@ export class Game {
     if (this.phase === 'town' && !busy && walked > 0) {
       this.g.minutes += dt * MINUTES_PER_SECOND;
       if (this.g.minutes >= DAY_END) {
-        this.toast("It's late. You head home.");
+        this.toast(stayPhase(this.g) === 'tonight' ? "It's late. You turn in for the night at the ryokan." : "It's late. You head home.");
         this.goToNight();
       }
+      // Dinner time can come round while you walk about your room.
+      if (this.town.scene === 'washitsu') this.refreshStay();
     }
     this.town.setMinutes(this.g.minutes);
     this.town.render(dt);
@@ -240,7 +254,7 @@ export class Game {
   // ------------------------------------------------------------------ HUD
 
   private renderHud(force = false): void {
-    const key = `${this.phase}|${Math.floor(this.g.minutes / 10)}|${this.g.money}|${this.g.xp}|${this.g.errands.map((e) => (e.done ? 1 : e.missed ? 2 : 0)).join()}|${this.g.day}`;
+    const key = `${this.phase}|${Math.floor(this.g.minutes / 10)}|${this.g.money}|${this.g.xp}|${this.g.errands.map((e) => (e.done ? 1 : e.missed ? 2 : 0)).join()}|${this.g.day}|${stayPhase(this.g)}`;
     if (!force && key === this.hudKey) return;
     this.hudKey = key;
     clear(this.hud);
@@ -260,7 +274,9 @@ export class Game {
           h('span', { class: 'xpbar', 'aria-hidden': 'true' }, h('i', { style: `width:${Math.round(levelProgress(this.g.xp) * 100)}%` })),
         ),
         h('button', { class: 'hud-btn', onclick: () => this.openNotebook(), title: 'Notebook (N)' }, 'Notebook'),
-        h('button', { class: 'hud-btn', onclick: () => this.confirmSleep(), title: 'Go home and sleep' }, 'Go home'),
+        stayPhase(this.g) === 'tonight'
+          ? h('button', { class: 'hud-btn', onclick: () => this.confirmSleep(), title: 'Go to bed at the ryokan' }, 'Go to bed')
+          : h('button', { class: 'hud-btn', onclick: () => this.confirmSleep(), title: 'Go home and sleep' }, 'Go home'),
       ),
     );
     // The errands list is for walking around; during a conversation it would sit under the panel.
@@ -300,7 +316,9 @@ export class Game {
     this.learner = new Learner(this.g.learner, vocab);
     this.refreshHome();
     this.town.invalidate();
-    this.town.resetPlayer();
+    // A night at the ryokan that's long over (from a save that skipped a day) is dropped.
+    if (this.g.stay && stayPhase(this.g) === 'none') delete this.g.stay;
+    this.wake();
     this.setDay();
     if (this.g.errands.length === 0) this.planDay();
     this.showMorning();
@@ -319,7 +337,9 @@ export class Game {
     const due = this.learner.dueWords(this.g.day).length;
     this.showScreen(
       h('h2', {}, `Day ${this.g.day} · Morning`),
-      h('p', {}, this.g.day === 1
+      h('p', {}, stayPhase(this.g) === 'morning'
+        ? 'You wake up on the futon at the ryokan in 箱根, and breakfast (朝ご飯) is brought to your room. Check out at the front desk before you take the train home.'
+        : this.g.day === 1
         ? 'You just moved into an apartment on this shopping street, and your new neighbours already have a few favours to ask.'
         : due > 0
           ? `${due} word${due === 1 ? ' is' : 's are'} due for review. Today's errands were picked to bring them up.`
@@ -333,9 +353,16 @@ export class Game {
         h('div', { class: 'req-task' }, h('span', { class: 'box' }), this.tokens(e.text)),
       ))),
       h('p', { class: 'muted' }, 'Tap a word you don\'t know. Each errand pays back what you spend, plus a reward. Opening hours: cafe 8:00–18:00, pharmacy 9:00–19:00, post office 9:00–17:00, restaurant 11:00–22:00. The konbini and the station are always open.'
-        + (levelFor(this.g.xp) >= ON_SALE[0]!.level ? ' Trains to 鎌倉 leave the station until 17:00.' : '')),
+        + this.trainNote()),
       h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => this.goToTown() }, 'Head out ▶')),
     );
+  }
+
+  /** Where the trains go, once you can buy a ticket. */
+  private trainNote(): string {
+    const towns = ON_SALE.filter((t) => levelFor(this.g.xp) >= t.level).map((t) => t.name);
+    if (!towns.length) return '';
+    return ` Trains to ${towns.join(' and ')} leave the station until ${formatClock(LAST_TRAIN_OUT)}.`;
   }
 
   /** Friends who'd like to take you somewhere, and where to find them. */
@@ -420,7 +447,8 @@ export class Game {
   private confirmSleep(): void {
     if (this.phase !== 'town') return;
     const left = this.g.errands.filter((e) => !e.done && !e.missed).length;
-    if (left > 0 && !confirm(`${left} errand${left === 1 ? '' : 's'} left. Go home and end the day?`)) return;
+    const where = stayPhase(this.g) === 'tonight' ? 'Go to bed at the ryokan' : 'Go home';
+    if (left > 0 && !confirm(`${left} errand${left === 1 ? '' : 's'} left. ${where} and end the day?`)) return;
     this.goToNight();
   }
 
@@ -439,6 +467,14 @@ export class Game {
       if (t.id === 'catalog') return this.showCatalog();
       if (t.id === 'shelf') return this.showShelf();
       if (t.id === 'tickets') return this.showTrips();
+      if (t.id === 'baiten') return this.startScenario(scenarioById['ryokan_baiten']!);
+      if (t.id === 'rest') return this.restInRoom();
+      return;
+    }
+    if (t.kind === 'staff' && t.place === 'ryokan') return this.atFrontDesk();
+    if (t.kind === 'staff' && t.place === 'washitsu') {
+      const id = roomScenario(this.g, this.g.minutes);
+      if (id) this.startScenario(scenarioById[id]!);
       return;
     }
     if (t.place === 'home') return this.town.enter('home');
@@ -512,6 +548,11 @@ export class Game {
     const variant = variantOverride ?? def.variants.find((v) => v.id === (variantId ?? errand?.variant ?? unowned)) ?? pickVariant(def, this.learner, vocab, this.g.day + this.g.minutes);
     if (variant.price && variant.price > this.g.money) {
       this.toast("You don't have enough money for that.");
+      return;
+    }
+    // At the ryokan, keep enough back to pay for the night when you check out.
+    if (def.id === 'ryokan_baiten' && variant.price && variant.price > spendable(this.g)) {
+      this.toast(`Keep ${yen(STAY_PRICE)} back for your stay: you pay for the night when you check out.`);
       return;
     }
     const progress = progressFor(this.g, def.id);
@@ -690,7 +731,10 @@ export class Game {
     if (gift || scene || invite || picking) this.pendingUps = [...this.pendingUps, ...ups];
     else this.showLevelUps([...this.pendingUps.splice(0), ...ups]);
     this.addXp(ups.length * XP.levelUp + (errand && !scene ? XP.errand : 0) + (run.clean ? XP.clean : 0));
+    const stayNote = this.afterStayScenario(run);
+    if (stayNote) setTimeout(() => this.toast(stayNote), 1800);
     this.g.minutes = Math.min(DAY_END - 1, this.g.minutes + (invite ? MINUTES_PER_INVITE : MINUTES_PER_SCENARIO));
+    this.refreshStay();
     this.town.invalidate();
     this.phase = 'town';
     this.input.clear();
@@ -935,7 +979,7 @@ export class Game {
         : h('span', { class: `cat-state ${state}` }, state === 'level' ? `Needs Lv ${trip.level}` : state === 'late' ? 'No more trains today' : 'Not enough ¥');
       return h('li', { class: `cat-item trip ${state}` },
         h('div', { class: 'trip-name' }, name),
-        h('div', { class: 'cat-word' }, h('div', { class: 'muted' }, trip.blurb)),
+        h('div', { class: 'cat-word' }, h('div', { class: 'muted' }, `${trip.blurb} ${trip.minutes} minutes each way.`)),
         h('div', { class: 'cat-buy' }, h('div', { class: 'cat-price' }, yen(trip.fare)), action),
       );
     });
@@ -944,7 +988,7 @@ export class Game {
     this.showScreen(
       h('h2', {}, renderTokens(parseLine('切符', vocab), { furigana: ALWAYS })),
       h('p', { class: 'muted' }, 'A return ticket (', renderTokens(label, { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false), isNew: (t) => this.learner.isFresh(t.lemma) }),
-        `) for a day out. The ride is ${TRIP_MINUTES} minutes each way, and the last train out leaves at ${formatClock(LAST_TRAIN_OUT)}. You have ${yen(this.g.money)}.`),
+        `). The last train out leaves at ${formatClock(LAST_TRAIN_OUT)}. You have ${yen(this.g.money)}.`),
       h('ul', { class: 'catalog trips' }, rows),
       h('div', { class: 'row' }, h('button', { onclick: () => this.goToTown() }, 'Close')),
     );
@@ -956,18 +1000,24 @@ export class Game {
     if (!to || canTravel(trip, levelFor(this.g.xp), this.g.money, this.g.minutes) !== 'ok') return;
     this.hideScreen();
     this.addYen(-trip.fare, `-${yen(trip.fare)}`);
-    this.g.minutes += TRIP_MINUTES;
+    this.g.minutes += trip.minutes;
     this.g.today.promotions.push(`You took the train to ${trip.name}.`);
     this.town.enter(to);
     this.phase = 'town';
     this.input.clear();
     this.renderHud(true);
-    this.toast(`${trip.name} に 着きました: you're in ${trip.id[0]!.toUpperCase()}${trip.id.slice(1)}. Walk back onto the platform for the train home.`);
+    this.toast(`${trip.name} に 着きました: you're in ${trip.id[0]!.toUpperCase()}${trip.id.slice(1)}. Walk back onto the platform for the train home.`
+      + (trip.id === 'hakone' ? ` Check-in at the ryokan is ${formatClock(CHECK_IN_FROM)}–${formatClock(CHECK_IN_UNTIL)}.` : ''));
   }
 
   /** The train back from a trip, into the station. */
   private rideHome(): void {
-    this.g.minutes += TRIP_MINUTES;
+    const blocked = trainHomeBlocked(this.g);
+    if (blocked) {
+      this.toast(blocked);
+      return;
+    }
+    this.g.minutes += rideMinutes(this.town.scene);
     if (this.g.minutes >= DAY_END) {
       this.goToNight();
       return;
@@ -975,6 +1025,77 @@ export class Game {
     this.town.enter('station');
     this.toast('Back at the station in ことまち.');
     this.renderHud(true);
+  }
+
+  // ------------------------------------------------------------------ the ryokan
+
+  /** Where a day starts: at home, or on the futon at the ryokan the morning after a night there. */
+  private wake(): void {
+    this.refreshStay();
+    if (stayPhase(this.g) === 'morning') this.town.wakeAt('washitsu');
+    else this.town.resetPlayer();
+  }
+
+  /** Your room at the ryokan and what you're wearing, as the stay has them now. */
+  private refreshStay(): void {
+    this.town.setRoom('washitsu', washitsuFor(roomState(this.g, this.g.minutes)));
+    this.town.setOutfit(inYukata(this.g) ? 'yukata' : 'clothes');
+  }
+
+  /** Talking to the 女将 at the front desk: check in, check out, or a word about your stay. */
+  private atFrontDesk(): void {
+    const desk = frontDesk(this.g, this.g.minutes);
+    if (desk === 'checkin') return this.startScenario(scenarioById['ryokan_checkin']!, checkInVariant(this.g.minutes));
+    if (desk === 'checkout') return this.startScenario(scenarioById['ryokan_checkout']!, 'stay');
+    if (desk === 'staying') {
+      const dinner = this.g.stay && !this.g.stay.dined ? ` Dinner is at ${formatClock(this.g.stay.dinner)}, in your room.` : '';
+      return this.toast(`Your room is upstairs (二階), and the big bath is through the noren (温泉).${dinner}`);
+    }
+    if (desk === 'early') return this.toast(`Check-in starts at ${formatClock(CHECK_IN_FROM)}. Have a look around and come back then.`);
+    if (desk === 'late') return this.toast(`It's too late to check in tonight: the last check-in is at ${formatClock(CHECK_IN_UNTIL)}.`);
+    this.toast(`A night here is ${yen(STAY_PRICE)} with dinner and breakfast, paid when you check out. You have ${yen(this.g.money)}.`);
+  }
+
+  /** At the low table in your room: wait for dinner, or just sit a while. */
+  private restInRoom(): void {
+    if (canWaitForDinner(this.g, this.g.minutes) && this.g.stay) {
+      this.g.minutes = this.g.stay.dinner;
+      this.refreshStay();
+      this.renderHud(true);
+      this.toast(`You drink tea and watch the mountains until ${formatClock(this.g.stay.dinner)}. Someone knocks: dinner is here.`);
+      return;
+    }
+    if (stayPhase(this.g) === 'morning') return this.toast('Breakfast is finished. Check out at the front desk downstairs when you are ready.');
+    if (this.g.stay?.dined) return this.toast('The futon is laid out. Go to bed when you are ready, or have one more bath first.');
+    this.toast('You sit at the low table for a while.');
+  }
+
+  /** What a finished conversation at the ryokan changes about your stay, and what to say about it. */
+  private afterStayScenario(run: ScenarioRun): string | null {
+    const id = run.def.id;
+    if (id === 'ryokan_checkin' && run.ended) {
+      const stay = checkIn(this.g, this.g.minutes);
+      // Dinner is when the conversation said it would be.
+      stay.dinner = run.variant.id === 'six' ? 18 * 60 : 19 * 60;
+      this.g.today.promotions.push('You checked in at the ryokan in 箱根.');
+      return `Checked in. Your room is upstairs (二階): someone will show you round. Dinner is at ${formatClock(stay.dinner)}.`;
+    }
+    if (!this.g.stay) return null;
+    if (id === 'ryokan_room' && run.ended) {
+      this.g.stay.shown = true;
+      return `You change into the yukata, left over right. The big bath is downstairs (温泉), and dinner comes at ${formatClock(this.g.stay.dinner)}. Sit at the low table to wait for it.`;
+    }
+    if (id === 'ryokan_dinner' && run.ended) {
+      this.g.stay.dined = true;
+      return 'The futon is laid out. Go to bed when you are ready, or have one more bath first.';
+    }
+    // Once the bill is paid you've checked out, even if you didn't stay for the goodbyes.
+    if (id === 'ryokan_checkout' && (run.ended || run.moneySpent > 0)) {
+      checkOut(this.g);
+      this.g.today.promotions.push(`A night at the ryokan in 箱根 (${yen(STAY_PRICE)}).`);
+      return 'Checked out. You change back into your own clothes. The train home leaves from the platform.';
+    }
+    return null;
   }
 
   /** The end of a regular's story: their thanks and a keepsake. */
@@ -1159,13 +1280,21 @@ export class Game {
   private sleep(): void {
     this.combo = 0;
     this.shownDone.clear();
+    // A whole day went by after a night at the ryokan without checking out: the bill is settled for you.
+    let settled = false;
+    if (stayPhase(this.g) === 'morning') {
+      this.g.money = Math.max(0, this.g.money - STAY_PRICE);
+      checkOut(this.g);
+      settled = true;
+    }
     this.g.day += 1;
     this.g.minutes = DAY_START;
     this.g.today = newDayLog(this.g.friendship);
+    if (settled) this.g.today.promotions.push(`The ryokan put your night's stay (${yen(STAY_PRICE)}) on your card.`);
     this.planDay();
     const ok = save(this.g);
     this.town.invalidate();
-    this.town.resetPlayer();
+    this.wake();
     this.setDay();
     this.showMorning();
     if (!ok) this.toast("Couldn't save in this browser (storage is blocked). You can keep playing.");
@@ -1229,7 +1358,7 @@ export class Game {
   }
 
   /** Teleport to a door on the street (play-test helper). */
-  debugTownDoor(place: Exclude<Scene, 'kamakura' | 'shrine' | 'omiyage'>): void {
+  debugTownDoor(place: DoorPlace): void {
     this.town.debugTownDoor(place);
   }
 

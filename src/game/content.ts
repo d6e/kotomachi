@@ -22,6 +22,12 @@ import inviteMori from '../../data/scenarios/invite_mori.json' with { type: 'jso
 import inviteServer from '../../data/scenarios/invite_server.json' with { type: 'json' };
 import inviteKobayashi from '../../data/scenarios/invite_kobayashi.json' with { type: 'json' };
 import gift from '../../data/scenarios/gift.json' with { type: 'json' };
+import ryokanCheckin from '../../data/scenarios/ryokan_checkin.json' with { type: 'json' };
+import ryokanRoom from '../../data/scenarios/ryokan_room.json' with { type: 'json' };
+import ryokanDinner from '../../data/scenarios/ryokan_dinner.json' with { type: 'json' };
+import onsen from '../../data/scenarios/onsen.json' with { type: 'json' };
+import ryokanCheckout from '../../data/scenarios/ryokan_checkout.json' with { type: 'json' };
+import ryokanBaiten from '../../data/scenarios/ryokan_baiten.json' with { type: 'json' };
 import chatterJson from '../../data/chatter.json' with { type: 'json' };
 import requestsJson from '../../data/requests.json' with { type: 'json' };
 import consequencesJson from '../../data/consequences.json' with { type: 'json' };
@@ -43,6 +49,7 @@ export const npcs: Record<NpcId, NpcDef> = Object.fromEntries(
 export const scenarios: ScenarioDef[] = [
   cafe, konbini, pharmacy, restaurant, station, post, neighbor, catalog, shrine, omiyage, festival,
   inviteYuki, inviteTanaka, inviteMori, inviteServer, inviteKobayashi, gift,
+  ryokanCheckin, ryokanRoom, ryokanDinner, onsen, ryokanCheckout, ryokanBaiten,
 ] as unknown as ScenarioDef[];
 export const scenarioById: Record<string, ScenarioDef> = Object.fromEntries(scenarios.map((s) => [s.id, s]));
 /** The regulars' stories and everyday requests. */

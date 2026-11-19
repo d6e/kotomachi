@@ -2776,5 +2776,485 @@
   "reading": "にわ",
   "meaning": "garden, yard",
   "pos": "noun"
+ },
+ {
+  "id": "女将",
+  "reading": "おかみ",
+  "meaning": "the landlady who runs a ryokan",
+  "pos": "noun"
+ },
+ {
+  "id": "仲居",
+  "reading": "なかい",
+  "meaning": "a ryokan room attendant",
+  "pos": "noun"
+ },
+ {
+  "id": "鈴木",
+  "reading": "すずき",
+  "meaning": "Suzuki (a family name): a guest at the ryokan",
+  "pos": "name"
+ },
+ {
+  "id": "予約",
+  "reading": "よやく",
+  "meaning": "reservation, booking",
+  "pos": "noun"
+ },
+ {
+  "id": "お客様",
+  "reading": "おきゃくさま",
+  "meaning": "guest, customer (very polite)",
+  "pos": "noun"
+ },
+ {
+  "id": "今晩",
+  "reading": "こんばん",
+  "meaning": "tonight, this evening",
+  "pos": "noun"
+ },
+ {
+  "id": "一泊",
+  "reading": "いっぱく",
+  "meaning": "one night's stay",
+  "pos": "noun"
+ },
+ {
+  "id": "二食",
+  "reading": "にしょく",
+  "meaning": "two meals",
+  "pos": "noun"
+ },
+ {
+  "id": "付き",
+  "reading": "つき",
+  "meaning": "with, included",
+  "pos": "suffix"
+ },
+ {
+  "id": "九千八百",
+  "reading": "きゅうせんはっぴゃく",
+  "meaning": "9,800",
+  "pos": "noun"
+ },
+ {
+  "id": "支払い",
+  "reading": "しはらい",
+  "meaning": "payment",
+  "pos": "noun"
+ },
+ {
+  "id": "夕食",
+  "reading": "ゆうしょく",
+  "meaning": "dinner, the evening meal",
+  "pos": "noun"
+ },
+ {
+  "id": "いえ",
+  "reading": "いえ",
+  "meaning": "no (softer than いいえ)",
+  "pos": "interjection"
+ },
+ {
+  "id": "いえいえ",
+  "reading": "いえいえ",
+  "meaning": "no, no (not at all)",
+  "pos": "interjection"
+ },
+ {
+  "id": "ああ",
+  "reading": "ああ",
+  "meaning": "ah, oh I see",
+  "pos": "interjection"
+ },
+ {
+  "id": "靴",
+  "reading": "くつ",
+  "meaning": "shoes",
+  "pos": "noun"
+ },
+ {
+  "id": "脱ぐ",
+  "reading": "ぬぐ",
+  "meaning": "to take off (clothes, shoes)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "履く",
+  "reading": "はく",
+  "meaning": "to put on (shoes, trousers)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "スリッパ",
+  "reading": "すりっぱ",
+  "meaning": "slippers",
+  "pos": "noun"
+ },
+ {
+  "id": "分かる",
+  "reading": "わかる",
+  "meaning": "to understand, to know",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "中",
+  "reading": "なか",
+  "meaning": "inside",
+  "pos": "noun"
+ },
+ {
+  "id": "二階",
+  "reading": "にかい",
+  "meaning": "second floor (one floor up)",
+  "pos": "noun"
+ },
+ {
+  "id": "一階",
+  "reading": "いっかい",
+  "meaning": "ground floor",
+  "pos": "noun"
+ },
+ {
+  "id": "鍵",
+  "reading": "かぎ",
+  "meaning": "key",
+  "pos": "noun"
+ },
+ {
+  "id": "失礼",
+  "reading": "しつれい",
+  "meaning": "rudeness; 失礼します = excuse me",
+  "pos": "na-adjective"
+ },
+ {
+  "id": "温泉まんじゅう",
+  "reading": "おんせんまんじゅう",
+  "meaning": "a steamed bun sold at hot springs",
+  "pos": "noun"
+ },
+ {
+  "id": "ようかん",
+  "reading": "ようかん",
+  "meaning": "sweet red-bean jelly",
+  "pos": "noun"
+ },
+ {
+  "id": "浴衣",
+  "reading": "ゆかた",
+  "meaning": "yukata, a light cotton kimono",
+  "pos": "noun"
+ },
+ {
+  "id": "着方",
+  "reading": "きかた",
+  "meaning": "how to wear (something)",
+  "pos": "noun"
+ },
+ {
+  "id": "教える",
+  "reading": "おしえる",
+  "meaning": "to teach, to show how",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "着る",
+  "reading": "きる",
+  "meaning": "to wear, to put on (clothes)",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "左",
+  "reading": "ひだり",
+  "meaning": "left",
+  "pos": "noun"
+ },
+ {
+  "id": "右",
+  "reading": "みぎ",
+  "meaning": "right",
+  "pos": "noun"
+ },
+ {
+  "id": "上",
+  "reading": "うえ",
+  "meaning": "on top, above",
+  "pos": "noun"
+ },
+ {
+  "id": "帯",
+  "reading": "おび",
+  "meaning": "sash (for a kimono or yukata)",
+  "pos": "noun"
+ },
+ {
+  "id": "結ぶ",
+  "reading": "むすぶ",
+  "meaning": "to tie",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "だめ",
+  "reading": "だめ",
+  "meaning": "no good, not allowed",
+  "pos": "na-adjective"
+ },
+ {
+  "id": "大浴場",
+  "reading": "だいよくじょう",
+  "meaning": "the big shared bath",
+  "pos": "noun"
+ },
+ {
+  "id": "十二時",
+  "reading": "じゅうにじ",
+  "meaning": "twelve o'clock",
+  "pos": "noun"
+ },
+ {
+  "id": "入る",
+  "reading": "はいる",
+  "meaning": "to go in, to get in (a bath)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "刺身",
+  "reading": "さしみ",
+  "meaning": "sashimi, sliced raw fish",
+  "pos": "noun"
+ },
+ {
+  "id": "天ぷら",
+  "reading": "てんぷら",
+  "meaning": "tempura",
+  "pos": "noun"
+ },
+ {
+  "id": "ビール",
+  "reading": "びーる",
+  "meaning": "beer",
+  "pos": "noun"
+ },
+ {
+  "id": "日本酒",
+  "reading": "にほんしゅ",
+  "meaning": "sake",
+  "pos": "noun"
+ },
+ {
+  "id": "苦手",
+  "reading": "にがて",
+  "meaning": "something you don't like or are bad at",
+  "pos": "na-adjective"
+ },
+ {
+  "id": "もの",
+  "reading": "もの",
+  "meaning": "thing",
+  "pos": "noun"
+ },
+ {
+  "id": "ない",
+  "reading": "ない",
+  "meaning": "not (plain negative)",
+  "pos": "adj (i)"
+ },
+ {
+  "id": "味",
+  "reading": "あじ",
+  "meaning": "taste, flavour",
+  "pos": "noun"
+ },
+ {
+  "id": "布団",
+  "reading": "ふとん",
+  "meaning": "futon",
+  "pos": "noun"
+ },
+ {
+  "id": "敷く",
+  "reading": "しく",
+  "meaning": "to lay out (a futon)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "お湯",
+  "reading": "おゆ",
+  "meaning": "hot water; the bath water",
+  "pos": "noun"
+ },
+ {
+  "id": "洗う",
+  "reading": "あらう",
+  "meaning": "to wash",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "先",
+  "reading": "さき",
+  "meaning": "first, ahead",
+  "pos": "noun"
+ },
+ {
+  "id": "すぐ",
+  "reading": "すぐ",
+  "meaning": "right away",
+  "pos": "adverb"
+ },
+ {
+  "id": "タオル",
+  "reading": "たおる",
+  "meaning": "towel",
+  "pos": "noun"
+ },
+ {
+  "id": "置く",
+  "reading": "おく",
+  "meaning": "to put, to place",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "毎年",
+  "reading": "まいとし",
+  "meaning": "every year",
+  "pos": "noun"
+ },
+ {
+  "id": "ことまち",
+  "reading": "ことまち",
+  "meaning": "Kotomachi, your home town",
+  "pos": "name"
+ },
+ {
+  "id": "長い",
+  "reading": "ながい",
+  "meaning": "long",
+  "pos": "adj (i)"
+ },
+ {
+  "id": "のぼせる",
+  "reading": "のぼせる",
+  "meaning": "to get dizzy from the heat of a bath",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "風呂",
+  "reading": "ふろ",
+  "meaning": "bath",
+  "pos": "noun"
+ },
+ {
+  "id": "眠る",
+  "reading": "ねむる",
+  "meaning": "to sleep",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "朝ご飯",
+  "reading": "あさごはん",
+  "meaning": "breakfast",
+  "pos": "noun"
+ },
+ {
+  "id": "チェックイン",
+  "reading": "ちぇっくいん",
+  "meaning": "check-in",
+  "pos": "noun"
+ },
+ {
+  "id": "チェックアウト",
+  "reading": "ちぇっくあうと",
+  "meaning": "check-out",
+  "pos": "noun"
+ },
+ {
+  "id": "返す",
+  "reading": "かえす",
+  "meaning": "to give back",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "手ぬぐい",
+  "reading": "てぬぐい",
+  "meaning": "tenugui, a thin cotton towel",
+  "pos": "noun"
+ },
+ {
+  "id": "持ち帰る",
+  "reading": "もちかえる",
+  "meaning": "to take home",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "越す",
+  "reading": "こす",
+  "meaning": "to come (in お越しください, a very polite 'please come')",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "世話",
+  "reading": "せわ",
+  "meaning": "care, looking after",
+  "pos": "noun"
+ },
+ {
+  "id": "おじゃまします",
+  "reading": "おじゃまします",
+  "meaning": "sorry to intrude (said going into someone's home)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "寄木細工",
+  "reading": "よせぎざいく",
+  "meaning": "Hakone wood mosaic craft",
+  "pos": "noun"
+ },
+ {
+  "id": "売店",
+  "reading": "ばいてん",
+  "meaning": "the shop (in a ryokan or station)",
+  "pos": "noun"
+ },
+ {
+  "id": "旅館",
+  "reading": "りょかん",
+  "meaning": "ryokan, a Japanese inn",
+  "pos": "noun"
+ },
+ {
+  "id": "温泉",
+  "reading": "おんせん",
+  "meaning": "hot spring",
+  "pos": "noun"
+ },
+ {
+  "id": "富士山",
+  "reading": "ふじさん",
+  "meaning": "Mount Fuji",
+  "pos": "name"
+ },
+ {
+  "id": "箱",
+  "reading": "はこ",
+  "meaning": "box",
+  "pos": "noun"
+ },
+ {
+  "id": "名物",
+  "reading": "めいぶつ",
+  "meaning": "what a place is famous for",
+  "pos": "noun"
+ },
+ {
+  "id": "値段",
+  "reading": "ねだん",
+  "meaning": "price",
+  "pos": "noun"
+ },
+ {
+  "id": "ええ",
+  "reading": "ええ",
+  "meaning": "yes (soft)",
+  "pos": "interjection"
  }
 ]

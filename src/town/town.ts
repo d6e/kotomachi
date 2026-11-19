@@ -19,7 +19,7 @@ import { Buf, roundRect, toCanvas } from './pixels.ts';
 import { drawRoom } from './roomart.ts';
 import { drawArea } from './tripart.ts';
 import { bedSpot, bedTiles, cellAt, doorCell, doorTo, roomDoor, roomEntrance, roomFor, ROOMS, roomSolid, staffSpot, talkSpot, thingAt, thingNear, thingSpot, type RoomDef, type Scene, type ThingId } from './rooms.ts';
-import { BIRD, BIRD_FLY, BIRD_KEY, KEY, NEIGHBOUR, PASSERS, PLAYER, STAFF, walkFrames, type CharacterArt } from './sprites.ts';
+import { BIRD, BIRD_FLY, BIRD_KEY, KEY, NEIGHBOUR, PASSERS, PLAYER, PLAYER_YUKATA, STAFF, walkFrames, type CharacterArt } from './sprites.ts';
 
 export type Interactable =
   | { kind: 'door'; place: DoorPlace }
@@ -72,6 +72,8 @@ export interface TownHooks {
   thingName(id: ThingId): string;
   /** A line for someone in town to say: a passer-by ('street'), the cat, or a stall's keeper ('stall:<id>'). */
   chatter(who: string): Said | null;
+  /** Whether you may go through a door to another place (the ryokan's rooms and bath). Saying why is up to the game. */
+  mayEnter?(place: Scene): boolean;
 }
 
 interface Bubble {
@@ -231,16 +233,29 @@ export class Town {
     this.fade = FADE;
   }
 
-  /** Your room, with whatever you've bought in it. */
-  private home: RoomDef = ROOMS.home;
+  /** Rooms that change: yours at home with what you've bought, and the ryokan room as tonight's stay has it. */
+  private overrides = new Map<Scene, RoomDef>();
 
   setHome(room: RoomDef): void {
-    this.home = room;
-    this.rooms.delete('home');
+    this.setRoom('home', room);
+  }
+
+  /** Use this map for a place from now on (and redraw it). */
+  setRoom(place: Scene, room: RoomDef): void {
+    const was = this.overrides.get(place);
+    this.overrides.set(place, room);
+    if (!was || JSON.stringify(was) !== JSON.stringify(room)) this.rooms.delete(place);
+  }
+
+  /** What the player is wearing: everyday clothes, or the ryokan's yukata. */
+  private outfit: 'clothes' | 'yukata' = 'clothes';
+
+  setOutfit(o: 'clothes' | 'yukata'): void {
+    this.outfit = o;
   }
 
   private def(place: Scene): RoomDef {
-    return place === 'home' ? this.home : roomFor(place);
+    return this.overrides.get(place) ?? roomFor(place);
   }
 
   private get room(): RoomDef | null {
@@ -254,6 +269,11 @@ export class Town {
     this.path = [];
     this.then = null;
     this.fade = FADE;
+  }
+
+  /** Wake up by the bed in a place (the futon at the ryokan). */
+  wakeAt(place: Scene): void {
+    this.enter(place, bedSpot(this.def(place)) ?? undefined, 'down');
   }
 
   /** Walk out onto the street, in front of the door. */
@@ -531,7 +551,7 @@ export class Town {
     const ty = Math.floor((p.y + SPRITE_LIFT) / TILE);
     const at = cellAt(room, tx, Math.floor(p.y / TILE));
     const staff = staffSpot(room);
-    const onStaff = staff && Math.abs(tx - staff.tx) <= 1 && (ty === staff.ty || ty === staff.ty + 1) && (at === 'S' || at === '=' || at === 'm' || at === 'h');
+    const onStaff = staff && Math.abs(tx - staff.tx) <= 1 && (ty === staff.ty || ty === staff.ty + 1) && (at === 'S' || at === '=' || at === 'm' || at === 'h' || at === '~' || at === 'w');
     if (staff && onStaff) {
       this.walkTo(talkSpot(room)!, { kind: 'staff', place: room.place });
       return;
@@ -689,6 +709,12 @@ export class Town {
           return { walked };
         }
         const into = this.room ? doorTo(this.room, p.tx, p.ty) : null;
+        if (into && this.hooks.mayEnter && !this.hooks.mayEnter(into)) {
+          // Not allowed through: stay put on the doorway, and stop walking that way.
+          this.path = [];
+          this.then = null;
+          return { walked };
+        }
         if (into) {
           this.enter(into);
           return { walked };
@@ -969,7 +995,7 @@ export class Town {
 
     // Actors, back to front.
     const rain = this.weather === 'ame';
-    const actors: [string, CharacterArt, Actor, Record<string, Role>, Role][] = [['player', PLAYER, p, KEY, 'top']];
+    const actors: [string, CharacterArt, Actor, Record<string, Role>, Role][] = [this.outfit === 'yukata' ? ['player-yukata', PLAYER_YUKATA, p, KEY, 'top'] : ['player', PLAYER, p, KEY, 'top']];
     if (this.hooks.neighborAvailable()) actors.push(['tanaka', NEIGHBOUR, this.neighbor, KEY, 'roofC']);
     for (const w of this.life.passers) {
       const look = PASSERS[w.look]!;
@@ -1314,7 +1340,7 @@ export class Town {
     const x = Math.round(p.px);
     const y = Math.round(p.py);
     g.drawImage(this.shadow(), x + 1, y + 10);
-    const s = this.sprite('player', PLAYER, p);
+    const s = this.outfit === 'yukata' ? this.sprite('player-yukata', PLAYER_YUKATA, p) : this.sprite('player', PLAYER, p);
     g.drawImage(s.img, x, y - SPRITE_LIFT - s.lift);
     if (room.outdoor && this.weather === 'ame') {
       g.drawImage(this.umbrella('top'), x - 2, y - SPRITE_LIFT - s.lift - 7);

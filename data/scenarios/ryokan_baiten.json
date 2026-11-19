@@ -1,0 +1,188 @@
+{
+  "id": "ryokan_baiten",
+  "title": "The ryokan's little shop",
+  "place": "ryokan",
+  "npc": "okami",
+  "maxStage": 4,
+  "errand": "箱根 で $item を 買う",
+  "start": "welcome",
+  "variants": [
+    {
+      "id": "yosegi",
+      "price": 2400,
+      "slots": {
+        "item": "寄木細工 の 箱=箱",
+        "item_en": "wood mosaic box"
+      }
+    },
+    {
+      "id": "manju",
+      "price": 800,
+      "slots": {
+        "item": "温泉まんじゅう",
+        "item_en": "box of hot-spring buns"
+      }
+    }
+  ],
+  "nodes": {
+    "welcome": {
+      "line": "いらっしゃいませ 。 箱根 の お土産 、 どうぞ 見て=見る ください 。",
+      "gloss": "Welcome. Please have a look at our Hakone souvenirs.",
+      "targets": [
+        "お土産",
+        "見る",
+        "いくら"
+      ],
+      "grammar": [
+        "tekudasai"
+      ],
+      "choices": [
+        {
+          "text": "$item は いくら です か ？",
+          "gloss": "How much is the $item_en?",
+          "result": "success"
+        },
+        {
+          "text": "$item は いつ です か ？",
+          "gloss": "When is the $item_en?",
+          "result": "npc_puzzled",
+          "reaction": "え ？ … あ 、 お値段=値段 です か ？",
+          "note": "いくら asks how much. いつ asks when.",
+          "grammar": "tekudasai"
+        },
+        {
+          "text": "はい 、 見て=見る ください 。",
+          "gloss": "Yes, please look.",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 私 が 見る の です か ？",
+          "note": "見てください is her asking you to look. Ask about the price instead: …はいくらですか.",
+          "grammar": "tekudasai"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "$item は",
+            "いくら",
+            "です か ？"
+          ]
+        ],
+        "decoys": [
+          "いつ",
+          "どこ",
+          "を"
+        ]
+      },
+      "blank": {
+        "before": "$item は",
+        "after": "です か ？",
+        "answers": [
+          "いくら"
+        ]
+      },
+      "recast": "どうぞ 見て=見る ください 。",
+      "next": {
+        "success": "price"
+      }
+    },
+    "price": {
+      "line": "$item は $price 円 です 。 箱根 の 名物 です よ 。",
+      "gloss": "The $item_en is ¥$price. It's what Hakone is famous for.",
+      "targets": [
+        "円",
+        "名物",
+        "これ"
+      ],
+      "grammar": [
+        "wo_object"
+      ],
+      "effects": {
+        "pay": true
+      },
+      "choices": [
+        {
+          "text": "じゃあ 、 これ を ください 。",
+          "gloss": "Then I'll take this one.",
+          "result": "success"
+        },
+        {
+          "text": "じゃあ 、 これ が ください 。",
+          "gloss": "(wrong particle)",
+          "result": "npc_puzzled",
+          "reaction": "はい 、 これ を 、 です ね 。",
+          "note": "What you ask for takes を: これをください.",
+          "grammar": "wo_object"
+        },
+        {
+          "text": "はい 、 名物 です 。",
+          "gloss": "Yes, it's famous.",
+          "result": "npc_confused",
+          "reaction": "ええ 、 名物 です よ 。 … いかが です か ？",
+          "note": "She told you it's famous. To buy it, say これをください.",
+          "grammar": "wo_object"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "じゃあ 、",
+            "これ",
+            "を",
+            "ください"
+          ]
+        ],
+        "decoys": [
+          "が",
+          "に",
+          "名物"
+        ]
+      },
+      "blank": {
+        "before": "じゃあ 、 これ",
+        "after": "ください 。",
+        "answers": [
+          "を"
+        ]
+      },
+      "recast": "$price 円 です 。",
+      "next": {
+        "success": "bye"
+      }
+    },
+    "bye": {
+      "line": "ありがとうございます 。 お気をつけて=気をつける 。",
+      "gloss": "Thank you very much. Take care.",
+      "targets": [
+        "気をつける"
+      ],
+      "grammar": [
+        "kiwotsukete"
+      ],
+      "maxMode": 2,
+      "choices": [
+        {
+          "text": "ありがとうございます 。",
+          "gloss": "Thank you.",
+          "result": "success"
+        },
+        {
+          "text": "いらっしゃいませ 。",
+          "gloss": "Welcome! (what staff say)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 それ は 私 の 言葉 です よ 。",
+          "note": "Staff say いらっしゃいませ. You say ありがとうございます.",
+          "grammar": "irasshaimase"
+        },
+        {
+          "text": "いただきます 。",
+          "gloss": "(said before eating)",
+          "result": "npc_puzzled",
+          "reaction": "ふふ 、 お部屋=部屋 で どうぞ 。",
+          "note": "いただきます is said right before you eat, not when you buy something.",
+          "grammar": "itadakimasu"
+        }
+      ],
+      "end": true
+    }
+  }
+}

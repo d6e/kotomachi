@@ -1,0 +1,308 @@
+{
+  "id": "ryokan_checkin",
+  "title": "Checking in at the ryokan",
+  "place": "ryokan",
+  "npc": "okami",
+  "maxStage": 4,
+  "start": "greet",
+  "variants": [
+    {
+      "id": "six",
+      "slots": {
+        "time": "六時",
+        "time_en": "6:00"
+      }
+    },
+    {
+      "id": "seven",
+      "slots": {
+        "time": "七時",
+        "time_en": "7:00"
+      }
+    }
+  ],
+  "nodes": {
+    "greet": {
+      "line": "いらっしゃいませ 。 ご予約=予約 の お客様 です か ？",
+      "gloss": "Welcome. Do you have a reservation with us?",
+      "targets": [
+        "予約",
+        "お客様",
+        "今晩",
+        "部屋"
+      ],
+      "grammar": [
+        "arimasen"
+      ],
+      "choices": [
+        {
+          "text": "いいえ 。 今晩 、 部屋 は あります=ある か ？",
+          "gloss": "No. Do you have a room for tonight?",
+          "result": "success"
+        },
+        {
+          "text": "いいえ 。 部屋 は ありません=ある 。",
+          "gloss": "No. There are no rooms.",
+          "result": "npc_confused",
+          "reaction": "え ？ お部屋=部屋 は あります=ある よ 。",
+          "note": "部屋はありますか asks whether they have a room. ありません would say there isn't one.",
+          "grammar": "arimasen"
+        },
+        {
+          "text": "はい 、 いただきます 。",
+          "gloss": "(said before eating)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 お食事=食事 は 夜 です よ 。",
+          "note": "いただきます is for just before you eat. To ask for a room, say 今晩、部屋はありますか.",
+          "grammar": "itadakimasu"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "いいえ 。",
+            "今晩 、",
+            "部屋 は",
+            "あります=ある か ？"
+          ]
+        ],
+        "decoys": [
+          "ありません=ある",
+          "明日",
+          "を"
+        ]
+      },
+      "blank": {
+        "before": "いいえ 。 今晩 、 部屋 は",
+        "after": "か ？",
+        "answers": [
+          "あります"
+        ]
+      },
+      "recast": "ご予約=予約 の お客様 です か ？",
+      "next": {
+        "success": "plan"
+      }
+    },
+    "plan": {
+      "line": "はい 、 あります=ある よ 。 一泊 二食 付き で 九千八百 円 です 。 お支払い=支払い は 明日 の 朝 です 。",
+      "gloss": "Yes, we do. One night with dinner and breakfast is ¥9,800. You pay tomorrow morning.",
+      "targets": [
+        "一泊",
+        "二食",
+        "付き",
+        "九千八百",
+        "支払い"
+      ],
+      "grammar": [
+        "ippaku"
+      ],
+      "choices": [
+        {
+          "text": "じゃあ 、 一泊 お願いします=お願いする 。",
+          "gloss": "Then one night, please.",
+          "result": "success"
+        },
+        {
+          "text": "いいえ 、 一泊 二食 付き です 。",
+          "gloss": "No, it's one night with two meals.",
+          "result": "npc_confused",
+          "reaction": "はい 、 一泊 二食 付き です よ 。 … いかが です か ？",
+          "note": "She just told you the plan and the price. To take it, say 一泊お願いします.",
+          "grammar": "onegai"
+        },
+        {
+          "text": "はい 、 ごちそうさまでした 。",
+          "gloss": "Thank you for the meal.",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 お食事=食事 は これ から です よ 。",
+          "note": "ごちそうさまでした is for after a meal. Dinner hasn't even started.",
+          "grammar": "gochisousama"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "じゃあ 、",
+            "一泊",
+            "お願いします=お願いする"
+          ]
+        ],
+        "decoys": [
+          "二食",
+          "ごちそうさまでした",
+          "を"
+        ]
+      },
+      "blank": {
+        "before": "じゃあ 、",
+        "after": "お願いします=お願いする 。",
+        "answers": [
+          "いっぱく"
+        ]
+      },
+      "recast": "一泊 二食 付き で 九千八百 円 です 。",
+      "next": {
+        "success": "dinner"
+      }
+    },
+    "dinner": {
+      "line": "お夕食=夕食 は $time に お部屋=部屋 へ お持ち=持つ します=する 。 よろしい です か ？",
+      "gloss": "We'll bring dinner to your room at $time_en. Is that all right?",
+      "targets": [
+        "夕食",
+        "持つ",
+        "よろしい"
+      ],
+      "grammar": [
+        "yoroshii",
+        "no_particle_time"
+      ],
+      "choices": [
+        {
+          "text": "はい 、 $time に お願いします=お願いする 。",
+          "gloss": "Yes, at $time_en, please.",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 $time に 来ました=来る 。",
+          "gloss": "Yes, I came at $time_en.",
+          "result": "npc_puzzled",
+          "reaction": "いえ 、 お夕食=夕食 の 時間 です よ 。 $time で よろしい です か ？",
+          "note": "お持ちします is about later: they'll bring dinner at that time. Agree with はい、お願いします.",
+          "grammar": "yoroshii"
+        },
+        {
+          "text": "はい 、 いってきます 。",
+          "gloss": "I'm off! (said leaving home)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 お部屋=部屋 で 待って=待つ いて=いる ください ね 。",
+          "note": "いってきます is for leaving your own home. Here, agree to the time: はい、お願いします.",
+          "grammar": "ittekimasu"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "はい 、",
+            "$time",
+            "に",
+            "お願いします=お願いする"
+          ]
+        ],
+        "decoys": [
+          "を",
+          "来ました=来る",
+          "は"
+        ]
+      },
+      "blank": {
+        "before": "はい 、 $time",
+        "after": "お願いします=お願いする 。",
+        "answers": [
+          "に",
+          "で"
+        ]
+      },
+      "recast": "お夕食=夕食 は $time に お持ち=持つ します=する 。",
+      "next": {
+        "success": "shoes"
+      }
+    },
+    "shoes": {
+      "line": "では 、 靴 は ここ で 脱いで=脱ぐ ください 。 スリッパ を どうぞ 。",
+      "gloss": "Then please take your shoes off here. Here are some slippers.",
+      "targets": [
+        "靴",
+        "脱ぐ",
+        "スリッパ"
+      ],
+      "grammar": [
+        "tekudasai"
+      ],
+      "choices": [
+        {
+          "text": "はい 、 分かりました=分かる 。",
+          "gloss": "OK, I understand.",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 靴 を 履きます=履く 。",
+          "gloss": "OK, I'll put my shoes on.",
+          "result": "npc_puzzled",
+          "reaction": "あ 、 中 は スリッパ で お願いします=お願いする 。",
+          "note": "In a ryokan your shoes come off (脱ぐ) at the entrance and you walk about in slippers. 履く is putting shoes on.",
+          "grammar": "tekudasai"
+        },
+        {
+          "text": "いらっしゃいませ 。",
+          "gloss": "Welcome! (what staff say)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 それ は 私 の 言葉 です よ 。",
+          "note": "Staff say いらっしゃいませ to guests, not the other way round. Here, just say 分かりました.",
+          "grammar": "irasshaimase"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "はい 、",
+            "分かりました=分かる"
+          ]
+        ],
+        "decoys": [
+          "履きます=履く",
+          "脱いで=脱ぐ"
+        ]
+      },
+      "blank": {
+        "before": "はい 、",
+        "after": "。",
+        "answers": [
+          "わかりました"
+        ]
+      },
+      "recast": "靴 は ここ で 脱いで=脱ぐ ください 。",
+      "next": {
+        "success": "key"
+      }
+    },
+    "key": {
+      "line": "お部屋=部屋 は 二階 です 。 こちら が 鍵 です 。 ごゆっくり=ゆっくり どうぞ 。",
+      "gloss": "Your room is upstairs, on the second floor. Here's the key. Please make yourself at home.",
+      "targets": [
+        "二階",
+        "鍵",
+        "ゆっくり"
+      ],
+      "grammar": [
+        "douzo"
+      ],
+      "maxMode": 2,
+      "choices": [
+        {
+          "text": "ありがとうございます 。",
+          "gloss": "Thank you.",
+          "result": "success"
+        },
+        {
+          "text": "おやすみなさい 。",
+          "gloss": "Good night.",
+          "result": "npc_puzzled",
+          "reaction": "… はい 、 ごゆっくり=ゆっくり どうぞ 。",
+          "note": "おやすみなさい is for bedtime. When you're handed a key, say ありがとうございます.",
+          "grammar": "greetings_time"
+        },
+        {
+          "text": "ごちそうさまでした 。",
+          "gloss": "Thank you for the meal.",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 お夕食=夕食 は まだ です よ 。",
+          "note": "ごちそうさまでした is for after a meal.",
+          "grammar": "gochisousama"
+        }
+      ],
+      "end": true
+    }
+  }
+}

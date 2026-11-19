@@ -1,0 +1,304 @@
+{
+  "id": "ryokan_room",
+  "title": "Your room and your yukata",
+  "place": "washitsu",
+  "npc": "nakai",
+  "maxStage": 4,
+  "start": "tea",
+  "variants": [
+    {
+      "id": "manju",
+      "slots": {
+        "sweet": "温泉まんじゅう",
+        "sweet_en": "a hot-spring bun"
+      }
+    },
+    {
+      "id": "yokan",
+      "slots": {
+        "sweet": "ようかん",
+        "sweet_en": "some sweet bean jelly"
+      }
+    }
+  ],
+  "nodes": {
+    "tea": {
+      "line": "失礼 します=する 。 お茶 と $sweet を どうぞ 。",
+      "gloss": "Excuse me. Here's some tea, and $sweet_en.",
+      "targets": [
+        "失礼",
+        "お茶"
+      ],
+      "grammar": [
+        "shitsurei",
+        "itadakimasu"
+      ],
+      "choices": [
+        {
+          "text": "ありがとうございます 。 いただきます 。",
+          "gloss": "Thank you. (said before eating)",
+          "result": "success"
+        },
+        {
+          "text": "ありがとうございます 。 ごちそうさまでした 。",
+          "gloss": "Thank you. Thanks for the meal.",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 まだ 食べて=食べる いません=いる よ 。",
+          "note": "Before you eat or drink, say いただきます. ごちそうさまでした is for after.",
+          "grammar": "itadakimasu"
+        },
+        {
+          "text": "はい 、 失礼 します=する 。",
+          "gloss": "OK, excuse me.",
+          "result": "npc_puzzled",
+          "reaction": "あ 、 お茶 です よ 。 どうぞ 。",
+          "note": "失礼します is said as you come into or leave a room. Offered tea, say ありがとうございます、いただきます.",
+          "grammar": "shitsurei"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "ありがとうございます 。",
+            "いただきます"
+          ]
+        ],
+        "decoys": [
+          "ごちそうさまでした",
+          "失礼 します=する"
+        ]
+      },
+      "blank": {
+        "before": "ありがとうございます 。",
+        "after": "。",
+        "answers": [
+          "いただきます"
+        ]
+      },
+      "recast": "お茶 と $sweet を どうぞ 。",
+      "next": {
+        "success": "yukata"
+      }
+    },
+    "yukata": {
+      "line": "浴衣 は こちら です 。 着方 は 分かります=分かる か ？",
+      "gloss": "Your yukata is here. Do you know how to put it on?",
+      "targets": [
+        "浴衣",
+        "着方",
+        "分かる"
+      ],
+      "grammar": [
+        "tekudasai"
+      ],
+      "choices": [
+        {
+          "text": "いいえ 、 教えて=教える ください 。",
+          "gloss": "No, please show me.",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 いただきます 。",
+          "gloss": "(said before eating)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 浴衣 は 食べません=食べる よ 。",
+          "note": "いただきます is for food and drink. 着方は分かりますか asks if you know how to wear it: いいえ、教えてください.",
+          "grammar": "itadakimasu"
+        },
+        {
+          "text": "いいえ 、 浴衣 です 。",
+          "gloss": "No, it's a yukata.",
+          "result": "npc_confused",
+          "reaction": "はい 、 浴衣 です よ 。 着方 は … ？",
+          "note": "分かりますか asks whether you know how. To ask to be shown, say 教えてください.",
+          "grammar": "tekudasai"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "いいえ 、",
+            "教えて=教える",
+            "ください"
+          ]
+        ],
+        "decoys": [
+          "着て=着る",
+          "いただきます",
+          "を"
+        ]
+      },
+      "blank": {
+        "before": "いいえ 、",
+        "after": "ください 。",
+        "answers": [
+          "おしえて"
+        ]
+      },
+      "recast": "着方 は 分かります=分かる か ？",
+      "next": {
+        "success": "howto"
+      }
+    },
+    "howto": {
+      "line": "左 を 上 に して=する 、 帯 を 結んで=結ぶ ください 。 右 が 上 は だめ です よ 。",
+      "gloss": "Put the left side over the right and tie the sash. Never right over left.",
+      "targets": [
+        "左",
+        "上",
+        "右",
+        "帯",
+        "結ぶ"
+      ],
+      "grammar": [
+        "hidari_ue"
+      ],
+      "choices": [
+        {
+          "text": "左 が 上 です ね 。 分かりました=分かる 。",
+          "gloss": "Left on top. Got it.",
+          "result": "success"
+        },
+        {
+          "text": "右 が 上 です ね 。 分かりました=分かる 。",
+          "gloss": "Right on top. Got it.",
+          "result": "npc_puzzled",
+          "reaction": "いえいえ 、 左 が 上 です よ 。",
+          "note": "Left over right: 左が上. Right over left is only for dressing the dead, so it's the one mistake everyone notices.",
+          "grammar": "hidari_ue"
+        },
+        {
+          "text": "はい 、 帯 を 買います=買う 。",
+          "gloss": "OK, I'll buy a sash.",
+          "result": "npc_confused",
+          "reaction": "え ？ 帯 は 浴衣 と 一緒 に あります=ある よ 。",
+          "note": "結んでください asks you to tie the sash, which comes with the yukata. Repeat the rule back: 左が上ですね.",
+          "grammar": "hidari_ue"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "左",
+            "が",
+            "上",
+            "です ね"
+          ]
+        ],
+        "decoys": [
+          "右",
+          "を",
+          "下"
+        ]
+      },
+      "blank": {
+        "before": "",
+        "after": "が 上 です ね 。",
+        "answers": [
+          "ひだり"
+        ]
+      },
+      "recast": "左 を 上 に して=する ください 。",
+      "next": {
+        "success": "bath"
+      }
+    },
+    "bath": {
+      "line": "大浴場 は 一階 です 。 夜 は 十二時 まで 入れます=入る よ 。",
+      "gloss": "The big bath is on the ground floor. You can go in until midnight.",
+      "targets": [
+        "大浴場",
+        "一階",
+        "十二時",
+        "まで"
+      ],
+      "grammar": [
+        "kara_made",
+        "potential"
+      ],
+      "choices": [
+        {
+          "text": "十二時 まで です ね 。 ありがとうございます 。",
+          "gloss": "Until midnight. Thank you.",
+          "result": "success"
+        },
+        {
+          "text": "十二時 から です ね 。",
+          "gloss": "From midnight, then.",
+          "result": "npc_puzzled",
+          "reaction": "いえ 、 十二時 まで です よ 。",
+          "note": "まで is \"until\" and から is \"from\": 十二時まで = until twelve.",
+          "grammar": "kara_made"
+        },
+        {
+          "text": "はい 、 お大事に 。",
+          "gloss": "Take care. (said to someone ill)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 私 は 元気 です よ 。",
+          "note": "お大事に is for someone who is unwell. Here, thank her for telling you: ありがとうございます.",
+          "grammar": "odaijini"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "十二時",
+            "まで",
+            "です ね"
+          ]
+        ],
+        "decoys": [
+          "から",
+          "に"
+        ]
+      },
+      "blank": {
+        "before": "十二時",
+        "after": "です ね 。",
+        "answers": [
+          "まで"
+        ]
+      },
+      "recast": "夜 は 十二時 まで です 。",
+      "next": {
+        "success": "bye"
+      }
+    },
+    "bye": {
+      "line": "では 、 ごゆっくり=ゆっくり どうぞ 。 失礼 します=する 。",
+      "gloss": "Well then, make yourself at home. Excuse me.",
+      "targets": [
+        "ゆっくり",
+        "失礼"
+      ],
+      "grammar": [
+        "shitsurei"
+      ],
+      "maxMode": 2,
+      "choices": [
+        {
+          "text": "ありがとうございます 。",
+          "gloss": "Thank you.",
+          "result": "success"
+        },
+        {
+          "text": "いらっしゃいませ 。",
+          "gloss": "Welcome! (what staff say)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 それ は お店=店 の 人 の 言葉 です よ 。",
+          "note": "いらっしゃいませ is what staff say to guests. Say ありがとうございます.",
+          "grammar": "irasshaimase"
+        },
+        {
+          "text": "いただきます 。",
+          "gloss": "(said before eating)",
+          "result": "npc_puzzled",
+          "reaction": "… お茶 は もう どうぞ 。",
+          "note": "いただきます is for just before you eat or drink. As she leaves, say ありがとうございます.",
+          "grammar": "itadakimasu"
+        }
+      ],
+      "end": true
+    }
+  }
+}

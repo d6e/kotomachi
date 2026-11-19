@@ -6,6 +6,8 @@ import type { Role } from './palette.ts';
 export const KEY: Record<string, Role> = {
   O: 'out', S: 'skin', s: 'skinSh', P: 'blush', H: 'hair', h: 'hairHi', D: 'hairSh', E: 'eye', W: 'white',
   C: 'top', c: 'topSh', k: 'topHi', B: 'pants', F: 'shoe', G: 'grey', g: 'greySh', T: 'top2', t: 'top2Sh',
+  // A yukata (light blue cotton) and its sash.
+  Y: 'roofBHi', y: 'roofB', N: 'navy',
 };
 
 export type Dir = 'down' | 'up' | 'left' | 'right';
@@ -73,6 +75,13 @@ export const PLAYER: CharacterArt = {
     '....OcCCCCcO....',
     '....OFFOFFO.....',
   ],
+};
+
+/** The player in the ryokan's yukata: left side over right, tied with a navy sash. */
+export const PLAYER_YUKATA: CharacterArt = {
+  front: [...PLAYER.front.slice(0, 12), '..OYYYWSSWYYYO..', '.OSONNNNNNNNOSO.', '..OOYYYWYYYYOO..', '...OFFO..OFFO...'],
+  back: [...PLAYER.back.slice(0, 12), '..OyYYYYYYYYyO..', '.OSONNNNNNNNOSO.', '..OOyYYYYYYyOO..', '...OFFO..OFFO...'],
+  side: [...PLAYER.side.slice(0, 12), '....OYWYYYYO....', '....ONSSNNNO....', '....OYYYYYyO....', '....OFFOFFO.....'],
 };
 
 // The neighbour, Tanaka-san: grey bun, green cardigan, smiling eyes.
@@ -334,6 +343,45 @@ export const STAFF: Record<string, StaffArt> = {
   yamamoto: {
     rows: [...HEADBAND, ...FACE, ...HAPPI],
     key: staffKey({ H: 'hairK', h: 'hairKHi', D: 'hairKSh', C: 'navy', c: 'navySh', k: 'white' }),
+  },
+  // The 女将 at the ryokan: hair up in a bun, a plum kimono with a gold sash.
+  okami: {
+    rows: [
+      '......OOOO......',
+      '.....OHHhHO.....',
+      '....OOHHHHOO....',
+      '..OOHHhHHHHHOO..',
+      '.OHHHHHHHHHHHHO.',
+      '.OHHHHHHHHHHHHO.',
+      ...FACE,
+      '..OCCCWSSWCCCO..',
+      '.OSONNNNNNNNOSO.',
+      '..OOcCCCCCCcOO..',
+      BODY[3]!,
+    ],
+    key: staffKey({ H: 'hairK', h: 'hairKHi', D: 'hairKSh', C: 'roofD', c: 'roofDSh', N: 'gold', W: 'white' }),
+  },
+  // The 仲居 who looks after the rooms: black hair tied back, a green kimono and a white sash.
+  nakai: {
+    rows: [...SHORT_HAIR, ...FACE, '..OCCCWSSWCCCO..', '.OSONNNNNNNNOSO.', '..OOcCCCCCCcOO..', BODY[3]!],
+    key: staffKey({ H: 'hairK', h: 'hairKHi', D: 'hairKSh', C: 'top2', c: 'top2Sh', N: 'white', W: 'white' }),
+  },
+  // 鈴木さん, soaking in the bath with a folded towel on their head. The water hides the rest.
+  suzuki: {
+    rows: [
+      '....OOOOOOOO....',
+      '...OWWWWWWWWO...',
+      '...OggggggggO...',
+      '..OHHHHHHHHHHO..',
+      '.OHHHHHHHHHHHHO.',
+      '.OHHHHHHHHHHHHO.',
+      ...FACE,
+      '..OSSSSSSSSSSO..',
+      '.OSSSSSSSSSSSSO.',
+      '..OOSSSSSSSSOO..',
+      '...OSSO..OSSO...',
+    ],
+    key: staffKey({ H: 'greySh', h: 'grey', D: 'roofESh' }),
   },
   // The other stalls' keepers: a red coat at the takoyaki, a blue one at the shaved ice.
   takoyaki: {

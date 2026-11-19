@@ -43,6 +43,7 @@ const BOUGHT: Good[] = [
   { id: 'nimotsu', word: '荷物', scenario: 'post_send', variants: ['pickup'] },
   { id: 'kippu', word: '切符', scenario: 'station_ticket', variants: ['ticket', 'platform', 'time', 'rapid'] },
   { id: 'okashi', word: 'お菓子', scenario: 'omiyage_buy', variants: ['okashi'] },
+  { id: 'manju', word: '温泉まんじゅう', scenario: 'ryokan_baiten', variants: ['manju'] },
 ];
 
 export const GOODS: Good[] = [

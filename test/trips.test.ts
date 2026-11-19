@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { npcs, requests, scenarioById, scenarios, vocab } from '../src/game/content.ts';
 import { planRequests } from '../src/game/errands.ts';
-import { ARRIVAL, canTravel, LAST_TRAIN_OUT, ON_SALE, SOUVENIRS, TRIPS } from '../src/game/trips.ts';
+import { ARRIVAL, canTravel, LAST_TRAIN_OUT, ON_SALE, rideMinutes, SOUVENIRS, TRIPS } from '../src/game/trips.ts';
 import { emptyLearner, Learner } from '../src/learner/model.ts';
 import { itemIcon, KEEPSAKE_ART } from '../src/town/roomart.ts';
 import { doorCell, doorTo, roomDoor, roomEntrance, roomFor, ROOMS, roomSolid, talkSpot, thingSpot, TRIP_ROOMS, type RoomDef } from '../src/town/rooms.ts';
@@ -62,9 +62,9 @@ test('the ticket machines at the station can be reached', () => {
   assert.ok(reachable(ROOMS.station).has(`${spot.tx},${spot.ty}`));
 });
 
-test('trips: one place to go now, more planned, each named in Japanese; only built towns are sold', () => {
+test('trips: two places to go now, more planned, each named in Japanese; only built towns are sold', () => {
   assert.ok(TRIPS.length >= 3 && TRIPS.length <= 4);
-  assert.equal(TRIPS.filter((t) => t.built).length, 1);
+  assert.equal(TRIPS.filter((t) => t.built).length, 2);
   const levels = TRIPS.map((t) => t.level);
   assert.deepEqual([...levels].sort((a, b) => a - b), levels, 'listed in level order');
   for (const t of TRIPS) assert.ok(vocab.has(t.name), `${t.name} in vocab`);
@@ -75,8 +75,14 @@ test('trips: one place to go now, more planned, each named in Japanese; only bui
   assert.equal(canTravel(k, k.level, k.fare, 600), 'ok');
   // A town that isn't built can't be reached at any level, and the machine doesn't list it.
   for (const t of TRIPS.filter((x) => !x.built)) assert.equal(canTravel(t, 99, 99999, 600), 'closed');
-  assert.deepEqual(ON_SALE.map((t) => t.id), ['kamakura']);
+  assert.deepEqual(ON_SALE.map((t) => t.id), ['kamakura', 'hakone']);
   for (const t of ON_SALE) assert.ok(ARRIVAL[t.id], `${t.id} has somewhere to arrive`);
+  // 箱根 is further: a longer ride, and you can only go once you've reached its level.
+  const hakone = TRIPS.find((t) => t.id === 'hakone')!;
+  assert.ok(hakone.minutes > k.minutes);
+  assert.equal(canTravel(hakone, hakone.level - 1, 99999, 600), 'level');
+  assert.equal(rideMinutes('onsen'), hakone.minutes);
+  assert.equal(rideMinutes('shrine'), k.minutes);
 });
 
 test('souvenirs come from the trip conversations, with a word and a picture', () => {
@@ -90,10 +96,14 @@ test('souvenirs come from the trip conversations, with a word and a picture', ()
   }
 });
 
-test('the trip area draws, with its signs', () => {
+test('the trip areas draw, with their signs', () => {
   const art = drawArea(TRIP_ROOMS.kamakura, (t) => t.length * 10);
   assert.deepEqual(art.signs.map((s) => s.word).sort(), ['お土産', '神社', '鎌倉'].sort());
   assert.ok([...art.base.px].every((p) => p >= 0), 'every pixel painted');
+  const hakone = drawArea(TRIP_ROOMS.hakone, (t) => t.length * 10);
+  assert.deepEqual(hakone.signs.map((s) => s.word).sort(), ['旅館', '温泉', '箱根'].sort());
+  assert.ok([...hakone.base.px].every((p) => p >= 0), 'every pixel painted');
+  for (const s of [...art.signs, ...hakone.signs]) assert.ok(vocab.has(s.word), s.word);
 });
 
 test('trip requests wait for the level, and come at most once a day', () => {

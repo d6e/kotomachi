@@ -1,0 +1,345 @@
+{
+  "id": "ryokan_dinner",
+  "title": "Dinner in your room",
+  "place": "washitsu",
+  "npc": "nakai",
+  "maxStage": 4,
+  "start": "serve",
+  "variants": [
+    {
+      "id": "sashimi",
+      "slots": {
+        "dish": "お刺身=刺身",
+        "dish_en": "sashimi",
+        "drink": "お茶",
+        "drink_en": "tea"
+      }
+    },
+    {
+      "id": "tempura",
+      "slots": {
+        "dish": "天ぷら",
+        "dish_en": "tempura",
+        "drink": "ビール",
+        "drink_en": "a beer"
+      }
+    },
+    {
+      "id": "nabe",
+      "slots": {
+        "dish": "鍋",
+        "dish_en": "hot pot",
+        "drink": "日本酒",
+        "drink_en": "some sake"
+      }
+    }
+  ],
+  "nodes": {
+    "serve": {
+      "line": "失礼 します=する 。 お夕食=夕食 を お持ち=持つ しました=する 。",
+      "gloss": "Excuse me. I've brought your dinner.",
+      "targets": [
+        "夕食",
+        "失礼"
+      ],
+      "grammar": [
+        "shitsurei"
+      ],
+      "maxMode": 2,
+      "choices": [
+        {
+          "text": "ありがとうございます 。",
+          "gloss": "Thank you.",
+          "result": "success"
+        },
+        {
+          "text": "おはようございます 。",
+          "gloss": "Good morning.",
+          "result": "npc_puzzled",
+          "reaction": "ふふ 、 こんばんは 。 もう 夜 です よ 。",
+          "note": "It's evening: こんばんは, not おはようございます. To thank her for bringing dinner, say ありがとうございます.",
+          "grammar": "greetings_time"
+        },
+        {
+          "text": "いってらっしゃい 。",
+          "gloss": "See you later! (to someone leaving)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 私 は ここ に います=いる よ 。",
+          "note": "いってらっしゃい is said to someone heading out. Say ありがとうございます.",
+          "grammar": "ittekimasu"
+        }
+      ],
+      "next": {
+        "success": "dish"
+      }
+    },
+    "dish": {
+      "line": "こちら は 箱根 の $dish です 。 苦手 な もの は あります=ある か ？",
+      "gloss": "This is Hakone-style $dish_en. Is there anything you don't eat?",
+      "targets": [
+        "苦手",
+        "もの"
+      ],
+      "grammar": [
+        "nigate"
+      ],
+      "choices": [
+        {
+          "text": "いいえ 、 ありません=ある 。 大丈夫 です 。",
+          "gloss": "No, there isn't. I'm fine.",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 おいしかった=おいしい です 。",
+          "gloss": "Yes, it was delicious.",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 まだ 食べて=食べる いません=いる よ 。",
+          "note": "おいしかったです is past: say it after you've eaten. 苦手なものはありますか asks if there's anything you don't eat.",
+          "grammar": "i_adj_past"
+        },
+        {
+          "text": "はい 、 $dish が 好き です 。",
+          "gloss": "Yes, I like $dish_en.",
+          "result": "npc_confused",
+          "reaction": "あ 、 好き な もの じゃ なくて=ない 、 苦手 な もの です よ 。",
+          "note": "苦手 is the opposite of 好き here: something you don't like or can't eat. If there's nothing, say いいえ、ありません.",
+          "grammar": "nigate"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "いいえ 、",
+            "ありません=ある",
+            "。",
+            "大丈夫 です"
+          ]
+        ],
+        "decoys": [
+          "あります=ある",
+          "好き",
+          "苦手"
+        ]
+      },
+      "blank": {
+        "before": "いいえ 、",
+        "after": "。 大丈夫 です 。",
+        "answers": [
+          "ありません"
+        ]
+      },
+      "recast": "苦手 な もの は あります=ある か ？",
+      "next": {
+        "success": "drink"
+      }
+    },
+    "drink": {
+      "line": "お飲み物=飲み物 は いかが です か ？",
+      "gloss": "Would you like something to drink?",
+      "targets": [
+        "飲み物",
+        "いかが"
+      ],
+      "grammar": [
+        "wo_object",
+        "onegai"
+      ],
+      "choices": [
+        {
+          "text": "$drink を お願いします=お願いする 。",
+          "gloss": "$drink_en, please.",
+          "result": "success"
+        },
+        {
+          "text": "$drink が お願いします=お願いする 。",
+          "gloss": "(wrong particle)",
+          "result": "npc_puzzled",
+          "reaction": "$drink を 、 です ね 。",
+          "note": "What you ask for takes を: $drinkをお願いします.",
+          "grammar": "wo_object"
+        },
+        {
+          "text": "$drink は いかが です か ？",
+          "gloss": "Would you like $drink_en?",
+          "result": "npc_confused",
+          "reaction": "え ？ … 私 は 大丈夫 です よ 。 お客様 は ？",
+          "note": "いかがですか is how staff offer something. To ask for it, say …をお願いします.",
+          "grammar": "onegai"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "$drink",
+            "を",
+            "お願いします=お願いする"
+          ]
+        ],
+        "decoys": [
+          "が",
+          "は",
+          "いかが"
+        ]
+      },
+      "blank": {
+        "before": "$drink",
+        "after": "お願いします=お願いする 。",
+        "answers": [
+          "を"
+        ]
+      },
+      "recast": "お飲み物=飲み物 は いかが です か ？",
+      "next": {
+        "success": "eat"
+      }
+    },
+    "eat": {
+      "line": "どうぞ 、 お召し上がり=召し上がる ください 。",
+      "gloss": "Please, enjoy your meal.",
+      "targets": [
+        "召し上がる",
+        "いただきます"
+      ],
+      "grammar": [
+        "meshiagaru",
+        "itadakimasu"
+      ],
+      "choices": [
+        {
+          "text": "いただきます 。",
+          "gloss": "(said before eating)",
+          "result": "success"
+        },
+        {
+          "text": "ごちそうさまでした 。",
+          "gloss": "Thank you for the meal.",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 まだ 食べて=食べる いません=いる よ 。",
+          "note": "ごちそうさまでした is for after the meal. Before the first bite, say いただきます.",
+          "grammar": "gochisousama"
+        },
+        {
+          "text": "お大事に 。",
+          "gloss": "Take care. (said to someone ill)",
+          "result": "npc_puzzled",
+          "reaction": "… はい 。 どうぞ 、 お召し上がり=召し上がる ください 。",
+          "note": "お大事に is for someone who is unwell. Before you eat, say いただきます.",
+          "grammar": "odaijini"
+        }
+      ],
+      "blank": {
+        "before": "",
+        "after": "。",
+        "answers": [
+          "いただきます"
+        ]
+      },
+      "recast": "どうぞ 、 お召し上がり=召し上がる ください 。",
+      "next": {
+        "success": "taste"
+      }
+    },
+    "taste": {
+      "line": "（ … ） お味=味 は いかが でした=です か ？",
+      "gloss": "(You take your time over dinner.) How was it?",
+      "targets": [
+        "味",
+        "いかが",
+        "おいしい"
+      ],
+      "grammar": [
+        "i_adj_past"
+      ],
+      "choices": [
+        {
+          "text": "とても おいしかった=おいしい です 。",
+          "gloss": "It was really good.",
+          "result": "success"
+        },
+        {
+          "text": "とても おいしい でした=です 。",
+          "gloss": "(wrong past form)",
+          "result": "npc_puzzled",
+          "reaction": "ふふ 、 おいしかった=おいしい です か 。 よかった=いい です 。",
+          "note": "The past of an い-adjective is おいしかったです, not おいしいでした.",
+          "grammar": "i_adj_past"
+        },
+        {
+          "text": "いいえ 、 ありません=ある 。",
+          "gloss": "No, there isn't any.",
+          "result": "npc_confused",
+          "reaction": "え ？ … お味=味 は どう でした=です か ？",
+          "note": "お味はいかがでしたか asks how the food was. Answer with おいしかったです.",
+          "grammar": "i_adj_past"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "とても",
+            "おいしかった=おいしい",
+            "です"
+          ]
+        ],
+        "decoys": [
+          "おいしい",
+          "でした=です"
+        ]
+      },
+      "blank": {
+        "before": "とても",
+        "after": "です 。",
+        "answers": [
+          "おいしかった"
+        ]
+      },
+      "recast": "お味=味 は いかが でした=です か ？",
+      "next": {
+        "success": "futon"
+      }
+    },
+    "futon": {
+      "line": "よかった=いい です 。 お布団=布団 は あと で 敷きます=敷く ね 。",
+      "gloss": "I'm glad. I'll lay out your futon later.",
+      "targets": [
+        "布団",
+        "敷く",
+        "ごちそうさまでした"
+      ],
+      "grammar": [
+        "gochisousama"
+      ],
+      "choices": [
+        {
+          "text": "ごちそうさまでした 。",
+          "gloss": "Thank you for the meal.",
+          "result": "success"
+        },
+        {
+          "text": "いただきます 。",
+          "gloss": "(said before eating)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 もう 食べました=食べる よ 。",
+          "note": "After the meal, say ごちそうさまでした.",
+          "grammar": "gochisousama"
+        },
+        {
+          "text": "おはようございます 。",
+          "gloss": "Good morning.",
+          "result": "npc_puzzled",
+          "reaction": "… ふふ 、 それ は 明日 の 朝 です ね 。",
+          "note": "おはようございます is for the morning. After a meal, say ごちそうさまでした.",
+          "grammar": "greetings_time"
+        }
+      ],
+      "blank": {
+        "before": "",
+        "after": "。",
+        "answers": [
+          "ごちそうさまでした"
+        ]
+      },
+      "end": true
+    }
+  }
+}

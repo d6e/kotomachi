@@ -8,5 +8,8 @@
   { "id": "tanaka", "name": "田中 さん", "role": "Your neighbor" },
   { "id": "takahashi", "name": "高橋 さん", "role": "Works at the shrine's charm counter in 鎌倉" },
   { "id": "sato", "name": "佐藤 さん", "role": "Runs the souvenir shop in 鎌倉" },
-  { "id": "yamamoto", "name": "山本 さん", "role": "Runs the goldfish stall at the festival" }
+  { "id": "yamamoto", "name": "山本 さん", "role": "Runs the goldfish stall at the festival" },
+  { "id": "okami", "name": "女将 さん", "role": "Runs the ryokan in 箱根 and looks after the front desk" },
+  { "id": "nakai", "name": "仲居 さん", "role": "Looks after the guest rooms at the ryokan" },
+  { "id": "suzuki", "name": "鈴木 さん", "role": "Another guest at the ryokan, who comes every year" }
 ]

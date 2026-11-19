@@ -19,16 +19,20 @@ export const ROOM_ROWS = 13;
  */
 export type RoomCell = ' ' | '#' | '.' | 'D' | 'S' | '=' | 'h' | 'H' | 'f' | 'm' | 't' | 'c' | 'p' | 'n' | 'g' | 'k' | 'x' | 'b' | 'r' | 'w' | 'o'
   // Outdoors on a trip: 'T' tree, ',' stone path, 'L' stone lantern, 'P' a torii's post,
-  // '1' and '2' doors into the places there (walk onto one to go in).
-  | 'T' | ',' | 'L' | 'P' | '1' | '2';
+  // '1', '2' and '3' doors into the places there (walk onto one to go in; inside the
+  // ryokan, '1' is the stairs up to your room and '2' the way to the bath).
+  | 'T' | ',' | 'L' | 'P' | '1' | '2' | '3'
+  // At the hot springs: 'M' the mountains behind (and Mount Fuji), '~' hot water,
+  // 'u' the ryokan's little shop, 'q' a washing place in the bath.
+  | 'M' | '~' | 'u' | 'q';
 
 /** The places you can reach by train: the town you arrive in, and the places in it. */
-export type TripPlace = 'kamakura' | 'shrine' | 'omiyage';
+export type TripPlace = 'kamakura' | 'shrine' | 'omiyage' | 'hakone' | 'ryokan' | 'washitsu' | 'onsen';
 /** Anywhere with its own room-sized map: the insides on the street, and trip places. */
 export type Scene = DoorPlace | TripPlace;
 
 /** Things in a room you can use: the catalog at the post office, your shelf at home. */
-export type ThingId = 'catalog' | 'shelf' | 'tickets';
+export type ThingId = 'catalog' | 'shelf' | 'tickets' | 'baiten' | 'rest';
 
 /** Something bought for your room, and where it goes. */
 export interface DecorItem {
@@ -38,7 +42,7 @@ export interface DecorItem {
   spot?: TilePos;
 }
 
-const WALKABLE: ReadonlySet<string> = new Set(['.', 'D', 'r', ',', '1', '2']);
+const WALKABLE: ReadonlySet<string> = new Set(['.', 'D', 'r', ',', '1', '2', '3']);
 
 export type FloorKind = 'wood' | 'tile' | 'stone' | 'tatami';
 
@@ -66,6 +70,8 @@ export interface RoomDef {
   doors?: { cell: RoomCell; to: TripPlace }[];
   /** Where the 'D' door leads: the street (unset), another trip place, or the train home. */
   exit?: TripPlace | 'train';
+  /** The station's name on the platform board, outdoors on a trip. */
+  station?: string;
 }
 
 export const ROOMS: Record<DoorPlace, RoomDef> = {
@@ -233,7 +239,7 @@ export const ROOM_PLACES = Object.keys(ROOMS) as DoorPlace[];
  * 鎌倉, the first trip. You step off the train at the bottom, walk up the stone path,
  * through a torii to the shrine on the left, or to the souvenir shop on the right.
  */
-export const TRIP_ROOMS: Record<TripPlace, RoomDef> = {
+export const TRIP_ROOMS = {
   kamakura: {
     place: 'kamakura',
     floor: 'stone',
@@ -303,7 +309,123 @@ export const TRIP_ROOMS: Record<TripPlace, RoomDef> = {
       '                    ',
     ],
   },
+} as Record<TripPlace, RoomDef>;
+
+/**
+ * 箱根, the overnight trip. Off the train at the bottom, up the path to the ryokan on
+ * the left; a steaming footbath on the right, and the mountains and Mount Fuji behind.
+ */
+TRIP_ROOMS.hakone = {
+  place: 'hakone',
+  floor: 'stone',
+  wall: 'wall',
+  outdoor: true,
+  exit: 'train',
+  station: '箱根',
+  doors: [{ cell: '3', to: 'ryokan' }],
+  rows: [
+    'MMMMMMMMMMMMMMMMMMMM',
+    'MMMMMMMMMMMMMMMMMMMM',
+    'T.##########.......T',
+    'T.##########..~~~..T',
+    'T.#####3####..~~~..T',
+    'T......,.......n...T',
+    'T..L...,....L......T',
+    'T......,,,,,,,,....T',
+    'T.T.........,...T..T',
+    'T...........,......T',
+    'T...........,......T',
+    'TTTTTTTTTTTT,TTTTTTT',
+    '            D       ',
+  ],
 };
+
+/**
+ * Inside the ryokan: the front desk where the 女将 checks you in and out, the stairs up
+ * to the guest rooms on the left, the way to the big bath on the right, and a little
+ * shop by the entrance.
+ */
+TRIP_ROOMS.ryokan = {
+  place: 'ryokan',
+  floor: 'wood',
+  wall: 'cream',
+  sign: '旅館',
+  staff: 'okami',
+  exit: 'hakone',
+  things: [{ cell: 'u', id: 'baiten' }],
+  doors: [{ cell: '1', to: 'washitsu' }, { cell: '2', to: 'onsen' }],
+  rows: [
+    '                    ',
+    '                    ',
+    ' ################## ',
+    ' ################## ',
+    ' #p.1....hSh....2p# ',
+    ' #.......===......# ',
+    ' #................# ',
+    ' #................# ',
+    ' #uu..........nn..# ',
+    ' #................# ',
+    ' #p..............p# ',
+    ' ########D######### ',
+    '                    ',
+  ],
+};
+
+/** Your room upstairs: tatami, a low table, a scroll in the alcove and a window on the mountains. The futon goes down after dinner. */
+TRIP_ROOMS.washitsu = {
+  place: 'washitsu',
+  floor: 'tatami',
+  wall: 'cream',
+  staff: 'nakai',
+  exit: 'ryokan',
+  things: [{ cell: 'w', id: 'rest' }],
+  rows: [
+    '                    ',
+    '                    ',
+    '   ##############   ',
+    '   ##############   ',
+    '   #p...S.......#   ',
+    '   #....ww......#   ',
+    '   #............#   ',
+    '   #.......bb...#   ',
+    '   #.......bb...#   ',
+    '   #p...........#   ',
+    '   ######D#######   ',
+    '                    ',
+    '                    ',
+  ],
+};
+
+/** The big bath: wash at the taps first, then get in. Another guest is already soaking. */
+TRIP_ROOMS.onsen = {
+  place: 'onsen',
+  floor: 'stone',
+  wall: 'mint',
+  staff: 'suzuki',
+  exit: 'ryokan',
+  rows: [
+    '                    ',
+    '                    ',
+    ' ################## ',
+    ' ################## ',
+    ' #~~~~~~~~S~~~~~~~# ',
+    ' #~~~~~~~~~~~~~~~~# ',
+    ' #................# ',
+    ' #................# ',
+    ' #q.q.q.q.........# ',
+    ' #................# ',
+    ' #p.......n......p# ',
+    ' ########D######### ',
+    '                    ',
+  ],
+};
+
+/** The guest room as it is tonight: whether someone is there to see to you, and whether the futon is down. */
+export function washitsuFor(o: { attendant: boolean; futon: boolean }): RoomDef {
+  const base = TRIP_ROOMS.washitsu;
+  const rows = base.rows.map((r) => (o.attendant ? r : r.replace('S', '.')).replace(/b/g, o.futon ? 'b' : '.'));
+  return { ...base, rows, staff: o.attendant ? base.staff : undefined };
+}
 
 /** Any place's map. */
 export function roomFor(scene: Scene): RoomDef {
