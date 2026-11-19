@@ -60,8 +60,9 @@ export function progressFor(g: GameData, scenario: string): ScenarioProgress {
   return (g.progress[scenario] ??= newProgress());
 }
 
-export function save(g: GameData, storage: Storage | undefined = globalThis.localStorage): boolean {
+export function save(g: GameData, storage?: Storage): boolean {
   try {
+    storage ??= globalThis.localStorage;
     storage?.setItem(SAVE_KEY, JSON.stringify(g));
     return !!storage;
   } catch {
@@ -69,8 +70,9 @@ export function save(g: GameData, storage: Storage | undefined = globalThis.loca
   }
 }
 
-export function load(storage: Storage | undefined = globalThis.localStorage): GameData | null {
+export function load(storage?: Storage): GameData | null {
   try {
+    storage ??= globalThis.localStorage;
     const raw = storage?.getItem(SAVE_KEY);
     if (!raw) return null;
     const g = JSON.parse(raw) as GameData;
@@ -81,8 +83,9 @@ export function load(storage: Storage | undefined = globalThis.localStorage): Ga
   }
 }
 
-export function clearSave(storage: Storage | undefined = globalThis.localStorage): void {
+export function clearSave(storage?: Storage): void {
   try {
+    storage ??= globalThis.localStorage;
     storage?.removeItem(SAVE_KEY);
   } catch {
     /* ignore */
