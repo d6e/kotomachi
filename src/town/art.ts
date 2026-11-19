@@ -3,7 +3,7 @@
 // Sign lettering isn't drawn here: each board is left blank and its text is drawn
 // crisply on top by the town, so it stays readable at any size.
 
-import { BACK_TREES, BUILDINGS, buildGrid, GROUND, LAMPS, POND, ROOF_BOTTOM, ROWS, TILE, WORLD_H, WORLD_W, type Building, type Grid, type RoofRole } from './map.ts';
+import { BACK_TREES, BOARD, BUILDINGS, buildGrid, GROUND, LAMPS, POND, RAIL_ROW, ROOF_BOTTOM, ROWS, TILE, WORLD_H, WORLD_W, type Building, type Grid, type RoofRole } from './map.ts';
 import type { Role } from './palette.ts';
 import { Buf, hash, roundRect } from './pixels.ts';
 import { CAT, KEY } from './sprites.ts';
@@ -19,7 +19,22 @@ export interface SignSpot {
   y: number;
   w: number;
   h: number;
+  /** Text size in world pixels, when it isn't SIGN_TEXT. */
+  size?: number;
 }
+
+/** A window on the street, which lights up in the evening if someone's in. */
+export interface Lit {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  building: Building['id'];
+}
+
+/** While the world is drawn, the windows each building puts in its front. */
+let lights: Lit[] | null = null;
+let litBuilding: Building['id'] = 'home';
 
 /** Measures text at SIGN_TEXT px in world pixels (the browser's canvas does this). */
 export type Measure = (text: string) => number;
@@ -217,6 +232,7 @@ function wall(b: Buf, x0: number, w: number, role: Role = 'wall'): void {
 }
 
 export function windowPane(b: Buf, x0: number, y0: number, w: number, h: number, mullion = true): void {
+  lights?.push({ x: x0 + 1, y: y0 + 1, w: w - 2, h: h - 2, building: litBuilding });
   b.box(x0, y0, w, h, 'glass');
   b.rect(x0 + 1, y0 + 1, w - 2, 2, 'glassSh');
   for (const o of [2, 5, 6])
@@ -473,6 +489,41 @@ const BUILD = { home, cafe, konbini, pharmacy, restaurant, post, station } as co
 export interface World {
   buf: Buf;
   signs: SignSpot[];
+  windows: Lit[];
+}
+
+/** The railway along the bottom: a low wire fence, then sleepers and two rails on gravel. */
+function railway(b: Buf, y0: number): void {
+  b.rect(0, y0, WORLD_W, 3, 'grassSh');
+  b.rect(0, y0 + 3, WORLD_W, TILE - 3, 'stone');
+  for (let x = 0; x < WORLD_W; x++) for (let y = y0 + 3; y < y0 + TILE; y++) if (hash(x, y, 77) < 0.12) b.set(x, y, 'stoneSh');
+  for (let x = 1; x < WORLD_W; x += 6) b.rect(x, y0 + 5, 3, 10, 'trunk');
+  for (const ry of [y0 + 7, y0 + 12]) {
+    b.rect(0, ry, WORLD_W, 1, 'greySh');
+    b.rect(0, ry + 1, WORLD_W, 1, 'lamp');
+  }
+  // The fence: posts with a wire between.
+  b.rect(0, y0 + 1, WORLD_W, 1, 'fenceSh');
+  for (let x = 4; x < WORLD_W; x += 16) b.box(x, y0 - 2, 3, 6, 'fence');
+}
+
+/** The notice board (掲示板): a little roofed board on two posts, with papers pinned to it. */
+function noticeBoard(b: Buf, x0: number, groundY: number): void {
+  const top = groundY - 26;
+  b.ellipseShadow(x0 + 8, groundY - 1, 8, 1.5);
+  for (const px of [x0 + 2, x0 + 12]) b.box(px, top + 10, 3, groundY - top - 11, 'trunk');
+  b.box(x0, top + 3, 16, 12, 'wood');
+  b.rect(x0 + 1, top + 4, 14, 1, 'woodHi');
+  // A small roof keeps the rain off.
+  b.box(x0 - 1, top, 18, 4, 'roofF');
+  b.rect(x0, top + 1, 16, 1, 'roofFHi');
+  // Papers: a white notice, a yellow one, and the festival's red poster.
+  b.box(x0 + 2, top + 5, 5, 7, 'white');
+  b.rect(x0 + 3, top + 7, 3, 1, 'greySh');
+  b.rect(x0 + 3, top + 9, 2, 1, 'greySh');
+  b.box(x0 + 8, top + 5, 6, 5, 'poster');
+  b.box(x0 + 9, top + 9, 5, 5, 'lantern');
+  b.set(x0 + 11, top + 11, 'white');
 }
 
 export function drawWorld(measure: Measure, grid: Grid = buildGrid()): World {
@@ -486,7 +537,14 @@ export function drawWorld(measure: Measure, grid: Grid = buildGrid()): World {
     if (t === 0 || t === BACK_TREES[BACK_TREES.length - 1]) tree(b, x, 30);
     flowerPatch(b, x, 46, 16, 32, t);
   }
-  for (const bd of BUILDINGS) BUILD[bd.id]({ b, signs, measure }, bd.x, bd.w, bd);
+  const windows: Lit[] = [];
+  lights = windows;
+  for (const bd of BUILDINGS) {
+    litBuilding = bd.id;
+    BUILD[bd.id]({ b, signs, measure }, bd.x, bd.w, bd);
+  }
+  lights = null;
+  noticeBoard(b, BOARD.tx * TILE, GROUND);
 
   // The street: a brick plaza in front of the shops, with the buildings' shade along it.
   plaza(b, 0, GROUND, WORLD_W, 2 * TILE);
@@ -525,7 +583,8 @@ export function drawWorld(measure: Measure, grid: Grid = buildGrid()): World {
         if (tx === 4) b.sprite(CAT, x + 4, y - 6, { ...KEY, G: 'grey', g: 'greySh', E: 'eye', P: 'blush' });
       }
     }
-  return { buf: b, signs };
+  railway(b, RAIL_ROW * TILE);
+  return { buf: b, signs, windows };
 }
 
 /** A small plate hung on a closed shop's door, sized for its text. */

@@ -559,3 +559,9 @@ input.blank:focus { outline: none; background: #fff8f2; }
   .res-level, .res-yen, .res-bar i, .clock .xpbar i { transition: none; }
 }
 @keyframes fade-out-still { to { opacity: 0; } }
+.day-note { margin: 10px 0 4px; padding: 8px 12px; border-radius: 10px; background: #f6f9ff; border: 2px solid var(--rim); font-size: 19px; line-height: 2; }
+.day-note.festival { background: #fff8f2; border-color: #ffc4a0; }
+.day-note .muted { font-size: 14px; line-height: 1.4; }
+.notices { list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 10px; }
+.notice { padding: 8px 12px; border-radius: 10px; background: #fffaf0; border: 2px solid #e8d9b8; font-size: 19px; line-height: 2; }
+.notice .muted { font-size: 14px; line-height: 1.4; }

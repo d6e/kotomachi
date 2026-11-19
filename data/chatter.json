@@ -1,0 +1,279 @@
+{
+ "street": [
+  {
+   "text": "いい 天気 です ね 。",
+   "en": "Nice weather, isn't it?",
+   "weather": [
+    "hare"
+   ]
+  },
+  {
+   "text": "今日 は 暑い です ね 。",
+   "en": "It's hot today, isn't it?",
+   "weather": [
+    "hare"
+   ],
+   "time": [
+    "day"
+   ]
+  },
+  {
+   "text": "空 が きれい です ね 。",
+   "en": "The sky is lovely, isn't it?",
+   "weather": [
+    "hare"
+   ]
+  },
+  {
+   "text": "今日 は 曇り です ね 。",
+   "en": "It's cloudy today, isn't it?",
+   "weather": [
+    "kumori"
+   ]
+  },
+  {
+   "text": "雨 が 降りそう=降る です ね 。",
+   "en": "Looks like it's going to rain.",
+   "weather": [
+    "kumori"
+   ]
+  },
+  {
+   "text": "傘 を 持って=持つ います=いる か ？",
+   "en": "Have you got an umbrella?",
+   "weather": [
+    "kumori",
+    "ame"
+   ]
+  },
+  {
+   "text": "よく 降ります=降る ね 。",
+   "en": "It really is coming down.",
+   "weather": [
+    "ame"
+   ]
+  },
+  {
+   "text": "雨 、 止みません=止む ね 。",
+   "en": "This rain won't stop, will it?",
+   "weather": [
+    "ame"
+   ]
+  },
+  {
+   "text": "傘 を 忘れました=忘れる 。",
+   "en": "I forgot my umbrella.",
+   "weather": [
+    "ame"
+   ]
+  },
+  {
+   "text": "コンビニ で 傘 を 買いました=買う 。",
+   "en": "I bought an umbrella at the konbini.",
+   "weather": [
+    "ame"
+   ]
+  },
+  {
+   "text": "夕方 は 涼しい です ね 。",
+   "en": "It's cooler in the evening, isn't it?",
+   "weather": [
+    "hare",
+    "kumori"
+   ],
+   "time": [
+    "evening"
+   ]
+  },
+  {
+   "text": "おはようございます 。",
+   "en": "Good morning.",
+   "time": [
+    "morning"
+   ]
+  },
+  {
+   "text": "こんにちは 。",
+   "en": "Hello.",
+   "time": [
+    "day"
+   ]
+  },
+  {
+   "text": "こんばんは 。",
+   "en": "Good evening.",
+   "time": [
+    "evening",
+    "night"
+   ]
+  },
+  {
+   "text": "もう 夜 です ね 。",
+   "en": "It's night already, isn't it?",
+   "time": [
+    "night"
+   ]
+  },
+  {
+   "text": "公園 を 散歩 します=する 。",
+   "en": "I'm going for a walk in the park.",
+   "time": [
+    "morning",
+    "day"
+   ],
+   "weather": [
+    "hare",
+    "kumori"
+   ]
+  },
+  {
+   "text": "犬 と 散歩 です 。",
+   "en": "I'm out walking the dog.",
+   "time": [
+    "morning",
+    "evening"
+   ],
+   "weather": [
+    "hare",
+    "kumori"
+   ]
+  },
+  {
+   "text": "あの カフェ の コーヒー 、 おいしい です よ 。",
+   "en": "The coffee at that cafe is good."
+  },
+  {
+   "text": "コンビニ で おにぎり を 買いました=買う 。",
+   "en": "I bought an onigiri at the konbini."
+  },
+  {
+   "text": "コンビニ で 弁当 を 買います=買う 。",
+   "en": "I'm getting a bento at the konbini.",
+   "time": [
+    "day",
+    "evening"
+   ]
+  },
+  {
+   "text": "郵便局 で 切手 を 買います=買う 。",
+   "en": "I'm buying stamps at the post office.",
+   "time": [
+    "morning",
+    "day"
+   ]
+  },
+  {
+   "text": "駅 で 切符 を 買いました=買う 。",
+   "en": "I bought a ticket at the station."
+  },
+  {
+   "text": "電車 で 大阪 に 行きます=行く 。",
+   "en": "I'm taking the train to Osaka."
+  },
+  {
+   "text": "薬局 で 薬 を 買います=買う 。",
+   "en": "I'm getting medicine at the pharmacy.",
+   "time": [
+    "morning",
+    "day"
+   ]
+  },
+  {
+   "text": "ラーメン 、 好き です か ？",
+   "en": "Do you like ramen?",
+   "time": [
+    "day",
+    "evening"
+   ]
+  },
+  {
+   "text": "お茶 を 飲みたい=飲む です ね 。",
+   "en": "I'd like some tea."
+  },
+  {
+   "text": "牛乳 を 買います=買う 。",
+   "en": "I'm buying milk.",
+   "time": [
+    "morning",
+    "day"
+   ]
+  },
+  {
+   "text": "電車 、 もう 来ました=来る か ？",
+   "en": "Has the train come yet?"
+  },
+  {
+   "text": "猫 が 寝て=寝る います=いる ね 。",
+   "en": "The cat's asleep."
+  },
+  {
+   "text": "鳥 が たくさん います=いる ね 。",
+   "en": "There are lots of birds.",
+   "weather": [
+    "hare"
+   ]
+  },
+  {
+   "text": "明日 は 祭り です よ ！",
+   "en": "The festival is tomorrow!",
+   "eve": true
+  },
+  {
+   "text": "今日 は 祭り です よ ！",
+   "en": "It's festival day today!",
+   "festival": true
+  },
+  {
+   "text": "公園 に 屋台 が たくさん あります=ある よ 。",
+   "en": "There are lots of stalls in the park.",
+   "festival": true
+  },
+  {
+   "text": "金魚すくい 、 楽しい です よ 。",
+   "en": "Goldfish scooping is fun.",
+   "festival": true
+  },
+  {
+   "text": "たこ焼き 、 おいしい です ね ！",
+   "en": "The takoyaki is good!",
+   "festival": true
+  },
+  {
+   "text": "かき氷 を 食べたい=食べる です 。",
+   "en": "I'd like some shaved ice.",
+   "festival": true,
+   "time": [
+    "day",
+    "evening"
+   ]
+  },
+  {
+   "text": "提灯 が きれい です ね 。",
+   "en": "The lanterns are lovely.",
+   "festival": true,
+   "time": [
+    "evening",
+    "night"
+   ]
+  },
+  {
+   "text": "にぎやか です ね ！",
+   "en": "It's so lively!",
+   "festival": true
+  }
+ ],
+ "cat": {
+  "text": "猫 が 寝て=寝る います=いる 。",
+  "en": "The cat is asleep."
+ },
+ "stalls": {
+  "takoyaki": {
+   "text": "たこ焼き 、 おいしい よ ！ どう です か ？",
+   "en": "Takoyaki, they're good! How about some?"
+  },
+  "kakigoori": {
+   "text": "暑い 日 は かき氷 です よ ！",
+   "en": "Hot days are for shaved ice!"
+  }
+ }
+}

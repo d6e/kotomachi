@@ -2158,5 +2158,251 @@
   "reading": "たのしみ",
   "meaning": "something to look forward to; 楽しみにしています = I'm looking forward to it",
   "pos": "noun"
+ },
+ {
+  "id": "晴れ",
+  "reading": "はれ",
+  "meaning": "sunny, clear weather",
+  "pos": "noun"
+ },
+ {
+  "id": "曇り",
+  "reading": "くもり",
+  "meaning": "cloudy weather",
+  "pos": "noun"
+ },
+ {
+  "id": "降る",
+  "reading": "ふる",
+  "meaning": "to fall (rain, snow)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "止む",
+  "reading": "やむ",
+  "meaning": "to stop (rain)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "祭り",
+  "reading": "まつり",
+  "meaning": "festival",
+  "pos": "noun"
+ },
+ {
+  "id": "屋台",
+  "reading": "やたい",
+  "meaning": "food stall, festival stall",
+  "pos": "noun"
+ },
+ {
+  "id": "金魚すくい",
+  "reading": "きんぎょすくい",
+  "meaning": "goldfish scooping (a festival game)",
+  "pos": "noun"
+ },
+ {
+  "id": "ポイ",
+  "reading": "ポイ",
+  "meaning": "the paper scoop used for goldfish scooping",
+  "pos": "noun"
+ },
+ {
+  "id": "頑張る",
+  "reading": "がんばる",
+  "meaning": "to do your best; 頑張って = good luck!",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "やった",
+  "reading": "やった",
+  "meaning": "Yay! I did it!",
+  "pos": "set phrase"
+ },
+ {
+  "id": "おめでとう",
+  "reading": "おめでとう",
+  "meaning": "congratulations",
+  "pos": "set phrase"
+ },
+ {
+  "id": "一匹",
+  "reading": "いっぴき",
+  "meaning": "one (small animal, fish)",
+  "pos": "counter"
+ },
+ {
+  "id": "鳥",
+  "reading": "とり",
+  "meaning": "bird",
+  "pos": "noun"
+ },
+ {
+  "id": "掲示板",
+  "reading": "けいじばん",
+  "meaning": "notice board",
+  "pos": "noun"
+ },
+ {
+  "id": "提灯",
+  "reading": "ちょうちん",
+  "meaning": "paper lantern",
+  "pos": "noun"
+ },
+ {
+  "id": "たこ焼き",
+  "reading": "たこやき",
+  "meaning": "takoyaki (octopus dumplings)",
+  "pos": "noun"
+ },
+ {
+  "id": "かき氷",
+  "reading": "かきごおり",
+  "meaning": "shaved ice with syrup",
+  "pos": "noun"
+ },
+ {
+  "id": "山本",
+  "reading": "やまもと",
+  "meaning": "Yamamoto (a family name)",
+  "pos": "name"
+ },
+ {
+  "id": "公園",
+  "reading": "こうえん",
+  "meaning": "park",
+  "pos": "noun"
+ },
+ {
+  "id": "暑い",
+  "reading": "あつい",
+  "meaning": "hot (weather)",
+  "pos": "adj (i)"
+ },
+ {
+  "id": "涼しい",
+  "reading": "すずしい",
+  "meaning": "cool, pleasantly cool",
+  "pos": "adj (i)"
+ },
+ {
+  "id": "きれい",
+  "reading": "きれい",
+  "meaning": "pretty; clean",
+  "pos": "adj (na)"
+ },
+ {
+  "id": "楽しい",
+  "reading": "たのしい",
+  "meaning": "fun, enjoyable",
+  "pos": "adj (i)"
+ },
+ {
+  "id": "にぎやか",
+  "reading": "にぎやか",
+  "meaning": "lively, bustling",
+  "pos": "adj (na)"
+ },
+ {
+  "id": "夕方",
+  "reading": "ゆうがた",
+  "meaning": "early evening",
+  "pos": "noun"
+ },
+ {
+  "id": "空",
+  "reading": "そら",
+  "meaning": "sky",
+  "pos": "noun"
+ },
+ {
+  "id": "花",
+  "reading": "はな",
+  "meaning": "flower",
+  "pos": "noun"
+ },
+ {
+  "id": "犬",
+  "reading": "いぬ",
+  "meaning": "dog",
+  "pos": "noun"
+ },
+ {
+  "id": "散歩",
+  "reading": "さんぽ",
+  "meaning": "a walk, a stroll",
+  "pos": "noun"
+ },
+ {
+  "id": "あと",
+  "reading": "あと",
+  "meaning": "more, left (あと 三日: three more days)",
+  "pos": "adverb"
+ },
+ {
+  "id": "毎週",
+  "reading": "まいしゅう",
+  "meaning": "every week",
+  "pos": "noun"
+ },
+ {
+  "id": "見る",
+  "reading": "みる",
+  "meaning": "to see, to look at, to watch",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "好き",
+  "reading": "すき",
+  "meaning": "liked; 〜が好き = I like 〜",
+  "pos": "adj (na)"
+ },
+ {
+  "id": "少し",
+  "reading": "すこし",
+  "meaning": "a little",
+  "pos": "adverb"
+ },
+ {
+  "id": "電気",
+  "reading": "でんき",
+  "meaning": "electricity; the lights",
+  "pos": "noun"
+ },
+ {
+  "id": "待つ",
+  "reading": "まつ",
+  "meaning": "to wait",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "たくさん",
+  "reading": "たくさん",
+  "meaning": "a lot, many",
+  "pos": "adverb"
+ },
+ {
+  "id": "今",
+  "reading": "いま",
+  "meaning": "now",
+  "pos": "noun"
+ },
+ {
+  "id": "人",
+  "reading": "ひと",
+  "meaning": "person, people",
+  "pos": "noun"
+ },
+ {
+  "id": "忘れる",
+  "reading": "わすれる",
+  "meaning": "to forget; to leave something behind",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "よく",
+  "reading": "よく",
+  "meaning": "often; a lot; well",
+  "pos": "adverb"
  }
 ]

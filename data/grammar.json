@@ -262,5 +262,11 @@
   "title": "これ, それ, あれ, どれ",
   "note": "これ is the thing near you, それ the thing near the other person, あれ the thing over there, and どれ asks which one. To take the thing in front of you, say これをください.",
   "example": "これ を ください 。"
+ },
+ {
+  "id": "ganbaru",
+  "title": "頑張って and 頑張ります",
+  "note": "頑張って cheers someone else on: good luck, go for it! About yourself, answer 頑張ります: I'll do my best.",
+  "example": "はい 、 頑張ります=頑張る 。"
  }
 ]

@@ -623,6 +623,12 @@ export const KEEPSAKE_ART: Record<string, Mini> = {
     b.rect(x + 1, base - 3, 5, 1, 'water');
     b.set(x + 4, base - 4, 'flowerB');
   },
+  // A round glass bowl with the goldfish from the festival in it.
+  kingyo: (b, x, base) => {
+    b.shape(x, base - 6, 7, 6, (i, j) => (i - 3) ** 2 + (j - 3.2) ** 2 <= 10.5, (_i, j) => (j < 2 ? 'glassHi' : 'water'));
+    b.rect(x + 2, base - 3, 2, 1, 'top');
+    b.set(x + 4, base - 3, 'topSh');
+  },
 };
 
 type Piece = (b: Buf, x: number, y: number) => void;

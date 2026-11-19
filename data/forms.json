@@ -71,5 +71,13 @@
  "要ります=要る": "polite form (～ます) of 要る, 'to need'",
  "買いたい=買う": "ます-stem 買い + たい: want to buy",
  "売りたい=売る": "ます-stem 売り + たい: want to sell",
- "して=する": "て-form of する; ～ています says something is going on now"
+ "して=する": "て-form of する; ～ています says something is going on now",
+ "降りそう=降る": "降り (the ます-stem) + そう: looks like it's about to",
+ "降ります=降る": "polite present of 降る",
+ "止みません=止む": "polite negative of 止む: it won't stop",
+ "忘れました=忘れる": "polite past of 忘れる",
+ "寝て=寝る": "て-form of 寝る; 寝ています = is asleep",
+ "頑張って=頑張る": "て-form of 頑張る, said on its own to cheer someone on: good luck!",
+ "頑張ります=頑張る": "polite present of 頑張る: I'll do my best",
+ "いらっしゃい=いらっしゃいませ": "the casual いらっしゃいませ, called out at stalls and small shops"
 }

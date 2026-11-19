@@ -1,0 +1,233 @@
+{
+  "id": "festival_kingyo",
+  "title": "Goldfish scooping at the festival",
+  "place": "matsuri",
+  "npc": "yamamoto",
+  "maxStage": 4,
+  "start": "greet",
+  "variants": [
+    {
+      "id": "ippiki",
+      "price": 300,
+      "slots": {
+        "item": "金魚",
+        "item_en": "goldfish"
+      }
+    }
+  ],
+  "nodes": {
+    "greet": {
+      "line": "いらっしゃい ！ 金魚すくい 、 どう です か ？",
+      "gloss": "Come on over! How about some goldfish scooping?",
+      "targets": [
+        "金魚すくい",
+        "一回"
+      ],
+      "grammar": [
+        "counters_kai"
+      ],
+      "choices": [
+        {
+          "text": "一回 お願いします=お願いする 。",
+          "gloss": "One go, please.",
+          "result": "success"
+        },
+        {
+          "text": "一枚 お願いします=お願いする 。",
+          "gloss": "One sheet, please.",
+          "result": "npc_puzzled",
+          "reaction": "一回 、 です ね 。",
+          "note": "回 counts goes and times. 枚 is for flat things like tickets. Here, 一回お願いします.",
+          "grammar": "counters_kai"
+        },
+        {
+          "text": "金魚 を 食べたい=食べる です 。",
+          "gloss": "I'd like to eat a goldfish.",
+          "result": "npc_amused",
+          "reaction": "え ！ 食べません=食べる よ ！",
+          "note": "金魚すくい is a game: you scoop a goldfish to take home. Ask for a go: 一回お願いします.",
+          "grammar": "tai"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "一回",
+            "お願いします=お願いする"
+          ]
+        ],
+        "decoys": [
+          "一枚",
+          "を",
+          "食べたい=食べる"
+        ]
+      },
+      "blank": {
+        "before": "",
+        "after": "お願いします=お願いする 。",
+        "answers": [
+          "いっかい",
+          "一回"
+        ]
+      },
+      "recast": "金魚すくい 、 一回 どう です か ？",
+      "next": {
+        "success": "pay"
+      }
+    },
+    "pay": {
+      "line": "一回 $price 円 です 。",
+      "gloss": "It's ¥$price a go.",
+      "targets": [
+        "円"
+      ],
+      "grammar": [
+        "itadakimasu"
+      ],
+      "effects": {
+        "pay": true
+      },
+      "choices": [
+        {
+          "text": "はい 、 どうぞ 。",
+          "gloss": "Here you are.",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 いただきます 。",
+          "gloss": "(said before eating)",
+          "result": "npc_amused",
+          "reaction": "ふふ 。 $price 円 です よ 。",
+          "note": "いただきます is for just before you eat. Handing money over, say はい、どうぞ.",
+          "grammar": "itadakimasu"
+        },
+        {
+          "text": "ごちそうさまでした 。",
+          "gloss": "Thank you for the meal.",
+          "result": "npc_amused",
+          "reaction": "… ？ $price 円 です 。",
+          "note": "ごちそうさまでした is for after a meal, not when you pay.",
+          "grammar": "gochisousama"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "はい 、",
+            "どうぞ"
+          ]
+        ],
+        "decoys": [
+          "いただきます",
+          "ください"
+        ]
+      },
+      "blank": {
+        "before": "はい 、",
+        "after": "。",
+        "answers": [
+          "どうぞ"
+        ]
+      },
+      "recast": "一回 $price 円 です 。",
+      "next": {
+        "success": "scoop"
+      }
+    },
+    "scoop": {
+      "line": "はい 、 ポイ です 。 頑張って=頑張る ！",
+      "gloss": "Here's your scoop. Good luck!",
+      "targets": [
+        "ポイ",
+        "頑張る"
+      ],
+      "grammar": [
+        "ganbaru"
+      ],
+      "choices": [
+        {
+          "text": "はい 、 頑張ります=頑張る ！",
+          "gloss": "Okay, I'll do my best!",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 頑張って=頑張る ！",
+          "gloss": "Okay, good luck!",
+          "result": "npc_amused",
+          "reaction": "ふふ 。 頑張ります=頑張る 、 です ね 。",
+          "note": "頑張って cheers someone else on. About yourself, say 頑張ります.",
+          "grammar": "ganbaru"
+        },
+        {
+          "text": "はい 、 いただきます 。",
+          "gloss": "(said before eating)",
+          "result": "npc_amused",
+          "reaction": "ふふ 。 食べません=食べる よ 。",
+          "note": "いただきます is for just before you eat. Before you try something, say 頑張ります.",
+          "grammar": "itadakimasu"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "はい 、",
+            "頑張ります=頑張る"
+          ]
+        ],
+        "decoys": [
+          "頑張って=頑張る",
+          "いただきます"
+        ]
+      },
+      "blank": {
+        "before": "はい 、",
+        "after": "！",
+        "answers": [
+          "がんばります",
+          "頑張ります"
+        ]
+      },
+      "recast": "頑張って=頑張る ！",
+      "next": {
+        "success": "catch"
+      }
+    },
+    "catch": {
+      "line": "やった ！ 金魚 一匹 です 。 おめでとう ！",
+      "gloss": "You did it! One goldfish. Congratulations!",
+      "targets": [
+        "金魚",
+        "一匹",
+        "おめでとう"
+      ],
+      "grammar": [
+        "irasshaimase"
+      ],
+      "maxMode": 2,
+      "choices": [
+        {
+          "text": "ありがとうございます 。 かわいい です ね 。",
+          "gloss": "Thank you. It's cute, isn't it?",
+          "result": "success"
+        },
+        {
+          "text": "いらっしゃい 。",
+          "gloss": "Come on over! (what the stall says)",
+          "result": "npc_amused",
+          "reaction": "ふふ 。 それ は 私 の 言葉 です よ 。",
+          "note": "いらっしゃい is what the stall calls out. Just say ありがとうございます.",
+          "grammar": "irasshaimase"
+        },
+        {
+          "text": "ごちそうさまでした 。",
+          "gloss": "Thank you for the meal.",
+          "result": "npc_amused",
+          "reaction": "え ！ 食べません=食べる よ ！",
+          "note": "ごちそうさまでした is for after a meal. To thank someone, say ありがとうございます.",
+          "grammar": "gochisousama"
+        }
+      ],
+      "end": true
+    }
+  }
+}

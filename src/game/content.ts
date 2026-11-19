@@ -15,10 +15,13 @@ import post from '../../data/scenarios/post.json' with { type: 'json' };
 import catalog from '../../data/scenarios/catalog.json' with { type: 'json' };
 import shrine from '../../data/scenarios/shrine.json' with { type: 'json' };
 import omiyage from '../../data/scenarios/omiyage.json' with { type: 'json' };
+import festival from '../../data/scenarios/festival.json' with { type: 'json' };
+import chatterJson from '../../data/chatter.json' with { type: 'json' };
 import requestsJson from '../../data/requests.json' with { type: 'json' };
 import consequencesJson from '../../data/consequences.json' with { type: 'json' };
 import type { RequestData } from './errands.ts';
 import type { SceneArt } from '../town/scenes.ts';
+import { boardNotes, morningNote, type TimeOfDay, type Weather } from './weather.ts';
 import { parseLine, Vocab, type ParseIssue, type VocabEntry } from '../lang/markup.ts';
 import type { GrammarNote, NpcDef, NpcId, ScenarioDef } from '../scenario/types.ts';
 
@@ -30,7 +33,7 @@ export const grammar: Record<string, GrammarNote> = Object.fromEntries(
 export const npcs: Record<NpcId, NpcDef> = Object.fromEntries(
   (npcsJson as NpcDef[]).map((n) => [n.id, n]),
 ) as Record<NpcId, NpcDef>;
-export const scenarios: ScenarioDef[] = [cafe, konbini, pharmacy, restaurant, station, post, neighbor, catalog, shrine, omiyage] as unknown as ScenarioDef[];
+export const scenarios: ScenarioDef[] = [cafe, konbini, pharmacy, restaurant, station, post, neighbor, catalog, shrine, omiyage, festival] as unknown as ScenarioDef[];
 export const scenarioById: Record<string, ScenarioDef> = Object.fromEntries(scenarios.map((s) => [s.id, s]));
 /** The regulars' stories and everyday requests. */
 export const requests = requestsJson as unknown as RequestData;
@@ -48,6 +51,19 @@ export interface ConsequenceDef {
   outcome_en: string;
 }
 export const consequences = consequencesJson as unknown as Record<string, ConsequenceDef>;
+
+/** Something a passer-by says on the street, and when they'd say it. */
+export interface ChatterLine {
+  text: string;
+  en: string;
+  weather?: Weather[];
+  time?: TimeOfDay[];
+  /** Only on festival days. */
+  festival?: boolean;
+  /** Only the day before a festival. */
+  eve?: boolean;
+}
+export const chatter = chatterJson as unknown as { street: ChatterLine[]; cat: ChatterLine; stalls: Record<string, ChatterLine> };
 
 export interface ContentIssue {
   where: string;
@@ -92,6 +108,8 @@ export function validateContent(defs: ScenarioDef[] = scenarios): ContentIssue[]
     check(`small ${r.scenario}`, r.reason, {});
   }
   for (const g of Object.values(grammar)) check(`grammar ${g.id}`, g.example, {});
+  for (const c of [...chatter.street, chatter.cat, ...Object.values(chatter.stalls)]) check(`chatter ${c.en}`, c.text, {});
+  for (let day = 1; day <= 7; day++) for (const n of [...boardNotes(day), morningNote(day)]) check(`notice day ${day}`, n.jp, {});
   for (const s of defs) {
     if (!s.nodes[s.start]) out.push({ where: s.id, problem: `start node ${s.start} missing` });
     for (const v of s.variants) {

@@ -8,7 +8,7 @@ import { lemmasOf, parseLine, plainText, type Token } from '../lang/markup.ts';
 import { Learner, type WordStatus } from '../learner/model.ts';
 import { finishRun, friendshipLevel, FRIENDSHIP_NAMES, greetSlots, MODE_NAMES, periodOf, ScenarioRun } from '../scenario/engine.ts';
 import type { Mode, NpcId, PlaceId, ScenarioDef } from '../scenario/types.ts';
-import { Town, type Interactable } from '../town/town.ts';
+import { Town, type Interactable, type Said } from '../town/town.ts';
 import type { Scene } from '../town/rooms.ts';
 import { toCanvas } from '../town/pixels.ts';
 import { drawScene } from '../town/scenes.ts';
@@ -22,7 +22,8 @@ import { correctionItem, Notebook, type NotebookContext } from '../ui/notebook.t
 import { Popup } from '../ui/popup.ts';
 import { ALWAYS, renderTokens, unmarkNew } from '../ui/text.ts';
 import { comboMultiplier, errandPay, levelFor, levelProgress, XP, xpForLevel } from './rewards.ts';
-import { consequences, forms, grammar, npcs, requests, scenarioById, scenarios, vocab, type ConsequenceDef, type SceneWho } from './content.ts';
+import { chatter, consequences, forms, grammar, npcs, requests, scenarioById, scenarios, vocab, type ChatterLine, type ConsequenceDef, type SceneWho } from './content.ts';
+import { boardNotes, isFestival, morningNote, pickChatter, weatherFor } from './weather.ts';
 import { pickVariant, planRequests, type Errand } from './errands.ts';
 import { DAY_END, DAY_START, isOpen, load, newDayLog, newGame, progressFor, save, clearSave, formatClock, type GameData } from './state.ts';
 
@@ -30,7 +31,7 @@ const yen = (n: number): string => `¥${n.toLocaleString('en-US')}`;
 
 const PLACE_NAMES: Record<string, string> = {
   cafe: 'Cafe', konbini: 'Konbini', pharmacy: 'Pharmacy', restaurant: 'Restaurant', station: 'Station', post: 'Post office', street: 'Street',
-  shrine: 'Shrine in Kamakura', omiyage: 'Souvenir shop in Kamakura',
+  shrine: 'Shrine in Kamakura', omiyage: 'Souvenir shop in Kamakura', matsuri: 'Festival in the park',
 };
 const SCENARIO_FOR: Partial<Record<Scene, string>> = {
   cafe: 'cafe_order', konbini: 'konbini_buy', pharmacy: 'pharmacy_buy', restaurant: 'restaurant_eat', station: 'station_ticket', post: 'post_send',
@@ -63,6 +64,8 @@ export class Game {
   private shownDone = new Set<string>();
   private readonly levelUps: HTMLElement;
   private metBefore = new Set<string>();
+  /** Lines passers-by have said today, so they say something else next. */
+  private said = new Set<string>();
   /** Level-up cards held back while a gift or a scene is on screen. */
   private pendingUps: string[] = [];
 
@@ -83,6 +86,7 @@ export class Game {
       busy: () => this.phase !== 'town' || this.notebook.open || this.popup.open,
       staffName: (npc) => (npcs[npc as keyof typeof npcs] ? plainText(parseLine(npcs[npc as keyof typeof npcs].name, vocab)) : ''),
       thingName: (id) => ({ catalog: 'カタログ', shelf: '棚', tickets: '切符' })[id],
+      chatter: (who) => this.chatterFor(who),
     });
     const game = this;
     this.popup = new Popup(root, {
@@ -285,6 +289,7 @@ export class Game {
     this.refreshHome();
     this.town.invalidate();
     this.town.resetPlayer();
+    this.setDay();
     if (this.g.errands.length === 0) this.planDay();
     this.showMorning();
   }
@@ -307,6 +312,7 @@ export class Game {
         : due > 0
           ? `${due} word${due === 1 ? ' is' : 's are'} due for review. Today's errands were picked to bring them up.`
           : "Here's who could use a hand today."),
+      this.dayNote(),
       h('ul', { class: 'requests' }, this.g.errands.map((e) => h('li', { class: e.arc ? 'story' : '' },
         h('div', { class: 'req-who' }, this.asker(e), e.arc ? h('span', { class: 'req-tag' }, this.storyLabel(e)) : null, e.retry ? h('span', { class: 'req-tag again' }, 'Another go') : null),
         e.reason ? h('div', { class: 'req-reason' }, this.tokens(e.reason)) : null,
@@ -316,6 +322,59 @@ export class Game {
       h('p', { class: 'muted' }, 'Tap a word you don\'t know. Each errand pays back what you spend, plus a reward. Opening hours: cafe 8:00–18:00, pharmacy 9:00–19:00, post office 9:00–17:00, restaurant 11:00–22:00. The konbini and the station are always open.'
         + (levelFor(this.g.xp) >= TRIPS[0]!.level ? ' Trains to 鎌倉 leave the station until 17:00.' : '')),
       h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => this.goToTown() }, 'Head out ▶')),
+    );
+  }
+
+  /** Today's weather, the festival, or that it's tomorrow, in Japanese with the English under it. */
+  private dayNote(): HTMLElement {
+    const n = morningNote(this.g.day);
+    return h('div', { class: `day-note${isFestival(this.g.day) ? ' festival' : ''}` }, this.tokens(n.jp), h('div', { class: 'muted' }, n.en));
+  }
+
+  /** The weather and the festival for the town, from the day. */
+  private setDay(): void {
+    this.said.clear();
+    this.town.setDay({ weather: weatherFor(this.g.day), festival: isFestival(this.g.day) });
+  }
+
+  /** What someone in town says, with furigana where you still need it and due words marked. */
+  private chatterFor(who: string): Said | null {
+    let line: ChatterLine | null;
+    if (who === 'cat') line = chatter.cat;
+    else if (who.startsWith('stall:')) line = chatter.stalls[who.slice(6)] ?? null;
+    else
+      line = pickChatter(chatter.street, {
+        day: this.g.day,
+        minutes: this.g.minutes,
+        isDue: (w) => this.learner.isDue(w, this.g.day),
+        said: this.said,
+        lemmas: (l) => lemmasOf(parseLine(l.text, vocab)),
+        random: Math.random,
+      });
+    if (!line) return null;
+    this.said.add(line.text);
+    return {
+      en: line.en,
+      words: parseLine(line.text, vocab).map((t) => {
+        const known = !!t.lemma && vocab.has(t.lemma);
+        const ruby = known && this.learner.showFurigana(t.lemma, 2);
+        return { parts: t.ruby.map((p) => (ruby && p.rt ? { text: p.text, rt: p.rt } : { text: p.text })), lemma: known ? t.lemma : null, due: known && this.learner.isDue(t.lemma!, this.g.day) };
+      }),
+    };
+  }
+
+  /** The notice board on the street: today's weather, and when the festival is. */
+  private showBoard(): void {
+    this.phase = 'shop';
+    const title = parseLine('掲示板', vocab);
+    this.seeAll(title, 'street', 'tanaka');
+    this.showScreen(
+      h('h2', {}, renderTokens(title, { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false) })),
+      h('ul', { class: 'notices' }, boardNotes(this.g.day).map((n) => {
+        this.seeAll(parseLine(n.jp, vocab), 'street', 'tanaka');
+        return h('li', { class: 'notice' }, this.tokens(n.jp, false), h('div', { class: 'muted' }, n.en));
+      })),
+      h('div', { class: 'row' }, h('button', { onclick: () => this.goToTown() }, 'Close')),
     );
   }
 
@@ -347,6 +406,12 @@ export class Game {
     if (t.kind === 'npc') return this.startScenario(scenarioById['neighbor_greet']!);
     if (t.kind === 'bed') return this.confirmSleep();
     if (t.kind === 'train') return this.rideHome();
+    if (t.kind === 'board') return this.showBoard();
+    if (t.kind === 'stall') {
+      if (t.id === 'kingyo') this.startScenario(scenarioById['festival_kingyo']!);
+      return;
+    }
+    if (t.kind === 'cat') return;
     if (t.kind === 'thing') {
       if (t.id === 'catalog') return this.showCatalog();
       if (t.id === 'shelf') return this.showShelf();
@@ -478,7 +543,7 @@ export class Game {
     const keptSouvenir = souvenir && !this.g.keepsakes.includes(souvenir.id) ? souvenir : undefined;
     if (keptSouvenir) {
       this.g.keepsakes.push(keptSouvenir.id);
-      this.g.today.promotions.push(`A souvenir for your shelf: ${vocab.get(keptSouvenir.word)?.meaning ?? keptSouvenir.word}.`);
+      this.g.today.promotions.push(`${keptSouvenir.id === 'kingyo' ? 'A keepsake' : 'A souvenir'} for your shelf: ${vocab.get(keptSouvenir.word)?.meaning ?? keptSouvenir.word}.`);
       this.refreshHome();
     }
 
@@ -495,7 +560,9 @@ export class Game {
     } else if (ordered) {
       this.toast(`Ordered: ${vocab.get(ordered.word)?.meaning ?? ordered.word}. It'll be in your room when you get home.`);
     } else if (keptSouvenir) {
-      this.toast(`A souvenir: ${keptSouvenir.word} (${vocab.get(keptSouvenir.word)?.reading ?? ''}). It's on the shelf in your room.`);
+      this.toast(keptSouvenir.id === 'kingyo'
+        ? `You caught a goldfish: 金魚 (きんぎょ). It's in a bowl on the shelf in your room.`
+        : `A souvenir: ${keptSouvenir.word} (${vocab.get(keptSouvenir.word)?.reading ?? ''}). It's on the shelf in your room.`);
     } else if (run.clean) {
       this.toast(next.stage >= def.maxStage ? 'Clean visit.' : `Clean visit (${next.cleanRuns}/3 to the next stage).`);
     } else {
@@ -642,7 +709,7 @@ export class Game {
       h('h2', {}, '棚'),
       mine.length
         ? h('ul', { class: 'catalog shelf' }, items)
-        : h('p', {}, 'Nothing here yet. When a neighbour\'s story ends, they give you something to keep, and it goes on this shelf. So do souvenirs from trips.'),
+        : h('p', {}, 'Nothing here yet. When a neighbour\'s story ends, they give you something to keep, and it goes on this shelf. So do souvenirs from trips and the festival.'),
       h('p', { class: 'muted' }, `${mine.length} of ${all.length} keepsakes. Things for the rest of the room are in the catalog at the post office.`),
       h('div', { class: 'row' }, h('button', { onclick: () => this.goToTown() }, 'Close')),
     );
@@ -888,6 +955,7 @@ export class Game {
     const ok = save(this.g);
     this.town.invalidate();
     this.town.resetPlayer();
+    this.setDay();
     this.showMorning();
     if (!ok) this.toast("Couldn't save in this browser (storage is blocked). You can keep playing.");
   }
@@ -935,6 +1003,18 @@ export class Game {
   /** Teleport to the counter inside a place, or next to the neighbor (play-test helper). */
   debugGoTo(place: Scene | 'tanaka'): void {
     this.town.debugGoTo(place);
+  }
+
+  /** Jump to a day, for its weather and festival (play-test helper). */
+  debugDay(day: number, minutes = this.g.minutes): void {
+    this.g.day = day;
+    this.g.minutes = minutes;
+    this.setDay();
+  }
+
+  /** Stand in front of a place in the street: the board, a stall, the cat (play-test helper). */
+  debugStreet(tx: number, ty: number, dir: 'up' | 'down' | 'left' | 'right' = 'up'): void {
+    this.town.debugStreet(tx, ty, dir);
   }
 
   /** Teleport to a door on the street (play-test helper). */

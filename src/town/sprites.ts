@@ -200,6 +200,16 @@ const BODY = [
   '..OOcCCCCCCcOO..',
   '...OFFO..OFFO...',
 ];
+const HEADBAND = [
+  '......OOOO......',
+  '....OOHHHHOO....',
+  '...OHHhhHHHHO...',
+  '..OWWWWWWWWWWO..',
+  '.OHHHHHHHHHHHHO.',
+  '.OHHHHHHHHHHHHO.',
+];
+/** A festival coat (法被) over the body, with white trim. */
+const HAPPI = ['..OkCCCCCCCCkO..', '.OSOCkCcCCkCOSO.', '..OOcCCCCCCcOO..', '...OFFO..OFFO...'];
 const SHORT_HAIR = [
   '......OOOO......',
   '....OOHHHHOO....',
@@ -320,4 +330,46 @@ export const STAFF: Record<string, StaffArt> = {
     rows: [...SHORT_HAIR, ...FACE, '..OkCCCCCCCCkO..', '.OSOCCkkkkCCOSO.', '..OOcCCCCCCcOO..', BODY[3]!],
     key: staffKey({ H: 'grey', h: 'white', D: 'greySh', C: 'top2', c: 'top2Sh', k: 'white' }),
   },
+  // 山本 さん at the goldfish stall: a white headband over short black hair, a navy festival coat.
+  yamamoto: {
+    rows: [...HEADBAND, ...FACE, ...HAPPI],
+    key: staffKey({ H: 'hairK', h: 'hairKHi', D: 'hairKSh', C: 'navy', c: 'navySh', k: 'white' }),
+  },
+  // The other stalls' keepers: a red coat at the takoyaki, a blue one at the shaved ice.
+  takoyaki: {
+    rows: [...HEADBAND, ...FACE, ...HAPPI],
+    key: staffKey({ H: 'hair', h: 'hairHi', D: 'hairSh', C: 'roofA', c: 'roofASh', k: 'white' }),
+  },
+  kakigoori: {
+    rows: [...SHORT_HAIR, ...FACE, ...HAPPI],
+    key: staffKey({ H: 'trunk', h: 'hairHi', D: 'trunkSh', C: 'roofB', c: 'roofBSh', k: 'white' }),
+  },
 };
+
+/** Passers-by: the player's and the neighbour's shapes in other clothes and hair. */
+export const PASSERS: { art: CharacterArt; key: Record<string, Role> }[] = [
+  { art: PLAYER, key: { ...KEY, H: 'hairK', h: 'hairKHi', D: 'hairKSh', C: 'roofB', c: 'roofBSh', k: 'roofBHi' } },
+  { art: PLAYER, key: { ...KEY, H: 'trunk', h: 'hairHi', D: 'trunkSh', C: 'roofC', c: 'roofCSh', k: 'roofCHi' } },
+  { art: NEIGHBOUR, key: { ...KEY, T: 'roofD', t: 'roofDSh' } },
+  { art: PLAYER, key: { ...KEY, H: 'dark', h: 'lamp', D: 'darkSh', C: 'roofG', c: 'roofGSh', k: 'roofGHi' } },
+  { art: NEIGHBOUR, key: { ...KEY, G: 'hair', g: 'hairSh', T: 'roofF', t: 'roofFSh' } },
+];
+
+/** A sparrow on the ground (facing left), and with its wings up. */
+export const BIRD = [
+  '.OO.....',
+  'OhEO....',
+  'yhhhOOO.',
+  '.OhhhhhO',
+  '..OWWhO.',
+  '...O.O..',
+];
+export const BIRD_FLY = [
+  '...O.O..',
+  '.OOhOhO.',
+  'OhEhhhO.',
+  'yhhhhhOO',
+  '.OWWWhO.',
+  '..OOOO..',
+];
+export const BIRD_KEY: Record<string, Role> = { O: 'out', h: 'hairHi', E: 'eye', y: 'knob', W: 'white' };

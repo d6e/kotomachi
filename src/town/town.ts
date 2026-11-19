@@ -6,17 +6,20 @@
 // walk back out through the door.
 
 import type { Input } from '../engine/input.ts';
-import { drawWorld, plate, SIGN_TEXT, type SignSpot } from './art.ts';
+import { drawWorld, plate, SIGN_TEXT, type Lit, type SignSpot } from './art.ts';
+import { drawFestival, keeperAt } from './festart.ts';
+import { CAR_W, StreetLife, TRAIN_CARS, TRAIN_LEN, type Walker } from './life.ts';
 import {
-  BUILDINGS, buildGrid, buildingFor, DIRS, doorSpot, facingTo, findPath, GROUND, isSolid, NEIGHBOUR_ROUTE, START,
-  STREET_ROW, TILE, VIEW_H, VIEW_W, WORLD_W, type DoorPlace, type Facing, type TilePos,
+  BOARD, BOARD_SPOT, BUILDINGS, buildGrid, buildingFor, CAT_BENCH, DIRS, doorSpot, facingTo, festivalGrid, findPath, GROUND, isSolid, LAMPS,
+  NEIGHBOUR_ROUTE, RAIL_ROW, stallAt, STALLS, stallSpot, START, STREET_ROW, TILE, VIEW_H, VIEW_W, WORLD_W,
+  type DoorPlace, type Facing, type Grid, type StallId, type TilePos,
 } from './map.ts';
-import { UI } from './palette.ts';
-import { Buf, toCanvas } from './pixels.ts';
+import { PALETTE, UI, type Role } from './palette.ts';
+import { Buf, roundRect, toCanvas } from './pixels.ts';
 import { drawRoom } from './roomart.ts';
 import { drawArea } from './tripart.ts';
 import { bedSpot, bedTiles, cellAt, doorCell, doorTo, roomDoor, roomEntrance, roomFor, ROOMS, roomSolid, staffSpot, talkSpot, thingAt, thingNear, thingSpot, type RoomDef, type Scene, type ThingId } from './rooms.ts';
-import { KEY, NEIGHBOUR, PLAYER, STAFF, walkFrames, type CharacterArt } from './sprites.ts';
+import { BIRD, BIRD_FLY, BIRD_KEY, KEY, NEIGHBOUR, PASSERS, PLAYER, STAFF, walkFrames, type CharacterArt } from './sprites.ts';
 
 export type Interactable =
   | { kind: 'door'; place: DoorPlace }
@@ -25,7 +28,28 @@ export type Interactable =
   | { kind: 'bed' }
   | { kind: 'thing'; id: ThingId }
   /** Walking back onto the platform on a trip: the train home. */
-  | { kind: 'train' };
+  | { kind: 'train' }
+  /** The notice board on the street. */
+  | { kind: 'board' }
+  /** A stall at the festival. */
+  | { kind: 'stall'; id: StallId }
+  /** The cat asleep on the bench. */
+  | { kind: 'cat' };
+
+/** A word in a speech bubble: its pieces with any furigana, and whether it's due for review. */
+export interface SaidWord {
+  parts: { text: string; rt?: string }[];
+  lemma: string | null;
+  due: boolean;
+}
+
+/** Something said in a speech bubble over someone's head. */
+export interface Said {
+  words: SaidWord[];
+  en: string;
+}
+
+export type Weather = 'hare' | 'kumori' | 'ame';
 
 export interface SignInfo {
   text: string;
@@ -46,7 +70,24 @@ export interface TownHooks {
   staffName(npc: string): string;
   /** What to call a usable thing in the hint over your head. */
   thingName(id: ThingId): string;
+  /** A line for someone in town to say: a passer-by ('street'), the cat, or a stall's keeper ('stall:<id>'). */
+  chatter(who: string): Said | null;
 }
+
+interface Bubble {
+  said: Said;
+  /** Seconds left on screen. */
+  t: number;
+  life: number;
+  /** World pixels just above the speaker's head. */
+  at: () => { x: number; y: number };
+  /** Who's talking, so they don't talk over themselves. */
+  who: string;
+}
+
+const STILL = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)') ?? null;
+/** How long a speech bubble stays up, in seconds. */
+const SAY_FOR = 3.6;
 
 export interface Actor {
   /** The tile the actor stands on (or is leaving). */
@@ -94,7 +135,18 @@ export class Town {
   private readonly low: HTMLCanvasElement;
   private readonly lctx: CanvasRenderingContext2D;
   private readonly hooks: TownHooks;
-  private readonly grid = buildGrid();
+  private readonly baseGrid = buildGrid();
+  private grid: Grid = this.baseGrid;
+  private readonly life = new StreetLife(this.baseGrid);
+  private weather: Weather = 'hare';
+  private festival = false;
+  private fest: { base: HTMLCanvasElement; front: HTMLCanvasElement; signs: SignSpot[]; lanterns: { x: number; y: number }[] } | null = null;
+  private windows: Lit[] = [];
+  private bubbles: Bubble[] = [];
+  private bubbleRects: { lemma: string; x: number; y: number; w: number; h: number }[] = [];
+  private trainImg: HTMLCanvasElement | null = null;
+  private glowImg: { k: number; img: HTMLCanvasElement } | null = null;
+  private umbrellas = new Map<string, HTMLCanvasElement>();
   private world: HTMLCanvasElement | null = null;
   private signs: SignSpot[] = [];
   private plates = new Map<string, { img: HTMLCanvasElement; w: number; h: number }>();
@@ -145,6 +197,26 @@ export class Town {
 
   setMinutes(m: number): void {
     this.minutes = m;
+  }
+
+  /** Today's weather, and whether the festival is on (its stalls stand in the park). */
+  setDay(d: { weather: Weather; festival: boolean }): void {
+    this.weather = d.weather;
+    if (d.festival !== this.festival) {
+      this.festival = d.festival;
+      this.grid = d.festival ? festivalGrid(this.baseGrid) : this.baseGrid;
+      this.life.setGrid(this.grid);
+    }
+    this.life.reset();
+    this.bubbles = [];
+  }
+
+  get today(): { weather: Weather; festival: boolean } {
+    return { weather: this.weather, festival: this.festival };
+  }
+
+  private get still(): boolean {
+    return !!STILL?.matches;
   }
 
   /** Signs change as furigana fade; they're redrawn every frame, so nothing to rebuild. */
@@ -257,6 +329,15 @@ export class Town {
     return isSolid(this.grid, tx, ty) || this.neighbourOn({ tx, ty });
   };
 
+  /** Stand anywhere on the street, facing some way (play-test helper). */
+  debugStreet(tx: number, ty: number, dir: Facing): void {
+    this.scene = null;
+    this.path = [];
+    this.then = null;
+    this.fade = 0;
+    Object.assign(this.player, actorAt({ tx, ty }, dir));
+  }
+
   /** Stand in front of a door on the street (play-test helper). */
   debugTownDoor(place: DoorPlace): void {
     this.scene = null;
@@ -293,9 +374,14 @@ export class Town {
       if (thing) return { kind: 'thing', id: thing };
       return null;
     }
-    if (this.neighbourOn(this.ahead(this.player))) return { kind: 'npc', id: 'tanaka' };
+    const ahead = this.ahead(this.player);
+    if (this.neighbourOn(ahead)) return { kind: 'npc', id: 'tanaka' };
     const door = this.doorAt(me);
     if (door) return { kind: 'door', place: door };
+    if (same(me, BOARD_SPOT)) return { kind: 'board' };
+    const stall = this.festival ? stallAt(ahead.tx, ahead.ty) : null;
+    if (stall) return { kind: 'stall', id: stall.id };
+    if (same(ahead, CAT_BENCH)) return { kind: 'cat' };
     if (this.hooks.neighborAvailable() && !this.neighbor.dest) {
       const n = this.tileOf(this.neighbor);
       if (Math.abs(n.tx - me.tx) + Math.abs(n.ty - me.ty) === 1) return { kind: 'npc', id: 'tanaka' };
@@ -320,8 +406,34 @@ export class Town {
       for (const d of Object.values(DIRS)) {
         if (thingAt(room, me.tx + d.dx, me.ty + d.dy) === target.id) this.player.dir = facingTo(me, { tx: me.tx + d.dx, ty: me.ty + d.dy });
       }
+    } else if (target.kind === 'cat') {
+      this.player.dir = facingTo(this.tileOf(this.player), CAT_BENCH);
+      this.say('cat', () => ({ x: CAT_BENCH.tx * TILE + 8, y: CAT_BENCH.ty * TILE - 8 }));
+      return;
     } else this.player.dir = 'up';
+    if (target.kind === 'stall' && target.id !== 'kingyo') {
+      // The other stalls just call out to you.
+      const s = STALLS.find((x) => x.id === target.id)!;
+      const k = keeperAt(s);
+      this.say(`stall:${s.id}`, () => ({ x: k.x + 8, y: k.y - 6 }));
+      return;
+    }
     this.hooks.onInteract(target);
+  }
+
+  /** Put up a speech bubble over someone, if they have something to say. */
+  private say(who: string, at: () => { x: number; y: number }, line?: Said | null): boolean {
+    const said = line ?? this.hooks.chatter(who.startsWith('passer:') ? 'street' : who);
+    if (!said) return false;
+    this.bubbles = this.bubbles.filter((b) => b.who !== who && !(who.startsWith('passer:') && b.who.startsWith('passer:')));
+    this.bubbles.push({ said, t: SAY_FOR, life: SAY_FOR, at, who });
+    if (this.bubbles.length > 2) this.bubbles.shift();
+    return true;
+  }
+
+  private passerSays(a: Walker): void {
+    if (this.say(`passer:${a.id}`, () => ({ x: a.px + 8, y: a.py - SPRITE_LIFT - 2 }))) this.life.stopFor(a, this.tileOf(this.player), 2.2);
+    else a.talked = true;
   }
 
   // ---------------------------------------------------------------- input
@@ -340,7 +452,14 @@ export class Town {
       this.onRoomPointer(p, e, hit);
       return;
     }
-    for (const s of this.signs) {
+    // A word in someone's speech bubble looks it up.
+    for (const r of this.bubbleRects) {
+      if (hit(r, 2)) {
+        this.hooks.onSignClick(r.lemma, e.clientX, e.clientY);
+        return;
+      }
+    }
+    for (const s of [...this.signs, ...(this.festival && this.fest ? this.fest.signs : [])]) {
       if (hit(s, 10)) {
         this.hooks.onSignClick(s.word, e.clientX, e.clientY);
         return;
@@ -357,6 +476,33 @@ export class Town {
     if (this.hooks.neighborAvailable() && p.x >= n.px - 2 && p.x <= n.px + TILE + 2 && p.y >= n.py - SPRITE_LIFT - 2 && p.y <= n.py + TILE) {
       this.retries = 0;
       this.goTalk();
+      return;
+    }
+    // Tapping a passer-by: they say something.
+    for (const a of this.life.passers) {
+      if (p.x >= a.px - 1 && p.x <= a.px + TILE + 1 && p.y >= a.py - SPRITE_LIFT - 2 && p.y <= a.py + TILE) {
+        this.life.stopFor(a, this.tileOf(this.player), 2.2);
+        this.say(`passer:${a.id}`, () => ({ x: a.px + 8, y: a.py - SPRITE_LIFT - 2 }));
+        return;
+      }
+    }
+    // The cat on the bench: walk over and look.
+    const cat = { x: CAT_BENCH.tx * TILE, y: CAT_BENCH.ty * TILE - 8, w: TILE, h: TILE + 4 };
+    if (hit(cat)) {
+      this.walkBeside(CAT_BENCH, { kind: 'cat' });
+      return;
+    }
+    // A festival stall: walk up to its counter.
+    if (this.festival) {
+      const st = stallAt(Math.floor(p.x / TILE), Math.floor((p.y + SPRITE_LIFT) / TILE)) ?? stallAt(Math.floor(p.x / TILE), Math.floor((p.y + 20) / TILE));
+      if (st) {
+        this.walkTo(stallSpot(st), { kind: 'stall', id: st.id });
+        return;
+      }
+    }
+    // The notice board, in the gap by the apartment.
+    if (p.y < GROUND && p.y > GROUND - 30 && Math.floor(p.x / TILE) === BOARD.tx) {
+      this.walkTo(BOARD_SPOT, { kind: 'board' });
       return;
     }
     // Clicking a building walks to its door and goes in.
@@ -446,6 +592,21 @@ export class Town {
     this.then = { kind: 'npc', id: 'tanaka' };
   }
 
+  /** Walk to the nearest free tile next to something, then use it. */
+  private walkBeside(t: TilePos, then: Interactable): void {
+    const me = this.player.dest ?? this.tileOf(this.player);
+    let best: TilePos[] | null = null;
+    for (const d of Object.values(DIRS)) {
+      const spot = { tx: t.tx + d.dx, ty: t.ty + d.dy };
+      const path = same(spot, me) ? [] : findPath(this.blockedForPlayer, me, spot);
+      if (path && (!best || path.length < best.length)) best = path;
+    }
+    if (!best) return;
+    this.path = best;
+    this.then = then;
+    if (!best.length) this.arrive();
+  }
+
   // ---------------------------------------------------------------- movement
 
   private startStep(a: Actor, to: TilePos): void {
@@ -482,6 +643,10 @@ export class Town {
         this.interact({ kind: 'door', place: door });
         return;
       }
+      if (!this.scene && same(this.tileOf(p), BOARD_SPOT)) {
+        this.interact({ kind: 'board' });
+        return;
+      }
     }
     if (this.blockedForPlayer(to.tx, to.ty)) return;
     this.startStep(p, to);
@@ -490,6 +655,7 @@ export class Town {
   update(dt: number, input: Input): { walked: number } {
     this.time += dt;
     if (this.paused) return { walked: 0 };
+    this.updateLife(dt);
     const p = this.player;
     let walked = 0;
 
@@ -569,10 +735,42 @@ export class Town {
     return { walked };
   }
 
+  /** The street goes on around you: passers-by, birds, trains, and whoever's talking. */
+  private updateLife(dt: number): void {
+    for (const b of this.bubbles) b.t -= dt;
+    this.bubbles = this.bubbles.filter((b) => b.t > 0);
+    if (this.scene) return;
+    const me = this.player.dest ?? this.tileOf(this.player);
+    this.life.update(dt, {
+      player: me,
+      neighbour: this.hooks.neighborAvailable() ? this.neighbourTile() : null,
+      minutes: this.minutes,
+      rain: this.weather === 'ame',
+      festival: this.festival,
+      still: this.still,
+    });
+    // Someone passing close by says something (one at a time).
+    if (!this.bubbles.some((b) => b.who.startsWith('passer:'))) {
+      const a = this.life.passers.find((w) => !w.talked && !w.dest && Math.abs(w.tx - me.tx) <= 2 && Math.abs(w.ty - me.ty) <= 1 && w.tx >= 0 && w.tx < WORLD_W / TILE);
+      if (a) this.passerSays(a);
+    }
+  }
+
   private arrive(): void {
     const then = this.then;
     if (!then) return;
     this.then = null;
+    if (then.kind === 'cat') {
+      this.player.dir = facingTo(this.tileOf(this.player), CAT_BENCH);
+      this.interact(then);
+      return;
+    }
+    if (then.kind === 'stall' || then.kind === 'board') {
+      this.player.dir = 'up';
+      const near = this.nearby();
+      if (near?.kind === then.kind) this.interact(near);
+      return;
+    }
     if (then.kind === 'staff' || then.kind === 'bed' || then.kind === 'thing') {
       const near = this.nearby();
       if (near?.kind === then.kind) this.interact(near);
@@ -647,9 +845,18 @@ export class Town {
     const w = drawWorld((t) => this.measure(t));
     this.world = toCanvas(w.buf);
     this.signs = w.signs;
+    this.windows = w.windows;
   }
 
-  private sprite(name: string, art: CharacterArt, a: Actor): { img: HTMLCanvasElement; lift: number } {
+  private festArt(): NonNullable<Town['fest']> {
+    if (!this.fest) {
+      const f = drawFestival((t) => this.measure(t));
+      this.fest = { base: toCanvas(f.base), front: toCanvas(f.front), signs: f.signs, lanterns: f.lanterns };
+    }
+    return this.fest;
+  }
+
+  private sprite(name: string, art: CharacterArt, a: Actor, skin: Record<string, Role> = KEY): { img: HTMLCanvasElement; lift: number } {
     // Show a stepping frame through the first half of each step, alternating feet.
     const frame = a.dest && a.t < 0.55 ? (a.steps % 2 ? 1 : 3) : 0;
     const key = `${name}:${a.dir}:${frame}`;
@@ -657,7 +864,7 @@ export class Town {
     let img = this.sprites.get(key);
     if (!img) {
       const b = new Buf(16, 16);
-      b.sprite(f.rows, 0, 0, KEY, f.flip);
+      b.sprite(f.rows, 0, 0, skin, f.flip);
       img = toCanvas(b);
       this.sprites.set(key, img);
     }
@@ -744,23 +951,48 @@ export class Town {
       this.plateRects.push({ word, x, y: y + 2, w: pl.w, h: pl.h });
     }
 
+    // The festival's stalls, with their keepers behind the counters.
+    const fest = this.festival ? this.festArt() : null;
+    if (fest) {
+      g.drawImage(fest.base, -cam, 0);
+      for (const st of STALLS) {
+        const img = this.staffSprite(st.id === 'kingyo' ? 'yamamoto' : st.id);
+        const at = keeperAt(st);
+        const bob = Math.sin(this.time * 2.1 + st.tx) > 0.9 && !this.still ? 1 : 0;
+        if (img) g.drawImage(img, at.x - cam, at.y - SPRITE_LIFT - bob);
+      }
+      g.drawImage(fest.front, -cam, 0);
+    }
+    this.drawTrain(cam);
+    this.drawBirds(cam);
+    this.drawCatZ(cam);
+
     // Actors, back to front.
-    const actors: [string, CharacterArt, Actor][] = [['player', PLAYER, p]];
-    if (this.hooks.neighborAvailable()) actors.push(['tanaka', NEIGHBOUR, this.neighbor]);
+    const rain = this.weather === 'ame';
+    const actors: [string, CharacterArt, Actor, Record<string, Role>, Role][] = [['player', PLAYER, p, KEY, 'top']];
+    if (this.hooks.neighborAvailable()) actors.push(['tanaka', NEIGHBOUR, this.neighbor, KEY, 'roofC']);
+    for (const w of this.life.passers) {
+      const look = PASSERS[w.look]!;
+      actors.push([`passer${w.look}`, look.art, w, look.key, (['roofB', 'flowerB', 'roofD', 'roofG', 'top2'] as Role[])[w.look]!]);
+    }
     actors.sort((a, b) => a[2].py - b[2].py);
-    for (const [name, art, a] of actors) {
+    for (const [name, art, a, skin, brolly] of actors) {
       const x = Math.round(a.px) - cam;
+      if (x < -TILE || x > VIEW_W) continue;
       const y = Math.round(a.py);
       g.drawImage(this.shadow(), x + 1, y + 10);
-      const s = this.sprite(name, art, a);
+      const s = this.sprite(name, art, a, skin);
       g.drawImage(s.img, x, y - SPRITE_LIFT - s.lift);
+      if (rain) g.drawImage(this.umbrella(brolly), x - 2, y - SPRITE_LIFT - s.lift - 7);
     }
+    if (rain) this.drawRain(g);
 
     // Scale up, then letter the signs crisply on top.
     const c = this.ctx;
     c.imageSmoothingEnabled = false;
     c.drawImage(this.low, 0, 0, VIEW_W * k, VIEW_H * k);
     this.letterSigns(this.signs, cam);
+    if (fest) this.letterSigns(fest.signs, cam);
     for (const pl of plates) {
       c.font = this.font(7);
       c.fillStyle = UI.closed;
@@ -768,19 +1000,242 @@ export class Town {
     }
 
     this.tint();
+    this.lights(cam);
+    this.drawBubbles(cam);
     this.hint(cam);
     this.drawFade();
   }
 
-  /** Evening and night outdoors. */
+  // ---------------------------------------------------------------- the street's life
+
+  private drawTrain(cam: number): void {
+    const t = this.life.train;
+    if (!t) return;
+    if (!this.trainImg) {
+      const b = new Buf(TRAIN_LEN, 18);
+      for (let i = 0; i < TRAIN_CARS; i++) {
+        const x0 = i * (CAR_W + 2);
+        const front = i === 0 || i === TRAIN_CARS - 1;
+        b.shape(x0, 0, CAR_W, 15, roundRect(CAR_W, 15, front ? 4 : 2), (_x, y) => (y >= 9 && y <= 10 ? 'white' : y > 10 ? 'roofBSh' : y < 2 ? 'roofBHi' : 'roofB'));
+        for (let wx = x0 + 5; wx + 6 < x0 + CAR_W - 3; wx += 9) {
+          b.box(wx, 3, 6, 5, 'glass');
+          b.set(wx + 1, 4, 'glassHi');
+        }
+        b.rect(x0 + 4, 15, 4, 2, 'out');
+        b.rect(x0 + CAR_W - 8, 15, 4, 2, 'out');
+        if (i < TRAIN_CARS - 1) b.rect(x0 + CAR_W, 6, 2, 5, 'dark');
+      }
+      this.trainImg = toCanvas(b);
+    }
+    const x = Math.round(t.x) - cam;
+    if (x > VIEW_W || x + TRAIN_LEN < 0) return;
+    this.lctx.drawImage(this.trainImg, x, RAIL_ROW * TILE - 3);
+  }
+
+  private birdImgs: HTMLCanvasElement[] = [];
+
+  private drawBirds(cam: number): void {
+    if (!this.birdImgs.length) {
+      for (const rows of [BIRD, BIRD_FLY]) for (const flip of [false, true]) {
+        const b = new Buf(8, 6);
+        b.sprite(rows, 0, 0, BIRD_KEY, flip);
+        this.birdImgs.push(toCanvas(b));
+      }
+    }
+    for (const b of this.life.birds) {
+      if (b.state === 'gone') continue;
+      const fly = b.state === 'fly' ? 2 : 0;
+      const flap = b.state === 'fly' && Math.floor(this.time * 10) % 2 ? 0 : fly;
+      const img = this.birdImgs[flap + (b.flip ? 1 : 0)]!;
+      const x = Math.round(b.x) - cam - 4;
+      if (x < -8 || x > VIEW_W) continue;
+      const y = Math.round(b.y - b.hop) - 6;
+      if (b.state === 'sit') this.lctx.fillStyle = 'rgba(30,20,40,0.18)', this.lctx.fillRect(x + 2, Math.round(b.y), 4, 1);
+      this.lctx.drawImage(img, x, y);
+    }
+  }
+
+  /** Little z's rising off the cat asleep on the bench. */
+  private drawCatZ(cam: number): void {
+    const g = this.lctx;
+    const x0 = CAT_BENCH.tx * TILE + 11 - cam;
+    const y0 = CAT_BENCH.ty * TILE - 9;
+    if (x0 < -10 || x0 > VIEW_W) return;
+    g.fillStyle = UI.ink;
+    const z = (x: number, y: number, a: number) => {
+      g.globalAlpha = a;
+      g.fillRect(x, y, 4, 1);
+      g.fillRect(x + 2, y + 1, 1, 1);
+      g.fillRect(x + 1, y + 2, 1, 1);
+      g.fillRect(x, y + 3, 4, 1);
+    };
+    if (this.still) z(x0, y0 - 4, 0.8);
+    else
+      for (const off of [0, 1.2]) {
+        const t = ((this.time + off) % 2.4) / 2.4;
+        z(Math.round(x0 + t * 5), Math.round(y0 - t * 10), t < 0.2 ? t / 0.2 : 1 - (t - 0.2) / 0.8);
+      }
+    g.globalAlpha = 1;
+  }
+
+  private drawRain(g: CanvasRenderingContext2D): void {
+    const t = this.still ? 0 : this.time;
+    g.fillStyle = 'rgba(214,230,255,0.7)';
+    for (let i = 0; i < 70; i++) {
+      const sx = (i * 97) % (VIEW_W + 40);
+      const sy = (i * 53) % VIEW_H;
+      const y = ((sy + t * 210) % (VIEW_H + 12)) - 6;
+      const x = ((sx - t * 35 - (y * 0.15)) % (VIEW_W + 40) + VIEW_W + 40) % (VIEW_W + 40) - 20;
+      g.fillRect(Math.round(x), Math.round(y), 1, 4);
+    }
+    // Splashes on the ground.
+    g.fillStyle = 'rgba(255,255,255,0.55)';
+    for (let i = 0; i < 12; i++) {
+      const phase = this.still ? 0.5 : (t * 1.7 + i * 0.37) % 1;
+      if (phase > 0.4) continue;
+      const x = (i * 131 + Math.floor(t * 1.7 + i * 0.37) * 57) % VIEW_W;
+      const y = GROUND + 4 + ((i * 71) % (VIEW_H - GROUND - 8));
+      g.fillRect(x, y, 3, 1);
+    }
+  }
+
+  private umbrella(role: Role): HTMLCanvasElement {
+    let img = this.umbrellas.get(role);
+    if (!img) {
+      const b = new Buf(20, 9);
+      b.shape(0, 0, 20, 7, (x, y) => (x - 9.5) ** 2 / 100 + (y - 7) ** 2 / 49 <= 1 && y < 7, (x, y) => (y < 2 ? (`${role}Hi` in PALETTE ? (`${role}Hi` as Role) : 'white') : x % 6 < 3 ? role : (`${role}Sh` in PALETTE ? (`${role}Sh` as Role) : role)));
+      b.rect(9, 6, 1, 3, 'out');
+      img = toCanvas(b);
+      this.umbrellas.set(role, img);
+    }
+    return img;
+  }
+
+  /** A soft round glow, drawn once and reused for lamps, windows and lanterns. */
+  private glow(): HTMLCanvasElement {
+    const k = this.k;
+    if (!this.glowImg || this.glowImg.k !== k) {
+      const r = 16 * k;
+      const c = document.createElement('canvas');
+      c.width = c.height = r * 2;
+      const g = c.getContext('2d')!;
+      const grad = g.createRadialGradient(r, r, 0, r, r, r);
+      grad.addColorStop(0, 'rgba(255,214,130,0.55)');
+      grad.addColorStop(0.45, 'rgba(255,196,110,0.22)');
+      grad.addColorStop(1, 'rgba(255,190,100,0)');
+      g.fillStyle = grad;
+      g.fillRect(0, 0, r * 2, r * 2);
+      this.glowImg = { k, img: c };
+    }
+    return this.glowImg.img;
+  }
+
+  /** After dark: windows lit where someone's in, the street lamps on, and the festival lanterns glowing. */
+  private lights(cam: number): void {
+    const hour = this.minutes / 60;
+    if (hour < 17.5) return;
+    const c = this.ctx;
+    const k = this.k;
+    const night = hour >= 19;
+    c.fillStyle = night ? 'rgba(255,214,120,0.62)' : 'rgba(255,214,120,0.32)';
+    for (const w of this.windows) {
+      if (w.x + w.w < cam || w.x > cam + VIEW_W) continue;
+      if (w.building !== 'home' && !this.hooks.isOpen(w.building)) continue;
+      c.fillRect((w.x - cam) * k, w.y * k, w.w * k, w.h * k);
+    }
+    if (hour < 18) return;
+    const glow = this.glow();
+    const at = (x: number, y: number, size: number) => {
+      if (x < cam - 20 || x > cam + VIEW_W + 20) return;
+      const s = size * k;
+      c.drawImage(glow, (x - cam) * k - s / 2, y * k - s / 2, s, s);
+    };
+    for (const t of LAMPS) at(t * TILE + 7.5, GROUND - 12, 40);
+    if (this.festival && this.fest) for (const l of this.fest.lanterns) at(l.x, l.y, 16);
+  }
+
+  /** Speech bubbles: the line in crisp text with furigana where it's still shown, due words in orange. */
+  private drawBubbles(cam: number): void {
+    this.bubbleRects = [];
+    const c = this.ctx;
+    const k = this.k;
+    for (const b of this.bubbles) {
+      const at = b.at();
+      const ax = at.x - cam;
+      if (ax < -40 || ax > VIEW_W + 40) continue;
+      const ruby = b.said.words.some((w) => w.parts.some((p) => p.rt));
+      const main = 7;
+      c.font = this.font(main);
+      const widths = b.said.words.map((w) => w.parts.reduce((n, p) => n + c.measureText(p.text).width, 0));
+      const textW = widths.reduce((a, n) => a + n, 0);
+      const pad = 5 * k;
+      const w = textW + pad * 2;
+      const h = (ruby ? 18 : 12) * k;
+      const bx = Math.max(2 * k, Math.min(VIEW_W * k - w - 2 * k, ax * k - w / 2));
+      const by = at.y * k - h - 4 * k;
+      const fadeIn = Math.min(1, (b.life - b.t) / 0.15);
+      const fadeOut = Math.min(1, b.t / 0.3);
+      c.globalAlpha = Math.min(fadeIn, fadeOut);
+      c.beginPath();
+      c.roundRect(bx, by, w, h, 4 * k);
+      c.fillStyle = UI.box;
+      c.fill();
+      c.lineWidth = 1.5 * k;
+      c.strokeStyle = UI.border;
+      c.stroke();
+      const tip = Math.max(bx + 5 * k, Math.min(bx + w - 5 * k, ax * k));
+      c.beginPath();
+      c.moveTo(tip - 3 * k, by + h);
+      c.lineTo(tip + 3 * k, by + h);
+      c.lineTo(tip, by + h + 3.5 * k);
+      c.closePath();
+      c.fillStyle = UI.border;
+      c.fill();
+      c.textAlign = 'left';
+      c.textBaseline = 'middle';
+      const baseY = by + h - 6 * k;
+      let x = bx + pad;
+      b.said.words.forEach((word, i) => {
+        const colour = word.due ? UI.accent : UI.ink;
+        const x0 = x;
+        for (const part of word.parts) {
+          c.font = this.font(main);
+          const pw = c.measureText(part.text).width;
+          c.fillStyle = colour;
+          c.fillText(part.text, x, baseY + 0.5 * k);
+          if (part.rt) {
+            c.font = this.font(4.2);
+            c.textAlign = 'center';
+            c.fillText(part.rt, x + pw / 2, baseY - 6.6 * k);
+            c.textAlign = 'left';
+          }
+          x += pw;
+        }
+        if (word.due) {
+          // A dotted underline marks a word that's due for review.
+          c.fillStyle = UI.accent;
+          for (let ux = x0; ux < x - k; ux += 2 * k) c.fillRect(ux, baseY + 4.6 * k, k, 0.8 * k);
+        }
+        if (word.lemma) this.bubbleRects.push({ lemma: word.lemma, x: x0 / k + cam, y: by / k, w: widths[i]! / k, h: h / k });
+      });
+      c.globalAlpha = 1;
+    }
+  }
+
+  /** Grey for clouds and rain, then evening and night outdoors. */
   private tint(): void {
     const hour = this.minutes / 60;
+    const c = this.ctx;
+    const sky = this.weather === 'ame' ? 'rgba(58,74,118,0.22)' : this.weather === 'kumori' ? 'rgba(96,100,128,0.13)' : null;
+    if (sky) {
+      c.fillStyle = sky;
+      c.fillRect(0, 0, VIEW_W * this.k, VIEW_H * this.k);
+    }
     let tint: string | null = null;
     if (hour >= 20) tint = 'rgba(28,32,92,0.36)';
     else if (hour >= 18) tint = 'rgba(56,48,128,0.22)';
     else if (hour >= 16.5) tint = 'rgba(240,128,48,0.14)';
     if (!tint) return;
-    const c = this.ctx;
     c.fillStyle = tint;
     c.fillRect(0, 0, VIEW_W * this.k, VIEW_H * this.k);
   }
@@ -797,6 +1252,9 @@ export class Town {
     else if (near.kind === 'staff') label = this.hooks.staffName(this.def(near.place).staff ?? '');
     else if (near.kind === 'thing') label = this.hooks.thingName(near.id);
     else if (near.kind === 'door') label = this.hooks.sign(buildingFor(near.place).sign).text;
+    else if (near.kind === 'board') label = this.hooks.sign('掲示板').text;
+    else if (near.kind === 'stall') label = this.hooks.sign(STALLS.find((x) => x.id === near.id)!.sign).text;
+    else if (near.kind === 'cat') label = this.hooks.sign('猫').text;
     else return;
     this.bubble(`Space ▶ ${label}`, Math.round(p.px) - cam + TILE / 2, Math.round(p.py) - SPRITE_LIFT - 3);
   }
@@ -858,6 +1316,10 @@ export class Town {
     g.drawImage(this.shadow(), x + 1, y + 10);
     const s = this.sprite('player', PLAYER, p);
     g.drawImage(s.img, x, y - SPRITE_LIFT - s.lift);
+    if (room.outdoor && this.weather === 'ame') {
+      g.drawImage(this.umbrella('top'), x - 2, y - SPRITE_LIFT - s.lift - 7);
+      this.drawRain(g);
+    }
 
     const c = this.ctx;
     c.imageSmoothingEnabled = false;
@@ -877,15 +1339,17 @@ export class Town {
       if (s.x + s.w < cam || s.x > cam + VIEW_W) continue;
       const info = this.hooks.sign(s.word);
       const cx = (s.x + s.w / 2 - cam) * k;
-      c.font = this.font(SIGN_TEXT);
+      const small = (s.size ?? SIGN_TEXT) < SIGN_TEXT;
+      c.font = this.font(s.size ?? SIGN_TEXT);
       c.fillStyle = UI.ink;
       c.fillText(info.text, cx, (s.y + s.h / 2) * k);
       if (info.furigana) {
-        c.font = this.font(5.5);
+        c.font = this.font(small ? 4.5 : 5.5);
         const fw = c.measureText(info.furigana).width + 4 * k;
-        this.pill(cx - fw / 2, (s.y - 9) * k, fw, 8 * k, UI.box, UI.ink);
+        const ph = small ? 6.5 : 8;
+        this.pill(cx - fw / 2, (s.y - ph - 1) * k, fw, ph * k, UI.box, UI.ink);
         c.fillStyle = UI.ink;
-        c.fillText(info.furigana, cx, (s.y - 5) * k);
+        c.fillText(info.furigana, cx, (s.y - 1 - ph / 2) * k);
       }
     }
   }

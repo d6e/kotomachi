@@ -48,6 +48,8 @@ export const SOUVENIRS: Souvenir[] = [
   { id: 'omamori', word: 'お守り', from: 'takahashi' satisfies NpcId, scenario: 'shrine_visit' },
   { id: 'daibutsu', word: '大仏', from: 'sato' satisfies NpcId, scenario: 'omiyage_buy', variant: 'okimono' },
   { id: 'ehagaki', word: '絵はがき', from: 'sato' satisfies NpcId, scenario: 'omiyage_buy', variant: 'ehagaki' },
+  // Not from a trip, but the same idea: the goldfish you scoop at the festival comes home in a bowl.
+  { id: 'kingyo', word: '金魚', from: 'yamamoto' satisfies NpcId, scenario: 'festival_kingyo' },
 ];
 
 /** What a finished conversation brings home, if anything. */
