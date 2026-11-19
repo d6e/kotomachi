@@ -1,0 +1,177 @@
+{
+  "id": "cafe_order",
+  "title": "Ordering at the cafe",
+  "place": "cafe",
+  "npc": "yuki",
+  "maxStage": 4,
+  "start": "greet",
+  "errand": "カフェ で $item を 買う",
+  "randomSlots": { "size": ["S", "M", "L"] },
+  "variants": [
+    { "id": "coffee", "price": 400, "slots": { "item": "コーヒー", "item_en": "coffee", "item_kana": "こーひー" } },
+    { "id": "latte", "price": 450, "slots": { "item": "ラテ", "item_en": "latte", "item_kana": "らて" } },
+    { "id": "tea", "price": 400, "slots": { "item": "紅茶", "item_en": "black tea", "item_kana": "こうちゃ" } },
+    { "id": "cocoa", "price": 450, "slots": { "item": "ココア", "item_en": "cocoa", "item_kana": "ここあ" } }
+  ],
+  "nodes": {
+    "greet": {
+      "line": {
+        "0": "いらっしゃいませ 。 ご注文=注文 は お決まり=決まる です か ？",
+        "1": "あ 、 いらっしゃいませ ！ 今日 は 何 に します=する か ？",
+        "2": "あ 、 いらっしゃい ！ 今日 は 何 に する ？"
+      },
+      "gloss": {
+        "0": "Welcome! Have you decided on your order?",
+        "1": "Oh, welcome! What will you have today?",
+        "2": "Oh, hey! What are you having today?"
+      },
+      "targets": ["注文", "お願いする", "何"],
+      "grammar": ["onegai", "wo_object"],
+      "choices": [
+        { "text": "$item を お願いします=お願いする 。", "gloss": "$item_en, please.", "result": "success" },
+        { "text": "$item を ください 。", "gloss": "Give me $item_en.", "result": "success", "note": "Fine, but をください is a little direct. をお願いします sounds softer when ordering.", "grammar": "onegai" },
+        { "text": "ごちそうさまでした 。", "gloss": "Thank you for the meal.", "result": "npc_amused", "reaction": "ふふ 、 まだ です よ 。 ご注文=注文 は ？", "note": "ごちそうさまでした is said after eating or drinking, not when you order.", "grammar": "gochisousama" },
+        { "text": "$item だ 。", "gloss": "It's $item_en. (blunt)", "result": "npc_confused", "reaction": "えっと 、 $item です ね ？", "note": "Plain だ sounds blunt to staff. Ask with をお願いします.", "grammar": "plain_vs_polite" }
+      ],
+      "tiles": {
+        "answers": [["$item", "を", "お願いします=お願いする"], ["$item", "を", "ください"]],
+        "decoys": ["で", "だ", "ごちそうさまでした"]
+      },
+      "blank": { "before": "$item を", "after": "。", "answers": ["おねがいします", "ください"] },
+      "freeform_judge": { "accept_intents": ["order_item"], "expected_register": "polite", "recast_template": "{item}ですね" },
+      "recast": "$item を お願いします=お願いする 、 です ね ？",
+      "next": { "success": "size" }
+    },
+    "size": {
+      "line": {
+        "0": "サイズ は どう なさいます=なさる か ？",
+        "2": "サイズ は どう する ？"
+      },
+      "gloss": { "0": "What size would you like?", "2": "What size?" },
+      "targets": ["サイズ", "どう", "なさる", "で"],
+      "grammar": ["de_choice", "nasaru"],
+      "choices": [
+        { "text": "$size サイズ で お願いします=お願いする 。", "gloss": "Size $size, please.", "result": "success" },
+        { "text": "$size サイズ を ください 。", "gloss": "Give me size $size.", "result": "success", "note": "Works, but で お願いします is the usual way to pick a size.", "grammar": "de_choice" },
+        { "text": "$size サイズ に お願いします=お願いする 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "$size サイズ で 、 です ね ？", "note": "Use で to say what you'll go with: Mサイズでお願いします.", "grammar": "de_choice" },
+        { "text": "$size サイズ だ 。", "gloss": "Size $size. (blunt)", "result": "npc_confused", "reaction": "あ 、 $size サイズ です ね 。", "note": "Plain だ sounds blunt to staff.", "grammar": "plain_vs_polite" }
+      ],
+      "tiles": {
+        "answers": [["$size サイズ", "で", "お願いします=お願いする"]],
+        "decoys": ["に", "を", "だ"]
+      },
+      "blank": { "before": "$size サイズ", "after": "お願いします=お願いする 。", "answers": ["で"] },
+      "recast": "$size サイズ で 、 です ね ？",
+      "next": { "success": "temp" }
+    },
+    "temp": {
+      "line": {
+        "0": "ホット と アイス 、 どちら に なさいます=なさる か ？",
+        "2": "ホット と アイス 、 どっち に する ？"
+      },
+      "gloss": { "0": "Hot or iced, which would you like?", "2": "Hot or iced?" },
+      "targets": ["ホット", "アイス", "どちら", "と"],
+      "grammar": ["de_choice"],
+      "choices": [
+        { "text": "ホット で お願いします=お願いする 。", "gloss": "Hot, please.", "result": "success" },
+        { "text": "アイス で お願いします=お願いする 。", "gloss": "Iced, please.", "result": "success" },
+        { "text": "ホット が お願いします=お願いする 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "ホット で 、 です ね ？", "note": "が doesn't fit here. で marks the option you choose: ホットでお願いします.", "grammar": "de_choice" }
+      ],
+      "tiles": {
+        "answers": [["ホット", "で", "お願いします=お願いする"], ["アイス", "で", "お願いします=お願いする"]],
+        "decoys": ["が", "を"]
+      },
+      "blank": { "before": "", "after": "で お願いします=お願いする 。", "answers": ["ほっと", "あいす"] },
+      "recast": "ホット か アイス 、 です ね ？",
+      "next": { "success": "here" }
+    },
+    "here": {
+      "line": {
+        "0": "店内 で お召し上がり=召し上がる です か ？",
+        "2": "ここ で 飲む ？"
+      },
+      "gloss": { "0": "Will you be having it here?", "2": "Drinking it here?" },
+      "targets": ["店内", "召し上がる", "持ち帰り", "ここ"],
+      "grammar": ["meshiagaru"],
+      "choices": [
+        { "text": "はい 、 店内 で 。", "gloss": "Yes, here.", "result": "success" },
+        { "text": "いいえ 、 持ち帰り で お願いします=お願いする 。", "gloss": "No, to go, please.", "result": "success" },
+        { "text": "はい 、 ここ で 飲みます=飲む 。", "gloss": "Yes, I'll drink it here.", "result": "success" },
+        { "text": "はい 、 召し上がります=召し上がる 。", "gloss": "Yes, I will (honorifically) partake.", "result": "npc_amused", "reaction": "ふふ 。 はい 、 店内 で です ね 。", "note": "召し上がる is honorific: you use it for other people, never for yourself. Say 店内で or ここで飲みます.", "grammar": "meshiagaru" }
+      ],
+      "tiles": {
+        "answers": [["店内", "で", "お願いします=お願いする"], ["持ち帰り", "で", "お願いします=お願いする"]],
+        "decoys": ["召し上がります=召し上がる", "を"]
+      },
+      "blank": { "before": "", "after": "で お願いします=お願いする 。", "answers": ["てんない", "もちかえり", "ここ"] },
+      "recast": "店内 です か ？ 持ち帰り です か ？",
+      "next": { "success": "pay" }
+    },
+    "pay": {
+      "line": {
+        "0": "$price 円 に なります=なる 。",
+        "2": "$price 円 ね 。"
+      },
+      "gloss": { "0": "That comes to ¥$price.", "2": "That's ¥$price." },
+      "targets": ["円", "なる", "カード", "現金"],
+      "choices": [
+        { "text": "カード で お願いします=お願いする 。", "gloss": "By card, please.", "result": "success" },
+        { "text": "現金 で 。", "gloss": "Cash.", "result": "success" },
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 まだ です よ 。 $price 円 です 。", "note": "いただきます is said right before you eat or drink, not when you pay.", "grammar": "itadakimasu" }
+      ],
+      "tiles": {
+        "answers": [["カード", "で", "お願いします=お願いする"], ["現金", "で", "お願いします=お願いする"]],
+        "decoys": ["に", "いただきます"]
+      },
+      "blank": { "before": "カード", "after": "お願いします=お願いする 。", "answers": ["で"] },
+      "recast": "カード です か ？ 現金 です か ？",
+      "effects": { "pay": true },
+      "next": { "success": "smalltalk" }
+    },
+    "smalltalk": {
+      "line": {
+        "0": "今日 は ちょっと 寒い です ね 。",
+        "1": "いつも ありがとうございます 。 今日 は ちょっと 寒い です よ ね 。",
+        "2": "今日 、 ちょっと 寒い よ ね 。"
+      },
+      "gloss": {
+        "0": "It's a bit cold today, isn't it?",
+        "1": "Thanks for always coming. It's a bit cold today, right?",
+        "2": "Kind of cold today, huh?"
+      },
+      "targets": ["今日", "寒い", "ちょっと", "ね"],
+      "grammar": ["ne_yo", "plain_vs_polite"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "そう です ね 。", "gloss": "It is, isn't it.", "result": "success", "register": "polite" },
+        { "text": "そう だ ね 。", "gloss": "Yeah, it is. (casual)", "result": "success", "register": "plain", "grammar": "plain_vs_polite" },
+        { "text": "おやすみなさい 。", "gloss": "Good night.", "result": "npc_amused", "reaction": "ふふ 、 まだ 寝ません=寝る よ 。", "note": "おやすみなさい is for bedtime, or when someone is going to sleep.", "grammar": "greetings_time" }
+      ],
+      "effects": { "friendship": 1 },
+      "next": { "success": "bye" }
+    },
+    "bye": {
+      "line": {
+        "0": "ありがとうございました=ありがとうございます 。 また どうぞ 。",
+        "1": "ありがとうございました=ありがとうございます ！ また 来て=来る ください ね 。",
+        "2": "ありがとう ！ また ね 。"
+      },
+      "gloss": {
+        "0": "Thank you very much. Please come again.",
+        "1": "Thank you! Please come again, okay?",
+        "2": "Thanks! See you!"
+      },
+      "targets": ["また", "ありがとうございます"],
+      "grammar": ["tekudasai"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "ありがとうございます 。", "gloss": "Thank you.", "result": "success", "register": "polite" },
+        { "text": "どうも 。", "gloss": "Thanks.", "result": "success" },
+        { "text": "また ね 。", "gloss": "See you! (casual)", "result": "success", "register": "plain" },
+        { "text": "いらっしゃいませ 。", "gloss": "Welcome (to the shop)!", "result": "npc_amused", "reaction": "ふふ 、 それ は 私 の セリフ です よ 。", "note": "いらっしゃいませ is what staff say to customers.", "grammar": "irasshaimase" }
+      ],
+      "effects": { "friendship": 1 },
+      "end": true
+    }
+  }
+}

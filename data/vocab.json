@@ -1,0 +1,746 @@
+[
+ {
+  "id": "ゆき",
+  "reading": "ゆき",
+  "meaning": "Yuki (a given name): the barista",
+  "pos": "name"
+ },
+ {
+  "id": "店員",
+  "reading": "てんいん",
+  "meaning": "shop clerk",
+  "pos": "noun"
+ },
+ {
+  "id": "森",
+  "reading": "もり",
+  "meaning": "Mori (a family name); also 'forest'",
+  "pos": "name"
+ },
+ {
+  "id": "さん",
+  "reading": "さん",
+  "meaning": "Mr./Ms. (polite suffix after a name)",
+  "pos": "suffix"
+ },
+ {
+  "id": "田中",
+  "reading": "たなか",
+  "meaning": "Tanaka (a family name)",
+  "pos": "name"
+ },
+ {
+  "id": "カフェ",
+  "reading": "カフェ",
+  "meaning": "cafe",
+  "pos": "noun"
+ },
+ {
+  "id": "で",
+  "reading": "で",
+  "meaning": "at (where something happens); by (means); marks the option you go with",
+  "pos": "particle"
+ },
+ {
+  "id": "コーヒー",
+  "reading": "コーヒー",
+  "meaning": "coffee",
+  "pos": "noun"
+ },
+ {
+  "id": "を",
+  "reading": "を",
+  "meaning": "marks the object of an action (pronounced お)",
+  "pos": "particle"
+ },
+ {
+  "id": "買う",
+  "reading": "かう",
+  "meaning": "to buy",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "いらっしゃいませ",
+  "reading": "いらっしゃいませ",
+  "meaning": "Welcome! (staff to customers)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "注文",
+  "reading": "ちゅうもん",
+  "meaning": "order (food, goods); staff say ご注文",
+  "pos": "noun"
+ },
+ {
+  "id": "は",
+  "reading": "は",
+  "meaning": "topic marker: 'as for ~' (pronounced わ)",
+  "pos": "particle"
+ },
+ {
+  "id": "決まる",
+  "reading": "きまる",
+  "meaning": "to be decided",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "です",
+  "reading": "です",
+  "meaning": "is, am, are (polite)",
+  "pos": "copula"
+ },
+ {
+  "id": "か",
+  "reading": "か",
+  "meaning": "question marker at the end of a sentence",
+  "pos": "particle"
+ },
+ {
+  "id": "あ",
+  "reading": "あ",
+  "meaning": "oh!, ah",
+  "pos": "interjection"
+ },
+ {
+  "id": "今日",
+  "reading": "きょう",
+  "meaning": "today",
+  "pos": "noun"
+ },
+ {
+  "id": "何",
+  "reading": "なに",
+  "meaning": "what",
+  "pos": "pronoun"
+ },
+ {
+  "id": "に",
+  "reading": "に",
+  "meaning": "to (a destination); marks what you decide on (～にする)",
+  "pos": "particle"
+ },
+ {
+  "id": "する",
+  "reading": "する",
+  "meaning": "to do; with に: to decide on, to have",
+  "pos": "verb (irregular)"
+ },
+ {
+  "id": "いらっしゃい",
+  "reading": "いらっしゃい",
+  "meaning": "Welcome! (casual)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "お願いする",
+  "reading": "おねがいする",
+  "meaning": "to request; お願いします = please",
+  "pos": "verb (irregular)"
+ },
+ {
+  "id": "ください",
+  "reading": "ください",
+  "meaning": "please give me; after a て-form: please do",
+  "pos": "set phrase"
+ },
+ {
+  "id": "ごちそうさまでした",
+  "reading": "ごちそうさまでした",
+  "meaning": "Thank you for the meal (said after eating)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "ふふ",
+  "reading": "ふふ",
+  "meaning": "(a soft laugh)",
+  "pos": "interjection"
+ },
+ {
+  "id": "まだ",
+  "reading": "まだ",
+  "meaning": "not yet; still",
+  "pos": "adverb"
+ },
+ {
+  "id": "よ",
+  "reading": "よ",
+  "meaning": "sentence ending: tells the listener something new",
+  "pos": "particle"
+ },
+ {
+  "id": "だ",
+  "reading": "だ",
+  "meaning": "is (plain form of です)",
+  "pos": "copula"
+ },
+ {
+  "id": "えっと",
+  "reading": "えっと",
+  "meaning": "um, let me see",
+  "pos": "interjection"
+ },
+ {
+  "id": "ね",
+  "reading": "ね",
+  "meaning": "sentence ending: 'right?', seeking agreement",
+  "pos": "particle"
+ },
+ {
+  "id": "サイズ",
+  "reading": "サイズ",
+  "meaning": "size",
+  "pos": "noun"
+ },
+ {
+  "id": "どう",
+  "reading": "どう",
+  "meaning": "how",
+  "pos": "adverb"
+ },
+ {
+  "id": "なさる",
+  "reading": "なさる",
+  "meaning": "to do (honorific of する, used toward customers)",
+  "pos": "verb (honorific)"
+ },
+ {
+  "id": "ホット",
+  "reading": "ホット",
+  "meaning": "hot (drink)",
+  "pos": "noun"
+ },
+ {
+  "id": "と",
+  "reading": "と",
+  "meaning": "and (between nouns)",
+  "pos": "particle"
+ },
+ {
+  "id": "アイス",
+  "reading": "アイス",
+  "meaning": "iced (drink); ice cream",
+  "pos": "noun"
+ },
+ {
+  "id": "どちら",
+  "reading": "どちら",
+  "meaning": "which (of two), polite",
+  "pos": "pronoun"
+ },
+ {
+  "id": "どっち",
+  "reading": "どっち",
+  "meaning": "which (of two), casual",
+  "pos": "pronoun"
+ },
+ {
+  "id": "が",
+  "reading": "が",
+  "meaning": "subject marker; with 痛い: what hurts",
+  "pos": "particle"
+ },
+ {
+  "id": "店内",
+  "reading": "てんない",
+  "meaning": "inside the shop; for here (not to go)",
+  "pos": "noun"
+ },
+ {
+  "id": "召し上がる",
+  "reading": "めしあがる",
+  "meaning": "to eat or drink (honorific; only about other people)",
+  "pos": "verb (honorific)"
+ },
+ {
+  "id": "ここ",
+  "reading": "ここ",
+  "meaning": "here",
+  "pos": "pronoun"
+ },
+ {
+  "id": "飲む",
+  "reading": "のむ",
+  "meaning": "to drink; to take (medicine)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "はい",
+  "reading": "はい",
+  "meaning": "yes",
+  "pos": "interjection"
+ },
+ {
+  "id": "いいえ",
+  "reading": "いいえ",
+  "meaning": "no",
+  "pos": "interjection"
+ },
+ {
+  "id": "持ち帰り",
+  "reading": "もちかえり",
+  "meaning": "takeout, to go",
+  "pos": "noun"
+ },
+ {
+  "id": "円",
+  "reading": "えん",
+  "meaning": "yen",
+  "pos": "counter"
+ },
+ {
+  "id": "なる",
+  "reading": "なる",
+  "meaning": "to become; ～になります = it comes to (a price)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "カード",
+  "reading": "カード",
+  "meaning": "card",
+  "pos": "noun"
+ },
+ {
+  "id": "現金",
+  "reading": "げんきん",
+  "meaning": "cash",
+  "pos": "noun"
+ },
+ {
+  "id": "いただきます",
+  "reading": "いただきます",
+  "meaning": "said right before eating or drinking",
+  "pos": "set phrase"
+ },
+ {
+  "id": "ちょっと",
+  "reading": "ちょっと",
+  "meaning": "a little, a bit",
+  "pos": "adverb"
+ },
+ {
+  "id": "寒い",
+  "reading": "さむい",
+  "meaning": "cold (weather)",
+  "pos": "i-adjective"
+ },
+ {
+  "id": "いつも",
+  "reading": "いつも",
+  "meaning": "always",
+  "pos": "adverb"
+ },
+ {
+  "id": "ありがとうございます",
+  "reading": "ありがとうございます",
+  "meaning": "thank you (polite)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "そう",
+  "reading": "そう",
+  "meaning": "so, like that; そうですね = it is, isn't it",
+  "pos": "adverb"
+ },
+ {
+  "id": "おやすみなさい",
+  "reading": "おやすみなさい",
+  "meaning": "good night",
+  "pos": "set phrase"
+ },
+ {
+  "id": "寝る",
+  "reading": "ねる",
+  "meaning": "to sleep, to go to bed",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "また",
+  "reading": "また",
+  "meaning": "again",
+  "pos": "adverb"
+ },
+ {
+  "id": "どうぞ",
+  "reading": "どうぞ",
+  "meaning": "please (offering); go ahead",
+  "pos": "adverb"
+ },
+ {
+  "id": "来る",
+  "reading": "くる",
+  "meaning": "to come",
+  "pos": "verb (irregular)"
+ },
+ {
+  "id": "ありがとう",
+  "reading": "ありがとう",
+  "meaning": "thanks (casual)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "どうも",
+  "reading": "どうも",
+  "meaning": "thanks (short); hi",
+  "pos": "adverb"
+ },
+ {
+  "id": "それ",
+  "reading": "それ",
+  "meaning": "that (near the listener)",
+  "pos": "pronoun"
+ },
+ {
+  "id": "私",
+  "reading": "わたし",
+  "meaning": "I, me",
+  "pos": "pronoun"
+ },
+ {
+  "id": "の",
+  "reading": "の",
+  "meaning": "'s, of; in ～んです / ～のです: explains a situation",
+  "pos": "particle"
+ },
+ {
+  "id": "セリフ",
+  "reading": "セリフ",
+  "meaning": "(someone's) line, what someone says",
+  "pos": "noun"
+ },
+ {
+  "id": "ラテ",
+  "reading": "ラテ",
+  "meaning": "latte",
+  "pos": "noun"
+ },
+ {
+  "id": "紅茶",
+  "reading": "こうちゃ",
+  "meaning": "black tea",
+  "pos": "noun"
+ },
+ {
+  "id": "ココア",
+  "reading": "ココア",
+  "meaning": "cocoa",
+  "pos": "noun"
+ },
+ {
+  "id": "コンビニ",
+  "reading": "コンビニ",
+  "meaning": "convenience store",
+  "pos": "noun"
+ },
+ {
+  "id": "おにぎり",
+  "reading": "おにぎり",
+  "meaning": "rice ball",
+  "pos": "noun"
+ },
+ {
+  "id": "レジ",
+  "reading": "レジ",
+  "meaning": "register, checkout",
+  "pos": "noun"
+ },
+ {
+  "id": "持つ",
+  "reading": "もつ",
+  "meaning": "to hold; 持って行く = to take (something somewhere)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "行く",
+  "reading": "いく",
+  "meaning": "to go",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "こちら",
+  "reading": "こちら",
+  "meaning": "this way; this one (polite)",
+  "pos": "pronoun"
+ },
+ {
+  "id": "袋",
+  "reading": "ふくろ",
+  "meaning": "bag",
+  "pos": "noun"
+ },
+ {
+  "id": "利用",
+  "reading": "りよう",
+  "meaning": "use; ご利用ですか = will you be using ~?",
+  "pos": "noun"
+ },
+ {
+  "id": "大丈夫",
+  "reading": "だいじょうぶ",
+  "meaning": "all right; when offered something: no thanks, I'm fine",
+  "pos": "na-adjective"
+ },
+ {
+  "id": "要る",
+  "reading": "いる",
+  "meaning": "to need",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "お茶",
+  "reading": "おちゃ",
+  "meaning": "green tea",
+  "pos": "noun"
+ },
+ {
+  "id": "弁当",
+  "reading": "べんとう",
+  "meaning": "boxed lunch (usually お弁当)",
+  "pos": "noun"
+ },
+ {
+  "id": "温める",
+  "reading": "あたためる",
+  "meaning": "to warm up, to heat",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "水",
+  "reading": "みず",
+  "meaning": "water",
+  "pos": "noun"
+ },
+ {
+  "id": "薬局",
+  "reading": "やっきょく",
+  "meaning": "pharmacy",
+  "pos": "noun"
+ },
+ {
+  "id": "風邪薬",
+  "reading": "かぜぐすり",
+  "meaning": "cold medicine",
+  "pos": "noun"
+ },
+ {
+  "id": "こんにちは",
+  "reading": "こんにちは",
+  "meaning": "hello, good afternoon (pronounced こんにちわ)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "喉",
+  "reading": "のど",
+  "meaning": "throat",
+  "pos": "noun"
+ },
+ {
+  "id": "痛い",
+  "reading": "いたい",
+  "meaning": "painful; it hurts",
+  "pos": "i-adjective"
+ },
+ {
+  "id": "元気",
+  "reading": "げんき",
+  "meaning": "well, healthy, lively",
+  "pos": "na-adjective"
+ },
+ {
+  "id": "いい",
+  "reading": "いい",
+  "meaning": "good (its other forms use よ-: よかった)",
+  "pos": "i-adjective"
+ },
+ {
+  "id": "では",
+  "reading": "では",
+  "meaning": "well then (polite)",
+  "pos": "conjunction"
+ },
+ {
+  "id": "いかが",
+  "reading": "いかが",
+  "meaning": "how (polite); いかがですか = how about ~?",
+  "pos": "adverb"
+ },
+ {
+  "id": "じゃあ",
+  "reading": "じゃあ",
+  "meaning": "well then (casual)",
+  "pos": "conjunction"
+ },
+ {
+  "id": "食べ物",
+  "reading": "たべもの",
+  "meaning": "food",
+  "pos": "noun"
+ },
+ {
+  "id": "じゃ",
+  "reading": "じゃ",
+  "meaning": "contraction of では: じゃありません = is not",
+  "pos": "copula part"
+ },
+ {
+  "id": "ある",
+  "reading": "ある",
+  "meaning": "to be, to exist (things); ありません = is not, there isn't",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "薬",
+  "reading": "くすり",
+  "meaning": "medicine",
+  "pos": "noun"
+ },
+ {
+  "id": "一日",
+  "reading": "いちにち",
+  "meaning": "one day; per day",
+  "pos": "noun"
+ },
+ {
+  "id": "三回",
+  "reading": "さんかい",
+  "meaning": "three times",
+  "pos": "noun"
+ },
+ {
+  "id": "一回",
+  "reading": "いっかい",
+  "meaning": "once",
+  "pos": "noun"
+ },
+ {
+  "id": "食後",
+  "reading": "しょくご",
+  "meaning": "after meals",
+  "pos": "noun"
+ },
+ {
+  "id": "わかる",
+  "reading": "わかる",
+  "meaning": "to understand; わかりました = understood",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "お大事に",
+  "reading": "おだいじに",
+  "meaning": "take care (said to someone unwell)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "言う",
+  "reading": "いう",
+  "meaning": "to say",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "言葉",
+  "reading": "ことば",
+  "meaning": "word, words",
+  "pos": "noun"
+ },
+ {
+  "id": "頭痛薬",
+  "reading": "ずつうやく",
+  "meaning": "headache medicine",
+  "pos": "noun"
+ },
+ {
+  "id": "頭",
+  "reading": "あたま",
+  "meaning": "head",
+  "pos": "noun"
+ },
+ {
+  "id": "目薬",
+  "reading": "めぐすり",
+  "meaning": "eye drops",
+  "pos": "noun"
+ },
+ {
+  "id": "目",
+  "reading": "め",
+  "meaning": "eye",
+  "pos": "noun"
+ },
+ {
+  "id": "かゆい",
+  "reading": "かゆい",
+  "meaning": "itchy",
+  "pos": "i-adjective"
+ },
+ {
+  "id": "さす",
+  "reading": "さす",
+  "meaning": "to put in (eye drops)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "あいさつ",
+  "reading": "あいさつ",
+  "meaning": "greeting; あいさつする = to greet",
+  "pos": "noun"
+ },
+ {
+  "id": "おはようございます",
+  "reading": "おはようございます",
+  "meaning": "good morning",
+  "pos": "set phrase"
+ },
+ {
+  "id": "こんばんは",
+  "reading": "こんばんは",
+  "meaning": "good evening (pronounced こんばんわ)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "出かける",
+  "reading": "でかける",
+  "meaning": "to go out",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "いってらっしゃい",
+  "reading": "いってらっしゃい",
+  "meaning": "see you! (to someone leaving)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "いってきます",
+  "reading": "いってきます",
+  "meaning": "I'm off! (said by the one leaving)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "もう一度",
+  "reading": "もういちど",
+  "meaning": "once more",
+  "pos": "adverb"
+ },
+ {
+  "id": "すみません",
+  "reading": "すみません",
+  "meaning": "excuse me; sorry",
+  "pos": "set phrase"
+ },
+ {
+  "id": "アパート",
+  "reading": "アパート",
+  "meaning": "apartment building",
+  "pos": "noun"
+ },
+ {
+  "id": "準備中",
+  "reading": "じゅんびちゅう",
+  "meaning": "getting ready (sign on a shop that is closed)",
+  "pos": "noun"
+ },
+ {
+  "id": "駅",
+  "reading": "えき",
+  "meaning": "station",
+  "pos": "noun"
+ }
+]

@@ -1,0 +1,48 @@
+{
+  "id": "neighbor_greet",
+  "title": "Greeting your neighbor",
+  "place": "street",
+  "npc": "tanaka",
+  "maxStage": 2,
+  "start": "greet",
+  "errand": "田中 さん に あいさつ する",
+  "variants": [{ "id": "default", "slots": {} }],
+  "nodes": {
+    "greet": {
+      "line": "あ 、 どうも 。",
+      "gloss": "Oh, hi.",
+      "targets": ["おはようございます", "こんにちは", "こんばんは"],
+      "grammar": ["greetings_time"],
+      "choices": [
+        { "text": "おはようございます 。", "gloss": "Good morning.", "result": "success", "correctWhen": "morning", "reaction": "ふふ 、 $greet 。", "note": "Greetings follow the clock: おはようございます until late morning, こんにちは in the day, こんばんは in the evening.", "grammar": "greetings_time" },
+        { "text": "こんにちは 。", "gloss": "Hello.", "result": "success", "correctWhen": "day", "reaction": "ふふ 、 $greet 。", "note": "Greetings follow the clock: おはようございます until late morning, こんにちは in the day, こんばんは in the evening.", "grammar": "greetings_time" },
+        { "text": "こんばんは 。", "gloss": "Good evening.", "result": "success", "correctWhen": "evening", "reaction": "ふふ 、 $greet 。", "note": "Greetings follow the clock: おはようございます until late morning, こんにちは in the day, こんばんは in the evening.", "grammar": "greetings_time" },
+        { "text": "おやすみなさい 。", "gloss": "Good night.", "result": "npc_amused", "reaction": "ふふ 、 まだ 寝ません=寝る よ 。 $greet 。", "note": "おやすみなさい is for bedtime.", "grammar": "greetings_time" }
+      ],
+      "next": { "success": "chat" }
+    },
+    "chat": {
+      "line": "お出かけ=出かける です か ？",
+      "gloss": "Heading out?",
+      "targets": ["出かける", "に", "行く"],
+      "grammar": ["ni_destination"],
+      "choices": [
+        { "text": "はい 、 カフェ に 行きます=行く 。", "gloss": "Yes, I'm going to the cafe.", "result": "success" },
+        { "text": "はい 、 ちょっと コンビニ に 。", "gloss": "Yes, just to the konbini.", "result": "success" },
+        { "text": "はい 、 カフェ を 行きます=行く 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "あ 、 カフェ に 行く ん=の です ね 。", "note": "Mark where you're going with に (or へ): カフェに行きます.", "grammar": "ni_destination" }
+      ],
+      "next": { "success": "bye" }
+    },
+    "bye": {
+      "line": "いってらっしゃい 。",
+      "gloss": "See you later! (said to someone leaving)",
+      "targets": ["いってらっしゃい", "いってきます"],
+      "grammar": ["ittekimasu"],
+      "choices": [
+        { "text": "いってきます 。", "gloss": "I'm off! (said by the one leaving)", "result": "success" },
+        { "text": "いってらっしゃい 。", "gloss": "See you later! (said to the one leaving)", "result": "npc_amused", "reaction": "ふふ 、 いってきます 、 です よ 。", "note": "The person leaving says いってきます. The one staying says いってらっしゃい.", "grammar": "ittekimasu" }
+      ],
+      "end": true
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "kotomachi",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A small town life-sim for learning Japanese by running errands. Plain TypeScript, Canvas 2D and DOM.",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.ts",
+    "check": "npm run typecheck && npm test && npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "esbuild": "0.28.2",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}

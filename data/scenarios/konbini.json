@@ -1,0 +1,71 @@
+{
+  "id": "konbini_buy",
+  "title": "Shopping at the konbini",
+  "place": "konbini",
+  "npc": "clerk",
+  "maxStage": 2,
+  "start": "greet",
+  "errand": "コンビニ で $item を 買う",
+  "variants": [
+    { "id": "onigiri", "price": 160, "slots": { "item": "おにぎり", "item_en": "a rice ball" } },
+    { "id": "tea", "price": 140, "slots": { "item": "お茶", "item_en": "green tea" } },
+    { "id": "bento", "price": 550, "slots": { "item": "お弁当=弁当", "item_en": "a boxed lunch" } },
+    { "id": "water", "price": 110, "slots": { "item": "水", "item_en": "water" } }
+  ],
+  "nodes": {
+    "greet": {
+      "line": "いらっしゃいませ ！",
+      "gloss": "Welcome!",
+      "targets": ["いらっしゃいませ"],
+      "grammar": ["irasshaimase"],
+      "choices": [
+        { "text": "（ $item を レジ に 持って=持つ 行く ）", "gloss": "(take the $item_en to the register)", "result": "success" },
+        { "text": "いらっしゃいませ ！", "gloss": "Welcome!", "result": "npc_amused", "reaction": "… ？ あ 、 レジ は こちら です 。", "note": "Staff say いらっしゃいませ. Customers don't answer it; a small nod is enough.", "grammar": "irasshaimase" }
+      ],
+      "next": { "success": "heat" }
+    },
+    "heat": {
+      "onlyFor": ["bento"],
+      "line": "お弁当=弁当 、 温めます=温める か ？",
+      "gloss": "Shall I heat up the boxed lunch?",
+      "targets": ["弁当", "温める"],
+      "grammar": ["onegai"],
+      "choices": [
+        { "text": "はい 、 お願いします=お願いする 。", "gloss": "Yes, please.", "result": "success" },
+        { "text": "いいえ 、 大丈夫 です 。", "gloss": "No, it's fine.", "result": "success" },
+        { "text": "はい 、 温めます=温める 。", "gloss": "Yes, I will heat it.", "result": "npc_amused", "reaction": "ふふ 、 こちら で 温めます=温める ね 。", "note": "温めます is the clerk offering to heat it. Answer はい、お願いします (yes please) or いいえ、大丈夫です (no thanks).", "grammar": "onegai" }
+      ],
+      "next": { "success": "bag" }
+    },
+    "bag": {
+      "line": "袋 は ご利用=利用 です か ？",
+      "gloss": "Would you like a bag?",
+      "targets": ["袋", "利用", "大丈夫"],
+      "grammar": ["daijoubu"],
+      "choices": [
+        { "text": "いいえ 、 大丈夫 です 。", "gloss": "No, I'm fine.", "result": "success" },
+        { "text": "はい 、 お願いします=お願いする 。", "gloss": "Yes, please.", "result": "success" },
+        { "text": "袋 です 。", "gloss": "It's a bag.", "result": "npc_confused", "reaction": "えっと … 袋 、 いります=要る か ？", "note": "Answer the question: はい、お願いします (yes please) or いいえ、大丈夫です (no thanks).", "grammar": "daijoubu" }
+      ],
+      "next": { "success": "pay" }
+    },
+    "pay": {
+      "line": "$price 円 です 。",
+      "gloss": "That's ¥$price.",
+      "targets": ["円", "現金", "カード"],
+      "choices": [
+        { "text": "カード で お願いします=お願いする 。", "gloss": "By card, please.", "result": "success" },
+        { "text": "現金 で 。", "gloss": "Cash.", "result": "success" },
+        { "text": "ごちそうさまでした 。", "gloss": "Thank you for the meal.", "result": "npc_amused", "reaction": "… ？ $price 円 です 。", "note": "ごちそうさまでした is for after a meal, not at the register.", "grammar": "gochisousama" }
+      ],
+      "effects": { "pay": true },
+      "next": { "success": "bye" }
+    },
+    "bye": {
+      "line": "ありがとうございました=ありがとうございます 。",
+      "gloss": "Thank you very much.",
+      "targets": ["ありがとうございます"],
+      "end": true
+    }
+  }
+}

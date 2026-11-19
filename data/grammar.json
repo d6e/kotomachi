@@ -1,0 +1,110 @@
+[
+ {
+  "id": "onegai",
+  "title": "～をお願いします",
+  "note": "The standard polite way to order or ask for something: [thing]をお願いします. ～をください also works but sounds more direct. On its own, お願いします means 'yes, please'.",
+  "example": "ラテ を お願いします=お願いする 。"
+ },
+ {
+  "id": "wo_object",
+  "title": "を: the object",
+  "note": "を marks the thing an action is done to. When ordering, the item takes を: コーヒーをお願いします.",
+  "example": "コーヒー を 買う 。"
+ },
+ {
+  "id": "gochisousama",
+  "title": "ごちそうさまでした",
+  "note": "Said after you finish eating or drinking, often to the cook or staff as you leave. Saying it before you've eaten sounds funny.",
+  "example": "ごちそうさまでした 。"
+ },
+ {
+  "id": "itadakimasu",
+  "title": "いただきます",
+  "note": "Said right before you start eating or drinking. It isn't used when paying or accepting an item.",
+  "example": "いただきます 。"
+ },
+ {
+  "id": "plain_vs_polite",
+  "title": "Plain vs polite speech",
+  "note": "Strangers and staff get です/ます. Plain forms (だ, dictionary-form verbs) are for friends and family. Switch to plain only after the other person does, or it sounds rude.",
+  "example": "そう です ね 。"
+ },
+ {
+  "id": "de_choice",
+  "title": "で: 'I'll go with'",
+  "note": "で after an option marks what you choose: Mサイズでお願いします, ホットでお願いします, カードでお願いします.",
+  "example": "ホット で お願いします=お願いする 。"
+ },
+ {
+  "id": "nasaru",
+  "title": "なさる (honorific する)",
+  "note": "Staff use なさる instead of する to raise the customer: どうなさいますか = how would you like it? You answer in normal polite Japanese.",
+  "example": "サイズ は どう なさいます=なさる か ？"
+ },
+ {
+  "id": "meshiagaru",
+  "title": "召し上がる (honorific 'eat/drink')",
+  "note": "召し上がる raises the person eating, so it is only used about others. About yourself, say 食べます or 飲みます, or just 店内で.",
+  "example": "店内 で お召し上がり=召し上がる です か ？"
+ },
+ {
+  "id": "ne_yo",
+  "title": "ね and よ",
+  "note": "ね at the end asks for agreement ('isn't it?'). よ tells the listener something they may not know. よね does both: 'right?'",
+  "example": "今日 は 寒い です ね 。"
+ },
+ {
+  "id": "greetings_time",
+  "title": "Greetings follow the clock",
+  "note": "おはようございます until late morning, こんにちは during the day, こんばんは in the evening. おやすみなさい is for bedtime.",
+  "example": "おはようございます 。"
+ },
+ {
+  "id": "tekudasai",
+  "title": "～てください",
+  "note": "て-form + ください is a polite request: 飲んでください = please take (it). 来てください = please come.",
+  "example": "また 来て=来る ください 。"
+ },
+ {
+  "id": "irasshaimase",
+  "title": "いらっしゃいませ",
+  "note": "Staff greet customers with いらっしゃいませ. Customers don't say it back; a small nod is normal.",
+  "example": "いらっしゃいませ 。"
+ },
+ {
+  "id": "daijoubu",
+  "title": "大丈夫です: no thanks",
+  "note": "When offered something (a bag, heating), いいえ、大丈夫です politely declines. はい、お願いします accepts.",
+  "example": "いいえ 、 大丈夫 です 。"
+ },
+ {
+  "id": "ga_itai",
+  "title": "[body part]が痛い",
+  "note": "What hurts takes が: 頭が痛いです (my head hurts), 喉が痛いです. を doesn't work with 痛い.",
+  "example": "頭 が 痛い です 。"
+ },
+ {
+  "id": "counters_kai",
+  "title": "回: times",
+  "note": "回 counts times: 一回 (once), 三回 (three times). 一日三回 = three times a day.",
+  "example": "一日 三回 です 。"
+ },
+ {
+  "id": "odaijini",
+  "title": "お大事に",
+  "note": "Said to someone who is ill or hurt: take care of yourself. The patient answers ありがとうございます.",
+  "example": "お大事に 。"
+ },
+ {
+  "id": "ni_destination",
+  "title": "に: where you're going",
+  "note": "With 行く and 来る, the destination takes に (or へ): カフェに行きます. を doesn't mark a destination.",
+  "example": "カフェ に 行きます=行く 。"
+ },
+ {
+  "id": "ittekimasu",
+  "title": "いってきます / いってらっしゃい",
+  "note": "The one leaving says いってきます ('I'm off'). The one staying says いってらっしゃい ('see you').",
+  "example": "いってきます 。"
+ }
+]
