@@ -67,7 +67,7 @@ export function makeErrands(defs: ScenarioDef[], learner: Learner, vocab: Vocab,
     .filter((d) => d.errand)
     .map((d) => {
       const v = pickVariant(d, learner, vocab, day);
-      const slots = { ...v.slots, price: String(v.price ?? 0) };
+      const slots: Record<string, string> = { ...v.slots, price: String(v.price ?? 0) };
       return { scenario: d.id, variant: v.id, text: d.errand!.replace(/\$([a-z_]+)/g, (m, n: string) => slots[n] ?? m), done: false };
     });
 }

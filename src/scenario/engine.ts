@@ -132,6 +132,9 @@ export interface Correction {
   better: string;
   note: string;
   grammar?: string;
+  /** The same two sentences as tokens, so the notebook can show furigana. */
+  saidTokens?: Token[];
+  betterTokens?: Token[];
 }
 
 export interface NodeEvidence {
@@ -345,13 +348,16 @@ export class ScenarioRun {
     this.clean = false;
     this.fails += 1;
     this.prompt = null;
+    const better = this.correctExample();
     this.corrections.push({
       scenario: this.def.id,
       nodeId: this.nodeId,
       said: plainText(said),
-      better: plainText(this.correctExample()),
+      better: plainText(better),
       note,
       grammar,
+      saidTokens: said,
+      betterTokens: better,
     });
     const redirect = this.node.next?.[result];
     if (redirect) {
@@ -389,6 +395,8 @@ export class ScenarioRun {
           better: plainText(said),
           note: resolved.note,
           grammar: choice.grammar,
+          saidTokens: said,
+          betterTokens: said,
         });
       }
       this.complete(said, firstTry);
