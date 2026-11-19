@@ -12,6 +12,8 @@ import neighbor from '../../data/scenarios/neighbor.json' with { type: 'json' };
 import restaurant from '../../data/scenarios/restaurant.json' with { type: 'json' };
 import station from '../../data/scenarios/station.json' with { type: 'json' };
 import post from '../../data/scenarios/post.json' with { type: 'json' };
+import requestsJson from '../../data/requests.json' with { type: 'json' };
+import type { RequestData } from './errands.ts';
 import { parseLine, Vocab, type ParseIssue, type VocabEntry } from '../lang/markup.ts';
 import type { GrammarNote, NpcDef, NpcId, ScenarioDef } from '../scenario/types.ts';
 
@@ -25,6 +27,8 @@ export const npcs: Record<NpcId, NpcDef> = Object.fromEntries(
 ) as Record<NpcId, NpcDef>;
 export const scenarios: ScenarioDef[] = [cafe, konbini, pharmacy, restaurant, station, post, neighbor] as unknown as ScenarioDef[];
 export const scenarioById: Record<string, ScenarioDef> = Object.fromEntries(scenarios.map((s) => [s.id, s]));
+/** The regulars' stories and everyday requests. */
+export const requests = requestsJson as unknown as RequestData;
 
 export interface ContentIssue {
   where: string;
@@ -43,6 +47,31 @@ export function validateContent(defs: ScenarioDef[] = scenarios): ContentIssue[]
     for (const i of issues) out.push({ where, problem: `${i.token}: ${i.problem}` });
   };
   for (const n of Object.values(npcs)) check(`npc ${n.id}`, n.name, {});
+  // Requests: every line parses, every place and variant exists, every asker is a person.
+  const byId = Object.fromEntries(defs.map((d) => [d.id, d]));
+  const arcIds = new Set<string>();
+  for (const a of requests.arcs) {
+    if (arcIds.has(a.id)) out.push({ where: `arc ${a.id}`, problem: 'duplicate arc id' });
+    arcIds.add(a.id);
+    if (!npcs[a.from]) out.push({ where: `arc ${a.id}`, problem: `unknown asker ${a.from}` });
+    if (a.steps.length < 3 || a.steps.length > 5) out.push({ where: `arc ${a.id}`, problem: `${a.steps.length} steps, wants 3 to 5` });
+    a.steps.forEach((st, i) => {
+      const where = `arc ${a.id} step ${i + 1}`;
+      const def = byId[st.scenario];
+      if (!def) out.push({ where, problem: `unknown scenario ${st.scenario}` });
+      else if (!def.variants.some((v) => v.id === st.variant)) out.push({ where, problem: `unknown variant ${st.variant}` });
+      check(where, st.reason, {});
+      if (st.thanks) check(`${where} thanks`, st.thanks, {});
+    });
+    check(`arc ${a.id} gift`, a.gift.word, {});
+    check(`arc ${a.id} gift thanks`, a.gift.thanks, {});
+    if (!vocab.has(a.gift.word)) out.push({ where: `arc ${a.id} gift`, problem: `${a.gift.word} not in vocab` });
+  }
+  for (const r of requests.small) {
+    if (!byId[r.scenario]?.errand) out.push({ where: `small ${r.scenario}`, problem: 'no such place with errands' });
+    if (!npcs[r.from]) out.push({ where: `small ${r.scenario}`, problem: `unknown asker ${r.from}` });
+    check(`small ${r.scenario}`, r.reason, {});
+  }
   for (const g of Object.values(grammar)) check(`grammar ${g.id}`, g.example, {});
   for (const s of defs) {
     if (!s.nodes[s.start]) out.push({ where: s.id, problem: `start node ${s.start} missing` });

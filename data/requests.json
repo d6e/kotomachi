@@ -1,0 +1,67 @@
+{
+  "arcs": [
+    {
+      "id": "yuki",
+      "from": "yuki",
+      "title": "A busy week at the cafe",
+      "startDay": 1,
+      "steps": [
+        { "scenario": "konbini_buy", "variant": "milk", "reason": "牛乳 が 足りません=足りる ！ お願いします=お願いする 。", "reason_en": "We're running out of milk before the morning rush! Could you get some?", "thanks": "助かりました=助かる ！ ありがとう ！", "thanks_en": "You saved me! Thank you!" },
+        { "scenario": "pharmacy_buy", "variant": "headache", "reason": "頭 が 痛い です 。 薬 を お願いします=お願いする 。", "reason_en": "I've got a headache from all the orders. Could you get me some medicine?", "thanks": "ありがとう 。 もう 大丈夫 です 。", "thanks_en": "Thanks. I'm fine now." },
+        { "scenario": "post_send", "variant": "stamps", "reason": "家族 に はがき を 書きました=書く 。 切手 を お願いします=お願いする 。", "reason_en": "I wrote postcards to my family. Could you buy some stamps?", "thanks": "ありがとう ！ 家族 も 喜びます=喜ぶ 。", "thanks_en": "Thanks! My family will be happy too." },
+        { "scenario": "cafe_order", "variant": "latte", "reason": "新しい ラテ を 作りました=作る 。 飲み=飲む に 来て=来る ください 。", "reason_en": "I made a new latte. Come and try it!" }
+      ],
+      "gift": { "id": "mug", "word": "マグカップ", "thanks": "いつも ありがとう 。 これ 、 どうぞ 。", "thanks_en": "Thanks for everything. This is for you." }
+    },
+    {
+      "id": "tanaka",
+      "from": "tanaka",
+      "title": "田中さん's grandchild",
+      "startDay": 1,
+      "steps": [
+        { "scenario": "post_send", "variant": "address", "reason": "孫 に 荷物 を 送りたい=送る です 。 お願いします=お願いする 。", "reason_en": "I'd like to send a parcel to my grandchild in Osaka. Could you take it?", "thanks": "ありがとう 。 孫 も 喜びます=喜ぶ 。", "thanks_en": "Thank you. My grandchild will be happy." },
+        { "scenario": "konbini_buy", "variant": "umbrella", "reason": "明日 は 雨 です 。 でも 傘 が ありません=ある 。", "reason_en": "It's going to rain tomorrow, but I don't have an umbrella.", "thanks": "助かりました=助かる 。", "thanks_en": "That's a great help." },
+        { "scenario": "pharmacy_buy", "variant": "cough", "reason": "咳 が 出ます=出る 。 薬 を お願いします=お願いする 。", "reason_en": "I've got a cough. Could you get me some medicine?", "thanks": "ありがとう 。 今日 は ゆっくり 寝ます=寝る 。", "thanks_en": "Thank you. I'll get some rest today." },
+        { "scenario": "station_ticket", "variant": "ticket", "reason": "週末 、 孫 に 会い=会う に 東京 へ 行きます=行く 。 切符 を お願いします=お願いする 。", "reason_en": "This weekend I'm going to Tokyo to see my grandchild. Could you buy me a ticket?" }
+      ],
+      "gift": { "id": "plant", "word": "鉢植え", "thanks": "本当 に ありがとう 。 これ 、 どうぞ 。", "thanks_en": "Thank you so much. This is for you." }
+    },
+    {
+      "id": "yamada",
+      "from": "server",
+      "title": "山田さん's new curry",
+      "startDay": 3,
+      "steps": [
+        { "scenario": "konbini_buy", "variant": "battery", "reason": "店 の 時計 が 止まりました=止まる 。 電池 を お願いします=お願いする 。", "reason_en": "The clock at the restaurant stopped. Could you get some batteries?", "thanks": "ありがとうございます ！", "thanks_en": "Thank you!" },
+        { "scenario": "station_ticket", "variant": "platform", "reason": "横浜 の 市場 で 魚 を 買います=買う 。 切符 を お願いします=お願いする 。", "reason_en": "I'm buying fish at the market in Yokohama. Could you get me a ticket?", "thanks": "これ で 新しい カレー が 作れます=作る 。", "thanks_en": "Now I can make the new curry." },
+        { "scenario": "restaurant_eat", "variant": "curry", "reason": "新しい カレー を 作りました=作る 。 食べ=食べる に 来て=来る ください 。", "reason_en": "I made a new curry. Come and eat!" }
+      ],
+      "gift": { "id": "recipe", "word": "レシピ", "thanks": "これ 、 カレー の レシピ です 。 どうぞ 。", "thanks_en": "Here's the recipe for the curry. For you." }
+    },
+    {
+      "id": "kobayashi",
+      "from": "kobayashi",
+      "title": "A busy week at the post office",
+      "startDay": 5,
+      "steps": [
+        { "scenario": "cafe_order", "variant": "coffee", "reason": "仕事 が 忙しい です 。 コーヒー を お願いします=お願いする 。", "reason_en": "Work is busy. Could you get me a coffee?", "thanks": "ありがとう 。 元気 が 出ます=出る 。", "thanks_en": "Thanks. That perks me up." },
+        { "scenario": "konbini_buy", "variant": "bento", "reason": "お昼=昼 の お弁当=弁当 を お願いします=お願いする 。", "reason_en": "Could you get me a bento for lunch?", "thanks": "おいしかった=おいしい です 。 ありがとう 。", "thanks_en": "That was good. Thanks." },
+        { "scenario": "station_ticket", "variant": "ic", "reason": "ICカード に チャージ を お願いします=お願いする 。", "reason_en": "Could you top up my IC card?" }
+      ],
+      "gift": { "id": "stamp", "word": "記念切手", "thanks": "これ 、 記念切手 です 。 どうぞ 。", "thanks_en": "These are commemorative stamps. For you." }
+    }
+  ],
+  "small": [
+    { "scenario": "cafe_order", "from": "yuki", "reason": "また 来て=来る ね ！", "reason_en": "Come by the cafe again!" },
+    { "scenario": "konbini_buy", "from": "tanaka", "reason": "買い物 を お願いします=お願いする 。", "reason_en": "Could you do a little shopping for me?" },
+    { "scenario": "pharmacy_buy", "from": "kobayashi", "reason": "薬 を お願いします=お願いする 。", "reason_en": "Could you pick up some medicine for me?" },
+    { "scenario": "restaurant_eat", "from": "server", "reason": "今日 の ランチ は おいしい です よ 。", "reason_en": "Today's lunch is a good one. Come and eat!" },
+    { "scenario": "station_ticket", "from": "tanaka", "reason": "切符 を お願いします=お願いする 。", "reason_en": "Could you buy a ticket for me?" },
+    { "scenario": "post_send", "from": "yuki", "reason": "郵便局 に 行きます=行く か ？ お願いします=お願いする 。", "reason_en": "Are you going to the post office? Could you take care of something for me?" },
+    { "scenario": "neighbor_greet", "from": "tanaka", "reason": "話 しましょう=する ！", "reason_en": "Let's have a chat!" },
+    { "scenario": "konbini_buy", "from": "kobayashi", "reason": "買い物 を お願いします=お願いする 。", "reason_en": "Could you do a little shopping for me?" },
+    { "scenario": "station_ticket", "from": "server", "reason": "切符 を お願いします=お願いする 。", "reason_en": "Could you buy a ticket for me?" },
+    { "scenario": "post_send", "from": "tanaka", "reason": "郵便局 に 行きます=行く か ？ お願いします=お願いする 。", "reason_en": "Are you going to the post office? Could you take care of something for me?" },
+    { "scenario": "pharmacy_buy", "from": "server", "reason": "薬 を お願いします=お願いする 。", "reason_en": "Could you pick up some medicine for me?" }
+  ]
+}

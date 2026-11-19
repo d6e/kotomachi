@@ -17,8 +17,8 @@ import { correctionItem, Notebook, type NotebookContext } from '../ui/notebook.t
 import { Popup } from '../ui/popup.ts';
 import { ALWAYS, renderTokens, unmarkNew } from '../ui/text.ts';
 import { comboMultiplier, errandPay, levelFor, levelProgress, XP, xpForLevel } from './rewards.ts';
-import { forms, grammar, npcs, scenarioById, scenarios, vocab } from './content.ts';
-import { makeErrands, pickVariant } from './errands.ts';
+import { forms, grammar, npcs, requests, scenarioById, scenarios, vocab } from './content.ts';
+import { pickVariant, planRequests, type Errand } from './errands.ts';
 import { DAY_END, DAY_START, isOpen, load, newDayLog, newGame, progressFor, save, clearSave, formatClock, type GameData } from './state.ts';
 
 const yen = (n: number): string => `¥${n.toLocaleString('en-US')}`;
@@ -33,7 +33,7 @@ const SCENARIO_FOR: Record<Exclude<DoorPlace, 'home'>, string> = {
 const MINUTES_PER_SECOND = 1;
 const MINUTES_PER_SCENARIO = 20;
 
-type Phase = 'title' | 'morning' | 'town' | 'talk' | 'night';
+type Phase = 'title' | 'morning' | 'town' | 'talk' | 'gift' | 'night';
 
 export class Game {
   private readonly input = new Input();
@@ -194,6 +194,12 @@ export class Game {
     }
   }
 
+  /** A small name tag for whoever asked: ゆき, 田中さん... */
+  private asker(e: Errand): HTMLElement | null {
+    if (!e.from || !npcs[e.from]) return null;
+    return h('span', { class: `asker${e.arc ? ' story' : ''}` }, this.tokens(npcs[e.from].name, false));
+  }
+
   private showScreen(...children: (Node | null)[]): void {
     clear(this.screen);
     this.screen.append(h('div', { class: 'card' }, ...children.filter((c): c is Node => c !== null)));
@@ -217,7 +223,7 @@ export class Game {
       const key = `${e.scenario}/${e.variant}`;
       const fresh = e.done && !this.shownDone.has(key);
       if (e.done && this.phase === 'town') this.shownDone.add(key);
-      return h('li', { class: (e.done ? 'done' : '') + (fresh && this.phase === 'town' ? ' just-done' : '') }, h('span', { class: 'box' }, e.done ? '✓' : ''), this.tokens(e.text));
+      return h('li', { class: (e.done ? 'done' : '') + (fresh && this.phase === 'town' ? ' just-done' : '') }, h('span', { class: 'box' }, e.done ? '✓' : ''), this.asker(e), this.tokens(e.text));
     }));
     this.hud.append(
       h('div', { class: 'hud-top' },
@@ -273,7 +279,7 @@ export class Game {
 
   private planDay(): void {
     const recent = (this.g.recentErrands ??= {});
-    this.g.errands = makeErrands(scenarios, this.learner, vocab, this.g.day, recent);
+    this.g.errands = planRequests({ defs: scenarios, requests, arcs: this.g.arcs, learner: this.learner, vocab, day: this.g.day, recent });
     for (const e of this.g.errands) recent[`${e.scenario}/${e.variant}`] = this.g.day;
   }
 
@@ -283,14 +289,24 @@ export class Game {
     this.showScreen(
       h('h2', {}, `Day ${this.g.day} · Morning`),
       h('p', {}, this.g.day === 1
-        ? 'You just moved into an apartment on this shopping street. Your phone shows a list of things to do today.'
+        ? 'You just moved into an apartment on this shopping street, and your new neighbours already have a few favours to ask.'
         : due > 0
           ? `${due} word${due === 1 ? ' is' : 's are'} due for review. Today's errands were picked to bring them up.`
-          : "Here's what's on today's list."),
-      h('ul', { class: 'errands big' }, this.g.errands.map((e) => h('li', {}, h('span', { class: 'box' }), this.tokens(e.text)))),
-      h('p', { class: 'muted' }, 'Tap a word you don\'t know. Opening hours: cafe 8:00–18:00, pharmacy 9:00–19:00, post office 9:00–17:00, restaurant 11:00–22:00. The konbini and the station are always open.'),
+          : "Here's who could use a hand today."),
+      h('ul', { class: 'requests' }, this.g.errands.map((e) => h('li', { class: e.arc ? 'story' : '' },
+        h('div', { class: 'req-who' }, this.asker(e), e.arc ? h('span', { class: 'req-tag' }, this.storyLabel(e)) : null),
+        e.reason ? h('div', { class: 'req-reason' }, this.tokens(e.reason)) : null,
+        e.reasonEn ? h('details', { class: 'req-en' }, h('summary', {}, 'English'), e.reasonEn) : null,
+        h('div', { class: 'req-task' }, h('span', { class: 'box' }), this.tokens(e.text)),
+      ))),
+      h('p', { class: 'muted' }, 'Tap a word you don\'t know. Each errand pays back what you spend, plus a reward. Opening hours: cafe 8:00–18:00, pharmacy 9:00–19:00, post office 9:00–17:00, restaurant 11:00–22:00. The konbini and the station are always open.'),
       h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => this.goToTown() }, 'Head out ▶')),
     );
+  }
+
+  private storyLabel(e: Errand): string {
+    const arc = requests.arcs.find((a) => a.id === e.arc);
+    return arc ? `Story ${(e.step ?? 0) + 1}/${arc.steps.length}` : '';
   }
 
   private goToTown(): void {
@@ -432,8 +448,16 @@ export class Game {
       this.toast('Done. Notes for tonight are in your notebook.');
     }
 
+    let gift: (typeof requests.arcs)[number] | null = null;
     if (errand) {
       errand.done = true;
+      const arc = errand.arc ? requests.arcs.find((a) => a.id === errand.arc) : undefined;
+      if (arc && errand.step === (this.g.arcs[arc.id] ?? 0)) {
+        this.g.arcs[arc.id] = errand.step + 1;
+        const step = arc.steps[errand.step]!;
+        if (errand.step + 1 >= arc.steps.length) gift = arc;
+        else if (step.thanks) this.toast(`${plainText(parseLine(npcs[arc.from].name, vocab))}: ${plainText(parseLine(step.thanks, vocab))}`);
+      }
       if (this.g.errands.every((e) => e.done)) {
         this.toast("That's every errand for today. Nice work!");
         this.celebrate(3, 90);
@@ -446,6 +470,33 @@ export class Game {
     this.phase = 'town';
     this.input.clear();
     this.renderHud(true);
+    if (gift) this.showGift(gift);
+  }
+
+  /** The end of a regular's story: their thanks and a keepsake. */
+  private showGift(arc: (typeof requests.arcs)[number]): void {
+    if (!this.g.keepsakes.includes(arc.gift.id)) this.g.keepsakes.push(arc.gift.id);
+    this.g.today.promotions.push(`A gift from ${plainText(parseLine(npcs[arc.from].name, vocab))}: ${vocab.get(arc.gift.word)?.meaning ?? arc.gift.word}.`);
+    this.phase = 'gift';
+    const word = renderTokens(parseLine(arc.gift.word, vocab), { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false), isNew: (t) => this.learner.isFresh(t.lemma) });
+    this.showScreen(
+      h('h2', {}, 'A thank-you gift'),
+      h('div', { class: 'gift' },
+        h('div', { class: 'gift-who' }, this.tokens(npcs[arc.from].name, false)),
+        h('div', { class: 'gift-line' }, this.tokens(arc.gift.thanks, false)),
+        h('details', { class: 'req-en' }, h('summary', {}, 'English'), arc.gift.thanks_en),
+        h('div', { class: 'gift-card' }, h('div', { class: 'gift-word' }, word), h('div', { class: 'muted' }, vocab.get(arc.gift.word)?.meaning ?? '')),
+        h('p', { class: 'muted' }, `That's the end of “${arc.title}”. Keepsakes go on the shelf in your room.`),
+      ),
+      h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => this.goToTown() }, 'Thank you ▶')),
+    );
+    if (this.learner.see(arc.gift.word, { day: this.g.day, place: 'street', npc: arc.from })) this.g.today.newWords.push(arc.gift.word);
+    this.addXp(20);
+    const card = this.screen.querySelector('.gift-card');
+    if (card) {
+      play(card, 'stamp');
+      setTimeout(() => card.isConnected && confetti(card.getBoundingClientRect().left + card.getBoundingClientRect().width / 2, card.getBoundingClientRect().top + 20, 60), 120);
+    }
   }
 
   /** Confetti over the town, a flash and a little shake. */

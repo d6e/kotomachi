@@ -1780,5 +1780,125 @@
   "reading": "はがき",
   "meaning": "postcard",
   "pos": "noun"
+ },
+ {
+  "id": "でも",
+  "reading": "でも",
+  "meaning": "but, however (at the start of a sentence)",
+  "pos": "conjunction"
+ },
+ {
+  "id": "へ",
+  "reading": "へ",
+  "meaning": "to, toward (a direction particle, pronounced え)",
+  "pos": "particle"
+ },
+ {
+  "id": "マグカップ",
+  "reading": "マグカップ",
+  "meaning": "mug",
+  "pos": "noun"
+ },
+ {
+  "id": "ランチ",
+  "reading": "ランチ",
+  "meaning": "lunch (a lunch set at a restaurant)",
+  "pos": "noun"
+ },
+ {
+  "id": "レシピ",
+  "reading": "レシピ",
+  "meaning": "recipe",
+  "pos": "noun"
+ },
+ {
+  "id": "仕事",
+  "reading": "しごと",
+  "meaning": "work, job",
+  "pos": "noun"
+ },
+ {
+  "id": "会う",
+  "reading": "あう",
+  "meaning": "to meet, to see (someone); 孫に会う = see my grandchild",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "作る",
+  "reading": "つくる",
+  "meaning": "to make; 作れます = can make",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "助かる",
+  "reading": "たすかる",
+  "meaning": "to be a help; 助かりました = you saved me, that helps a lot",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "喜ぶ",
+  "reading": "よろこぶ",
+  "meaning": "to be glad, to be pleased",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "孫",
+  "reading": "まご",
+  "meaning": "grandchild (your own)",
+  "pos": "noun"
+ },
+ {
+  "id": "家族",
+  "reading": "かぞく",
+  "meaning": "family",
+  "pos": "noun"
+ },
+ {
+  "id": "市場",
+  "reading": "いちば",
+  "meaning": "market (for fish, vegetables)",
+  "pos": "noun"
+ },
+ {
+  "id": "忙しい",
+  "reading": "いそがしい",
+  "meaning": "busy",
+  "pos": "i-adjective"
+ },
+ {
+  "id": "時計",
+  "reading": "とけい",
+  "meaning": "clock, watch",
+  "pos": "noun"
+ },
+ {
+  "id": "牛乳",
+  "reading": "ぎゅうにゅう",
+  "meaning": "milk",
+  "pos": "noun"
+ },
+ {
+  "id": "記念切手",
+  "reading": "きねんきって",
+  "meaning": "commemorative stamps",
+  "pos": "noun"
+ },
+ {
+  "id": "買い物",
+  "reading": "かいもの",
+  "meaning": "shopping",
+  "pos": "noun"
+ },
+ {
+  "id": "足りる",
+  "reading": "たりる",
+  "meaning": "to be enough; 足りません = there isn't enough",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "鉢植え",
+  "reading": "はちうえ",
+  "meaning": "potted plant",
+  "pos": "noun"
  }
 ]

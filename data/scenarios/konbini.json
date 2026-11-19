@@ -14,7 +14,8 @@
     { "id": "ice", "price": 180, "slots": { "item": "アイス", "item_en": "an ice cream", "enter": "（ アイス を レジ に 持って=持つ 行く ）", "enter_en": "(take the ice cream to the register)" } },
     { "id": "umbrella", "price": 700, "slots": { "item": "傘", "item_en": "umbrellas", "enter": "（ 傘 を 探す ）", "enter_en": "(look for an umbrella)", "where": "入口 の 近く", "where_en": "by the entrance", "seal": "テープ", "seal_en": "tape" } },
     { "id": "battery", "price": 400, "slots": { "item": "電池", "item_en": "batteries", "enter": "（ 電池 を 探す ）", "enter_en": "(look for batteries)", "where": "あちら の 棚", "where_en": "on the shelf over there" } },
-    { "id": "nikuman", "price": 150, "slots": { "item": "肉まん", "item_en": "a steamed meat bun", "enter": "（ レジ に 行く ）", "enter_en": "(go to the register)" } }
+    { "id": "nikuman", "price": 150, "slots": { "item": "肉まん", "item_en": "a steamed meat bun", "enter": "（ レジ に 行く ）", "enter_en": "(go to the register)" } },
+    { "id": "milk", "price": 200, "slots": { "item": "牛乳", "item_en": "milk", "enter": "（ 牛乳 を レジ に 持って=持つ 行く ）", "enter_en": "(take the milk to the register)" } }
   ],
   "nodes": {
     "greet": {
@@ -177,7 +178,7 @@
       "next": { "success": "bag" }
     },
     "bag": {
-      "onlyFor": ["onigiri", "bento", "ice", "battery", "nikuman"],
+      "onlyFor": ["onigiri", "bento", "ice", "battery", "nikuman", "milk"],
       "line": "袋 は ご利用=利用 です か ？",
       "gloss": "Would you like a bag?",
       "targets": ["袋", "利用", "大丈夫"],

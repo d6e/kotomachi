@@ -44,6 +44,10 @@ export interface GameData {
   errands: Errand[];
   /** The day each scenario/variant was last given as an errand, so a week stays varied. */
   recentErrands?: Record<string, number>;
+  /** How far each regular's story has got: the next step's index. */
+  arcs: Record<string, number>;
+  /** Things you've been given or brought home, by id. */
+  keepsakes: string[];
   /** Every correction so far, newest last, with the day it happened. */
   corrections: (Correction & { day: number })[];
   grammarSeen: string[];
@@ -66,6 +70,8 @@ export function newGame(): GameData {
     progress: {},
     friendship: { yuki: 0 },
     errands: [],
+    arcs: {},
+    keepsakes: [],
     corrections: [],
     grammarSeen: [],
     today: newDayLog({ yuki: 0 }),
