@@ -1,0 +1,227 @@
+{
+  "id": "restaurant_eat",
+  "title": "Eating at the restaurant",
+  "place": "restaurant",
+  "npc": "server",
+  "maxStage": 4,
+  "start": "greet",
+  "errand": "レストラン で $dish を 食べる",
+  "variants": [
+    {
+      "id": "curry", "price": 900,
+      "slots": { "payline": "ありがとうございます 。", "payline_en": "Thank you.", "dish": "カレー", "dish_en": "curry", "people": "一人", "people_en": "Just one.", "people_kana": "ひとり", "thing": "一つ", "thing_en": "One (thing)." }
+    },
+    {
+      "id": "ramen", "price": 850,
+      "slots": { "payline": "ありがとうございます 。", "payline_en": "Thank you.", "dish": "ラーメン", "dish_en": "ramen", "people": "一人", "people_en": "Just one.", "people_kana": "ひとり", "thing": "一つ", "thing_en": "One (thing)." }
+    },
+    {
+      "id": "teishoku", "price": 1100,
+      "slots": { "payline": "ありがとうございます 。", "payline_en": "Thank you.", "dish": "定食", "dish_en": "set meal", "rec": "魚 の 定食", "rec_en": "the fish set meal", "people": "一人", "people_en": "Just one.", "people_kana": "ひとり", "thing": "一つ", "thing_en": "One (thing)." }
+    },
+    {
+      "id": "pasta", "price": 1000,
+      "slots": { "payline": "ありがとうございます 。", "payline_en": "Thank you.", "dish": "パスタ", "dish_en": "pasta", "people": "一人", "people_en": "Just one.", "people_kana": "ひとり", "thing": "一つ", "thing_en": "One (thing)." }
+    },
+    {
+      "id": "separate", "price": 800,
+      "slots": { "payline": "ありがとうございます 。", "payline_en": "Thank you.", "dish": "ピザ", "dish_en": "pizza", "people": "二人", "people_en": "Two of us.", "people_kana": "ふたり", "thing": "二つ", "thing_en": "Two (things)." }
+    },
+    {
+      "id": "card", "price": 1200,
+      "slots": { "payline": "はい 、 使えます=使える よ 。", "payline_en": "Yes, you can.", "dish": "ハンバーグ", "dish_en": "hamburg steak", "people": "一人", "people_en": "Just one.", "people_kana": "ひとり", "thing": "一つ", "thing_en": "One (thing)." }
+    }
+  ],
+  "nodes": {
+    "greet": {
+      "line": "いらっしゃいませ 。 何名様 です か ？",
+      "gloss": "Welcome! How many in your party?",
+      "targets": ["何名様", "一人", "二人"],
+      "grammar": ["ninzuu"],
+      "choices": [
+        { "text": "$people です 。", "gloss": "$people_en", "result": "success" },
+        { "text": "$thing です 。", "gloss": "$thing_en", "result": "npc_puzzled", "reaction": "あ 、 $people です ね 。", "note": "People are counted with 人: 一人 (ひとり), 二人 (ふたり). 一つ and 二つ are for things.", "grammar": "ninzuu" },
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 まだ です よ 。 何名様 です か ？", "note": "いただきます comes right before you eat. At the door, say how many you are: 一人です.", "grammar": "itadakimasu" }
+      ],
+      "tiles": {
+        "answers": [["$people", "です"]],
+        "decoys": ["$thing", "を", "が"]
+      },
+      "blank": { "before": "", "after": "です 。", "answers": ["$people_kana"] },
+      "recast": "何名様 です か ？",
+      "next": { "success": "smoking" }
+    },
+    "smoking": {
+      "onlyFor": ["ramen"],
+      "line": "禁煙席 と 喫煙席 、 どちら に なさいます=なさる か ？",
+      "gloss": "Non-smoking or smoking, which would you like?",
+      "targets": ["禁煙席", "喫煙席", "どちら", "で"],
+      "grammar": ["de_choice", "nasaru"],
+      "choices": [
+        { "text": "禁煙席 で お願いします=お願いする 。", "gloss": "Non-smoking, please.", "result": "success" },
+        { "text": "禁煙席 が お願いします=お願いする 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "禁煙席 で 、 です ね ？", "note": "で marks the option you choose: 禁煙席でお願いします.", "grammar": "de_choice" },
+        { "text": "禁煙席 だ 。", "gloss": "Non-smoking. (blunt)", "result": "npc_confused", "reaction": "えっと 、 禁煙席 です ね 。", "note": "Plain だ sounds blunt to staff. Say 禁煙席でお願いします.", "grammar": "plain_vs_polite" }
+      ],
+      "tiles": {
+        "answers": [["禁煙席", "で", "お願いします=お願いする"], ["喫煙席", "で", "お願いします=お願いする"]],
+        "decoys": ["が", "を"]
+      },
+      "blank": { "before": "禁煙席", "after": "お願いします=お願いする 。", "answers": ["で"] },
+      "recast": "禁煙席 と 喫煙席 、 どちら です か ？",
+      "next": { "success": "menu" }
+    },
+    "menu": {
+      "onlyFor": ["teishoku"],
+      "line": "こちら 、 メニュー です 。",
+      "gloss": "Here's the menu.",
+      "targets": ["メニュー", "おすすめ", "何"],
+      "grammar": ["doko"],
+      "choices": [
+        { "text": "すみません 、 おすすめ は {何|なん}=何 です か ？", "gloss": "Excuse me, what do you recommend?", "result": "success" },
+        { "text": "すみません 、 おすすめ は どこ です か ？", "gloss": "Excuse me, where is the recommendation?", "result": "npc_puzzled", "reaction": "え ？ … あ 、 おすすめ です か ？", "note": "どこ asks where. To ask what something is, use 何 (なん before です): おすすめは何ですか.", "grammar": "doko" },
+        { "text": "ごちそうさまでした 。", "gloss": "Thank you for the meal.", "result": "npc_amused", "reaction": "ふふ 、 まだ です よ 。", "note": "ごちそうさまでした is for after the meal. To ask what's good, say おすすめは何ですか.", "grammar": "gochisousama" }
+      ],
+      "tiles": {
+        "answers": [["おすすめ", "は", "{何|なん}=何", "です か"]],
+        "decoys": ["どこ", "を", "が"]
+      },
+      "blank": { "before": "すみません 、 おすすめ は", "after": "です か ？", "answers": ["なん"] },
+      "recast": "おすすめ 、 です か ？",
+      "next": { "success": "today" }
+    },
+    "today": {
+      "onlyFor": ["teishoku"],
+      "line": "今日 の おすすめ は $rec です 。",
+      "gloss": "Today we recommend $rec_en.",
+      "targets": ["おすすめ", "魚", "定食", "今日"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "じゃあ 、 それ に します=する 。", "gloss": "Then I'll have that.", "result": "success" },
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 まだ 来て=来る いません=いる よ 。", "note": "いただきます is for when the food is in front of you. To choose it, say じゃあ、それにします.", "grammar": "itadakimasu" },
+        { "text": "ごちそうさまでした 。", "gloss": "Thank you for the meal.", "result": "npc_amused", "reaction": "ふふ 、 これから です よ 。", "note": "ごちそうさまでした is for after the meal. To choose it, say じゃあ、それにします.", "grammar": "gochisousama" }
+      ],
+      "next": { "success": "order" }
+    },
+    "order": {
+      "onlyFor": ["curry", "ramen", "pasta", "separate", "card"],
+      "line": "ご注文=注文 は お決まり=決まる です か ？",
+      "gloss": "Have you decided what you'd like?",
+      "targets": ["注文", "お願いする"],
+      "grammar": ["onegai", "wo_object"],
+      "choices": [
+        { "text": "$dish を お願いします=お願いする 。", "gloss": "The $dish_en, please.", "result": "success" },
+        { "text": "$dish が お願いします=お願いする 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "$dish を 、 です ね ？", "note": "The thing you order takes を: カレーをお願いします.", "grammar": "wo_object" },
+        { "text": "$dish を 召し上がります=召し上がる 。", "gloss": "I will (honorifically) eat the $dish_en.", "result": "npc_amused", "reaction": "ふふ 。 $dish です ね ？", "note": "召し上がる is honorific, for other people's eating. Order with をお願いします.", "grammar": "meshiagaru" }
+      ],
+      "tiles": {
+        "answers": [["$dish", "を", "お願いします=お願いする"], ["$dish", "を", "ください"]],
+        "decoys": ["が", "で", "召し上がります=召し上がる"]
+      },
+      "blank": { "before": "$dish を", "after": "。", "answers": ["おねがいします", "ください"] },
+      "recast": "ご注文=注文 は ？",
+      "next": { "success": "drink" }
+    },
+    "drink": {
+      "onlyFor": ["pasta"],
+      "line": "お飲み物=飲み物 は いかが です か ？",
+      "gloss": "Would you like something to drink?",
+      "targets": ["飲み物", "いかが", "大丈夫"],
+      "grammar": ["daijoubu"],
+      "choices": [
+        { "text": "いいえ 、 大丈夫 です 。", "gloss": "No, I'm fine.", "result": "success" },
+        { "text": "いいえ 、 いかが です 。", "gloss": "No, how about it.", "result": "npc_puzzled", "reaction": "え ？ … 大丈夫 です か ？", "note": "いかがですか is the server's offer. To say no thanks: いいえ、大丈夫です.", "grammar": "daijoubu" },
+        { "text": "はい 、 飲み物 です 。", "gloss": "Yes, it's a drink.", "result": "npc_confused", "reaction": "えっと … お飲み物=飲み物 、 要ります=要る か ？", "note": "Answer the offer: はい、お願いします to accept, いいえ、大丈夫です to decline.", "grammar": "daijoubu" }
+      ],
+      "tiles": {
+        "answers": [["いいえ 、", "大丈夫", "です"]],
+        "decoys": ["いかが", "はい 、", "を"]
+      },
+      "blank": { "before": "いいえ 、", "after": "です 。", "answers": ["だいじょうぶ"] },
+      "recast": "お飲み物=飲み物 は いかが です か ？",
+      "next": { "success": "served" }
+    },
+    "served": {
+      "line": "お待たせしました 。 $dish です 。",
+      "gloss": "Sorry to keep you waiting. Here's your $dish_en.",
+      "targets": ["お待たせしました", "いただきます"],
+      "grammar": ["itadakimasu"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "いただきます 。", "gloss": "Thank you, I'll dig in.", "result": "success" },
+        { "text": "ごちそうさまでした 。", "gloss": "Thank you for the meal.", "result": "npc_amused", "reaction": "ふふ 、 これから です よ 。", "note": "ごちそうさまでした is said after the meal. Right before you eat, say いただきます.", "grammar": "gochisousama" },
+        { "text": "お大事に 。", "gloss": "Take care of yourself.", "result": "npc_puzzled", "reaction": "え ？ … ごゆっくり どうぞ 。", "note": "お大事に is for someone who is unwell. When the food arrives, say いただきます.", "grammar": "odaijini" }
+      ],
+      "next": { "success": "taste" }
+    },
+    "taste": {
+      "line": "お食事=食事 は いかが でした=です か ？",
+      "gloss": "How was your meal?",
+      "targets": ["食事", "おいしい", "とても"],
+      "grammar": ["i_adj_past"],
+      "choices": [
+        { "text": "とても おいしかった=おいしい です 。", "gloss": "It was really good.", "result": "success" },
+        { "text": "とても おいしい でした=です 。", "gloss": "(wrong past form)", "result": "npc_puzzled", "reaction": "おいしかった=おいしい です か 。 よかった=いい です 。", "note": "い-adjectives make their own past: おいしい → おいしかった. Then add です, not でした.", "grammar": "i_adj_past" },
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 もう 食べました=食べる よ 。", "note": "いただきます is said before eating. Asked how it was, say とてもおいしかったです.", "grammar": "itadakimasu" }
+      ],
+      "tiles": {
+        "answers": [["とても", "おいしかった=おいしい", "です"]],
+        "decoys": ["おいしい", "でした=です", "を"]
+      },
+      "blank": { "before": "とても", "after": "です 。", "answers": ["おいしかった"] },
+      "recast": "おいしかった=おいしい です か ？",
+      "next": { "success": "split" }
+    },
+    "split": {
+      "onlyFor": ["separate"],
+      "line": "お会計=会計 は ご一緒=一緒 です か ？",
+      "gloss": "Will that be one bill together?",
+      "targets": ["会計", "一緒", "別々"],
+      "grammar": ["betsubetsu"],
+      "choices": [
+        { "text": "いいえ 、 別々 で お願いします=お願いする 。", "gloss": "No, separately, please.", "result": "success" },
+        { "text": "はい 、 別々 で お願いします=お願いする 。", "gloss": "Yes, separately, please.", "result": "npc_confused", "reaction": "えっ ？ ご一緒=一緒 です か ？ 別々 です か ？", "note": "はい agrees with ご一緒ですか (together). To split the bill, say いいえ、別々でお願いします.", "grammar": "betsubetsu" },
+        { "text": "一緒 に 食べましょう=食べる 。", "gloss": "Let's eat together.", "result": "npc_amused", "reaction": "ふふ 。 お会計=会計 は 別々 です か ？", "note": "The server is asking about the bill. 別々 means separate checks: いいえ、別々でお願いします.", "grammar": "betsubetsu" }
+      ],
+      "tiles": {
+        "answers": [["いいえ 、", "別々", "で", "お願いします=お願いする"]],
+        "decoys": ["はい 、", "一緒", "が"]
+      },
+      "blank": { "before": "いいえ 、", "after": "で お願いします=お願いする 。", "answers": ["べつべつ"] },
+      "recast": "お会計=会計 は ご一緒=一緒 です か ？",
+      "next": { "success": "card" }
+    },
+    "card": {
+      "onlyFor": ["card"],
+      "line": "お会計=会計 です ね 。",
+      "gloss": "You'd like to pay?",
+      "targets": ["会計", "カード", "使える"],
+      "grammar": ["potential"],
+      "choices": [
+        { "text": "はい 。 カード は 使えます=使える か ？", "gloss": "Yes. Can I use a card?", "result": "success" },
+        { "text": "はい 。 カード は 何 です か ？", "gloss": "Yes. What is a card?", "result": "npc_confused", "reaction": "え ？ … カード 、 使います=使う か ？", "note": "何ですか asks what something is. To ask if a card is OK: カードは使えますか.", "grammar": "potential" },
+        { "text": "はい 。 カード を 食べます=食べる か ？", "gloss": "Yes. Do you eat cards?", "result": "npc_amused", "reaction": "ふふ 、 食べません=食べる よ 。 カード 、 使えます=使える よ 。", "note": "使えますか (can I use it?) is the potential form of 使う. カードは使えますか.", "grammar": "potential" }
+      ],
+      "tiles": {
+        "answers": [["カード", "は", "使えます=使える", "か"]],
+        "decoys": ["何", "を", "食べます=食べる"]
+      },
+      "blank": { "before": "はい 。 カード は", "after": "か ？", "answers": ["つかえます"] },
+      "recast": "カード 、 です か ？",
+      "next": { "success": "pay" }
+    },
+    "pay": {
+      "line": "$payline $price 円 です 。",
+      "gloss": "$payline_en That's ¥$price.",
+      "targets": ["円", "ごちそうさまでした"],
+      "grammar": ["gochisousama"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "ごちそうさまでした 。", "gloss": "Thank you for the meal.", "result": "success" },
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 もう 食べました=食べる よ 。", "note": "いただきます is said before eating. On your way out, say ごちそうさまでした.", "grammar": "itadakimasu" },
+        { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "npc_puzzled", "reaction": "えっ ？ ふふ 。 ありがとうございました=ありがとうございます 。", "note": "どういたしまして answers someone else's thank-you. Paying after a meal, say ごちそうさまでした.", "grammar": "gochisousama" }
+      ],
+      "effects": { "pay": true },
+      "end": true
+    }
+  }
+}

@@ -1,0 +1,232 @@
+{
+  "id": "station_ticket",
+  "title": "At the station",
+  "place": "station",
+  "npc": "ekiin",
+  "maxStage": 4,
+  "start": "greet",
+  "errand": "駅 で $task",
+  "variants": [
+    {
+      "id": "ticket", "price": 480,
+      "slots": { "task": "東京 まで の 切符 を 買う", "dest": "東京", "dest_en": "Tokyo" }
+    },
+    {
+      "id": "platform", "price": 310,
+      "slots": { "task": "横浜 まで の 切符 を 買う", "dest": "横浜", "dest_en": "Yokohama", "num": "2", "bad": "4" }
+    },
+    {
+      "id": "time", "price": 820,
+      "slots": { "task": "鎌倉 まで の 切符 を 買う", "dest": "鎌倉", "dest_en": "Kamakura", "mins": "45", "badmins": "15" }
+    },
+    {
+      "id": "rapid", "price": 400,
+      "slots": { "task": "品川 まで の 切符 を 買う", "dest": "品川", "dest_en": "Shinagawa" }
+    },
+    {
+      "id": "ic", "price": 3000,
+      "slots": { "task": "ICカード に チャージ する", "amt": "3000" }
+    }
+  ],
+  "nodes": {
+    "greet": {
+      "onlyFor": ["ticket", "platform", "time", "rapid"],
+      "line": "こんにちは 。 どちら まで です か ？",
+      "gloss": "Hello. Where to?",
+      "targets": ["まで", "一枚", "切符"],
+      "grammar": ["kara_made", "mai"],
+      "choices": [
+        { "text": "$dest まで 、 一枚 お願いします=お願いする 。", "gloss": "One to $dest_en, please.", "result": "success" },
+        { "text": "$dest から 、 一枚 お願いします=お願いする 。", "gloss": "One from $dest_en, please.", "result": "npc_puzzled", "reaction": "$dest まで 、 です ね ？", "note": "まで marks where you're going to; から marks where you start. 東京まで一枚 = one (ticket) to Tokyo.", "grammar": "kara_made" },
+        { "text": "$dest まで 、 一人 お願いします=お願いする 。", "gloss": "One person to $dest_en, please.", "result": "npc_puzzled", "reaction": "$dest まで 、 一枚 です ね ？", "note": "Tickets are flat things, counted with 枚: 一枚 (いちまい). 一人 counts people.", "grammar": "mai" }
+      ],
+      "tiles": {
+        "answers": [["$dest", "まで", "一枚", "お願いします=お願いする"]],
+        "decoys": ["から", "一人", "を"]
+      },
+      "blank": { "before": "$dest", "after": "、 一枚 お願いします=お願いする 。", "answers": ["まで"] },
+      "recast": "どちら まで です か ？",
+      "next": { "success": "oneway" }
+    },
+    "oneway": {
+      "onlyFor": ["ticket", "platform", "time", "rapid"],
+      "line": "片道 です か 、 往復 です か ？",
+      "gloss": "One way, or round trip?",
+      "targets": ["片道", "往復", "で"],
+      "grammar": ["de_choice"],
+      "choices": [
+        { "text": "片道 で お願いします=お願いする 。", "gloss": "One way, please.", "result": "success" },
+        { "text": "片道 に お願いします=お願いする 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "片道 で 、 です ね ？", "note": "で marks the option you choose: 片道でお願いします.", "grammar": "de_choice" },
+        { "text": "片道 です か ？", "gloss": "Is it one way?", "result": "npc_confused", "reaction": "えっと … 片道 で いい です か ？", "note": "The staff asked you to choose. Answer with your choice: 片道でお願いします.", "grammar": "de_choice" }
+      ],
+      "tiles": {
+        "answers": [["片道", "で", "お願いします=お願いする"]],
+        "decoys": ["に", "往復", "です か"]
+      },
+      "blank": { "before": "", "after": "で お願いします=お願いする 。", "answers": ["かたみち"] },
+      "recast": "片道 です か ？",
+      "next": { "success": "ic" }
+    },
+    "ic": {
+      "onlyFor": ["ic"],
+      "line": "こんにちは 。 どう されました=する か ？",
+      "gloss": "Hello. How can I help?",
+      "targets": ["ICカード", "チャージ", "する"],
+      "grammar": ["tai"],
+      "choices": [
+        { "text": "ICカード に チャージ したい=する です 。", "gloss": "I'd like to top up my IC card.", "result": "success" },
+        { "text": "ICカード に チャージ します=する か ？", "gloss": "Will you top up the IC card?", "result": "npc_confused", "reaction": "え ？ … チャージ したい=する ん=の です か ？", "note": "～たいです says what you want to do: チャージしたいです (I'd like to top up).", "grammar": "tai" },
+        { "text": "おめでとうございます 。", "gloss": "Congratulations!", "result": "npc_amused", "reaction": "ふふ 、 ありがとうございます 。 … で 、 今日 は ？", "note": "おめでとうございます is for good news. Say what you'd like to do: ICカードにチャージしたいです.", "grammar": "tai" }
+      ],
+      "tiles": {
+        "answers": [["ICカード に", "チャージ", "したい=する", "です"]],
+        "decoys": ["を", "します=する か", "ください"]
+      },
+      "blank": { "before": "ICカード に チャージ", "after": "です 。", "answers": ["したい"] },
+      "recast": "どう されました=する か ？",
+      "next": { "success": "amount" }
+    },
+    "amount": {
+      "onlyFor": ["ic"],
+      "line": "いくら チャージ します=する か ？",
+      "gloss": "How much would you like to add?",
+      "targets": ["いくら", "円", "で"],
+      "grammar": ["de_choice"],
+      "choices": [
+        { "text": "$amt 円 で お願いします=お願いする 。", "gloss": "¥$amt, please.", "result": "success" },
+        { "text": "$amt 円 に お願いします=お願いする 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "$amt 円 で 、 です ね ？", "note": "で marks the amount you go with: 3000円でお願いします.", "grammar": "de_choice" },
+        { "text": "$amt 円 です か ？", "gloss": "Is it ¥$amt?", "result": "npc_confused", "reaction": "えっと 、 いくら に します=する か ？", "note": "The staff asked how much. Answer with the amount: 3000円でお願いします.", "grammar": "de_choice" }
+      ],
+      "tiles": {
+        "answers": [["$amt 円", "で", "お願いします=お願いする"]],
+        "decoys": ["に", "を", "です か"]
+      },
+      "blank": { "before": "$amt 円", "after": "お願いします=お願いする 。", "answers": ["で"] },
+      "recast": "いくら です か ？",
+      "next": { "success": "pay" }
+    },
+    "pay": {
+      "line": "$price 円 です 。",
+      "gloss": "That's ¥$price.",
+      "targets": ["円", "払う"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "（ $price 円 を 払う ）", "gloss": "(pay ¥$price)", "result": "success" },
+        { "text": "いってきます 。", "gloss": "I'm off! (said as you leave home)", "result": "npc_amused", "reaction": "… ？ あ 、 $price 円 です 。", "note": "いってきます is what you say as you leave home. Here, just pay.", "grammar": "ittekimasu" },
+        { "text": "ごちそうさまでした 。", "gloss": "Thank you for the meal.", "result": "npc_amused", "reaction": "ふふ 、 ここ は 駅 です よ 。", "note": "ごちそうさまでした is said after a meal.", "grammar": "gochisousama" }
+      ],
+      "effects": { "pay": true },
+      "next": { "success": "platform" }
+    },
+    "platform": {
+      "onlyFor": ["platform"],
+      "line": "ほか に 何 か あります=ある か ？",
+      "gloss": "Anything else?",
+      "targets": ["何番線", "行き", "ほか"],
+      "grammar": ["nanban"],
+      "choices": [
+        { "text": "$dest 行き は 何番線 です か ？", "gloss": "Which platform is the train for $dest_en?", "result": "success" },
+        { "text": "$dest 行き は {何|なん}=何 です か ？", "gloss": "What is the train for $dest_en?", "result": "npc_confused", "reaction": "え ？ … 何番線 、 です か ？", "note": "何番線 asks which platform (track number). 何ですか only asks what something is.", "grammar": "nanban" },
+        { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "npc_puzzled", "reaction": "えっ ？ … ほか に 何 か ？", "note": "どういたしまして answers someone else's thank-you. Ask your question: 横浜行きは何番線ですか.", "grammar": "nanban" }
+      ],
+      "tiles": {
+        "answers": [["$dest 行き", "は", "何番線", "です か"]],
+        "decoys": ["{何|なん}=何", "を", "まで"]
+      },
+      "blank": { "before": "$dest 行き は", "after": "です か ？", "answers": ["なんばんせん"] },
+      "recast": "何番線 、 です か ？",
+      "next": { "success": "platnum" }
+    },
+    "platnum": {
+      "onlyFor": ["platform"],
+      "line": "$dest 行き は $num 番線 です 。",
+      "gloss": "Trains for $dest_en leave from platform $num.",
+      "targets": ["番線", "行き"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "$num 番線 です ね 。", "gloss": "Platform $num, got it.", "result": "success" },
+        { "text": "わかりました=わかる 。", "gloss": "Understood.", "result": "success" },
+        { "text": "$bad 番線 です ね 。", "gloss": "Platform $bad, got it.", "result": "npc_puzzled", "reaction": "いいえ 、 $num 番線 です よ 。", "note": "Listen for the number before 番線: that's the platform.", "grammar": "nanban" }
+      ],
+      "next": { "success": "time" }
+    },
+    "time": {
+      "onlyFor": ["time"],
+      "line": "ほか に 何 か あります=ある か ？",
+      "gloss": "Anything else?",
+      "targets": ["どの", "くらい", "かかる"],
+      "grammar": ["donokurai"],
+      "choices": [
+        { "text": "$dest まで 、 どの くらい かかります=かかる か ？", "gloss": "How long does it take to $dest_en?", "result": "success" },
+        { "text": "$dest から 、 どの くらい かかります=かかる か ？", "gloss": "How long does it take from $dest_en?", "result": "npc_puzzled", "reaction": "$dest まで 、 です か ？", "note": "You're going to 鎌倉, so it's 鎌倉まで. から would mean starting from there.", "grammar": "kara_made" },
+        { "text": "$dest まで 、 いくら かかります=かかる か ？", "gloss": "How much does it cost to $dest_en?", "result": "npc_puzzled", "reaction": "$price 円 です よ 。 … 時間 です か ？", "note": "いくら asks how much money. To ask how long, use どのくらい: 鎌倉までどのくらいかかりますか.", "grammar": "donokurai" }
+      ],
+      "tiles": {
+        "answers": [["$dest まで", "どの くらい", "かかります=かかる", "か"]],
+        "decoys": ["から", "いくら", "です"]
+      },
+      "blank": { "before": "$dest まで 、 どの くらい", "after": "か ？", "answers": ["かかります"] },
+      "recast": "どの くらい 、 です か ？",
+      "next": { "success": "timeans" }
+    },
+    "timeans": {
+      "onlyFor": ["time"],
+      "line": "$mins 分 ぐらい=くらい です 。",
+      "gloss": "About $mins minutes.",
+      "targets": ["分", "くらい"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "$mins 分 です ね 。", "gloss": "$mins minutes, got it.", "result": "success" },
+        { "text": "わかりました=わかる 。", "gloss": "Understood.", "result": "success" },
+        { "text": "$badmins 分 です ね 。", "gloss": "$badmins minutes, got it.", "result": "npc_puzzled", "reaction": "いいえ 、 $mins 分 ぐらい=くらい です よ 。", "note": "Listen for the number before 分 (minutes). ぐらい means about.", "grammar": "donokurai" }
+      ],
+      "next": { "success": "rapid" }
+    },
+    "rapid": {
+      "onlyFor": ["rapid"],
+      "line": "ほか に 何 か あります=ある か ？",
+      "gloss": "Anything else?",
+      "targets": ["快速", "止まる", "に"],
+      "grammar": ["tomaru"],
+      "choices": [
+        { "text": "快速 は $dest に 止まります=止まる か ？", "gloss": "Does the rapid train stop at $dest_en?", "result": "success" },
+        { "text": "快速 は $dest に 止めます=止める か ？", "gloss": "Does the rapid train stop (something) at $dest_en?", "result": "npc_puzzled", "reaction": "止まります=止まる か ？ … はい 。", "note": "止まる is what a train does (it stops). 止める is stopping something else, like a car. 快速は品川に止まりますか.", "grammar": "tomaru" },
+        { "text": "快速 は $dest を 止まります=止まる か ？", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "$dest に 、 です ね ？", "note": "Where a train stops takes に: 品川に止まります.", "grammar": "tomaru" }
+      ],
+      "tiles": {
+        "answers": [["快速 は", "$dest", "に", "止まります=止まる か"]],
+        "decoys": ["を", "止めます=止める か", "まで"]
+      },
+      "blank": { "before": "快速 は $dest に", "after": "か ？", "answers": ["とまります"] },
+      "recast": "快速 、 です か ？",
+      "next": { "success": "rapidans" }
+    },
+    "rapidans": {
+      "onlyFor": ["rapid"],
+      "line": "はい 、 止まります=止まる よ 。 各駅停車 より 速い です 。",
+      "gloss": "Yes, it stops there. It's faster than the local train.",
+      "targets": ["各駅停車", "より", "速い", "乗る"],
+      "grammar": ["ni_noru"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "じゃあ 、 快速 に 乗ります=乗る 。", "gloss": "Then I'll take the rapid.", "result": "success" },
+        { "text": "わかりました=わかる 。", "gloss": "Understood.", "result": "success" },
+        { "text": "じゃあ 、 快速 を 乗ります=乗る 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "快速 に 、 です ね 。", "note": "乗る takes に for what you get on: 快速に乗ります, 電車に乗ります.", "grammar": "ni_noru" }
+      ],
+      "next": { "success": "bye" }
+    },
+    "bye": {
+      "line": "お気をつけて 。",
+      "gloss": "Have a safe trip.",
+      "targets": ["お気をつけて"],
+      "grammar": ["kiwotsukete"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "ありがとうございます 。", "gloss": "Thank you.", "result": "success" },
+        { "text": "お大事に 。", "gloss": "Take care of yourself (get well).", "result": "npc_puzzled", "reaction": "ふふ 。 お気をつけて 。", "note": "お大事に is for someone who is unwell. お気をつけて means take care on your way. Answer with ありがとうございます.", "grammar": "kiwotsukete" },
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "… ？ ふふ 、 お気をつけて 。", "note": "いただきます is said right before eating.", "grammar": "itadakimasu" }
+      ],
+      "end": true
+    }
+  }
+}

@@ -1,9 +1,9 @@
 // The town: one shopping street (商店街) with your apartment, the cafe, the konbini,
-// the pharmacy and the station, and a small park below. The world is a grid of
+// the pharmacy, the restaurant, the post office and the station, and a small park below. The world is a grid of
 // 16 px tiles; you walk from tile to tile. Pure data and logic, no DOM, so it can be tested.
 
 export const TILE = 16;
-export const COLS = 32;
+export const COLS = 45;
 export const ROWS = 13;
 export const WORLD_W = COLS * TILE;
 export const WORLD_H = ROWS * TILE;
@@ -17,11 +17,11 @@ export const GROUND = 80;
 /** First tile row you can walk on (the street). */
 export const STREET_ROW = GROUND / TILE;
 
-export type DoorPlace = 'home' | 'cafe' | 'konbini' | 'pharmacy';
-export type RoofRole = 'roofA' | 'roofB' | 'roofC' | 'roofD' | 'roofE';
+export type DoorPlace = 'home' | 'cafe' | 'konbini' | 'pharmacy' | 'restaurant' | 'post' | 'station';
+export type RoofRole = 'roofA' | 'roofB' | 'roofC' | 'roofD' | 'roofE' | 'roofF' | 'roofG';
 
 export interface Building {
-  id: 'home' | 'cafe' | 'konbini' | 'pharmacy' | 'station';
+  id: 'home' | 'cafe' | 'konbini' | 'pharmacy' | 'restaurant' | 'post' | 'station';
   /** Left edge and width in pixels. */
   x: number;
   w: number;
@@ -37,7 +37,9 @@ export const BUILDINGS: Building[] = [
   { id: 'cafe', x: 112, w: 80, roof: 'roofA', sign: 'カフェ', door: { tx: 9, place: 'cafe' } },
   { id: 'konbini', x: 208, w: 80, roof: 'roofB', sign: 'コンビニ', door: { tx: 15, place: 'konbini' } },
   { id: 'pharmacy', x: 304, w: 80, roof: 'roofC', sign: '薬局', door: { tx: 21, place: 'pharmacy' } },
-  { id: 'station', x: 400, w: 96, roof: 'roofE', sign: '駅' },
+  { id: 'restaurant', x: 400, w: 80, roof: 'roofF', sign: 'レストラン', door: { tx: 27, place: 'restaurant' } },
+  { id: 'post', x: 496, w: 80, roof: 'roofG', sign: '郵便局', door: { tx: 33, place: 'post' } },
+  { id: 'station', x: 600, w: 96, roof: 'roofE', sign: '駅', door: { tx: 40, place: 'station' } },
 ];
 
 export type TileKind = 'block' | 'plaza' | 'grass' | 'dirt' | 'flowers' | 'fence' | 'tree' | 'bench' | 'pond' | 'signpost' | 'lamp';
@@ -45,21 +47,21 @@ export type TileKind = 'block' | 'plaza' | 'grass' | 'dirt' | 'flowers' | 'fence
 export const SOLID: ReadonlySet<TileKind> = new Set(['block', 'fence', 'tree', 'bench', 'pond', 'signpost', 'lamp']);
 
 /** Trees in the back row, in the gaps between buildings (tile columns). */
-export const BACK_TREES = [0, 6, 12, 18, 24, 31];
+export const BACK_TREES = [0, 6, 12, 18, 24, 30, 36, 44];
 /** Street lamps on the street's first row (tile columns). */
-export const LAMPS = [12, 24];
+export const LAMPS = [12, 24, 36];
 /** The park's paths: two ways in from the street, joined along the bottom. */
-export const PATH_COLS = [9, 10, 26, 27];
+export const PATH_COLS = [9, 10, 26, 27, 38, 39];
 export const PATH_ROW = 11;
 export const POND = { tx: 13, ty: 8, tw: 5, th: 3 };
 
 // Things in the park, as [column, row, kind].
 const PARK: [number, number, TileKind][] = [
-  [0, 8, 'tree'], [1, 8, 'flowers'], [2, 8, 'flowers'], [3, 8, 'flowers'], [12, 8, 'signpost'], [21, 8, 'bench'], [30, 8, 'tree'],
-  [4, 9, 'bench'], [23, 9, 'flowers'], [24, 9, 'flowers'],
-  [1, 10, 'flowers'], [2, 10, 'flowers'], [19, 10, 'tree'], [31, 10, 'tree'],
-  [2, 11, 'tree'], [30, 11, 'tree'],
-  [0, 12, 'tree'], [5, 12, 'tree'], [13, 12, 'tree'], [16, 12, 'flowers'], [17, 12, 'flowers'], [20, 12, 'tree'], [31, 12, 'tree'],
+  [0, 8, 'tree'], [1, 8, 'flowers'], [2, 8, 'flowers'], [3, 8, 'flowers'], [12, 8, 'signpost'], [21, 8, 'bench'], [30, 8, 'tree'], [34, 8, 'flowers'], [35, 8, 'flowers'], [42, 8, 'tree'],
+  [4, 9, 'bench'], [23, 9, 'flowers'], [24, 9, 'flowers'], [44, 9, 'tree'],
+  [1, 10, 'flowers'], [2, 10, 'flowers'], [19, 10, 'tree'], [31, 10, 'tree'], [33, 9, 'bench'], [41, 10, 'flowers'], [42, 10, 'flowers'],
+  [2, 11, 'tree'], [43, 11, 'tree'],
+  [0, 12, 'tree'], [5, 12, 'tree'], [13, 12, 'tree'], [16, 12, 'flowers'], [17, 12, 'flowers'], [20, 12, 'tree'], [31, 12, 'tree'], [34, 12, 'flowers'], [35, 12, 'flowers'], [36, 12, 'tree'], [44, 12, 'tree'],
 ];
 
 export type Grid = TileKind[][];
@@ -73,7 +75,7 @@ export function buildGrid(): Grid {
       if (y < STREET_ROW) k = 'block';
       else if (y < STREET_ROW + 2) k = 'plaza';
       else if (y === STREET_ROW + 2) k = PATH_COLS.includes(x) ? 'dirt' : 'fence';
-      else if (PATH_COLS.includes(x) || (y === PATH_ROW && x >= PATH_COLS[0]! && x <= PATH_COLS[3]!)) k = 'dirt';
+      else if (PATH_COLS.includes(x) || (y === PATH_ROW && x >= PATH_COLS[0]! && x <= PATH_COLS[PATH_COLS.length - 1]!)) k = 'dirt';
       row.push(k);
     }
     g.push(row);

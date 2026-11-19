@@ -1,6 +1,6 @@
 # ことまち (Kotomachi)
 
-A small top-down town where you learn Japanese by living there. There's no farming and no dungeon. Each day you get a few errands, like buying a latte at the cafe, picking up onigiri at the konbini, getting eye drops at the pharmacy or greeting your neighbour. Each errand is a real conversation in Japanese. At night your notebook collects the words you met, the mistakes you made and the grammar you ran into. Sleeping saves the game.
+A small top-down town where you learn Japanese by living there. There's no farming and no dungeon. Each day you get a few errands, like buying a latte at the cafe, picking up onigiri at the konbini, getting eye drops at the pharmacy, eating at the restaurant, buying a train ticket, sending a parcel at the post office or greeting your neighbour. Each errand is a real conversation in Japanese. At night your notebook collects the words you met, the mistakes you made and the grammar you ran into. Sleeping saves the game.
 
 Romaji is never shown on screen. You only type it, and it turns into kana as you type.
 
@@ -51,7 +51,7 @@ test/        node:test unit tests
 www/         index.html, style.css (the bundle lands in www/build/)
 ```
 
-There's no framework. The town is a 32×13 grid of 16 px tiles. All the art is drawn in code as pixel data at 1×, into a 320×208 view that follows you sideways, then scaled up by a whole number so pixels stay square and crisp. Sign lettering, furigana and the "Space ▶" hint are drawn on top at full resolution, so they stay readable at any size. Dialogue, the notebook and popups are plain DOM built with a tiny `h()` helper. The romaji converter and the FSRS scheduler are written from scratch as separate modules, with no wanakana and no ts-fsrs, so either can be swapped for a library later without touching anything else.
+There's no framework. The town is a 45×13 grid of 16 px tiles. All the art is drawn in code as pixel data at 1×, into a 320×208 view that follows you sideways, then scaled up by a whole number so pixels stay square and crisp. Sign lettering, furigana and the "Space ▶" hint are drawn on top at full resolution, so they stay readable at any size. Dialogue, the notebook and popups are plain DOM built with a tiny `h()` helper. The romaji converter and the FSRS scheduler are written from scratch as separate modules, with no wanakana and no ts-fsrs, so either can be swapped for a library later without touching anything else.
 
 ### Lines and words
 
@@ -82,10 +82,13 @@ All of these numbers are constants at the top of `src/scenario/engine.ts` and `s
 
 **Playable now**
 
-- A walkable street with an apartment, cafe, konbini, pharmacy, station, park and a neighbour (田中さん) who walks back and forth. Shops keep opening hours: the pharmacy shows 準備中 before 9:00.
+- A walkable street with an apartment, cafe, konbini, pharmacy, restaurant, post office, station, park and a neighbour (田中さん) who walks back and forth. Shops keep opening hours: the pharmacy shows 準備中 before 9:00, the restaurant opens at 11:00 and the post office closes at 17:00.
 - Cafe: the full ladder, stages 1 to 4, with four drinks, three sizes, hot or iced, for here or to go, a payment step and small talk that changes with friendship.
 - Konbini: the full ladder, with eight errands: an onigiri, tea, a bento to heat with chopsticks, water, ice cream with a spoon, an umbrella or batteries you have to ask where to find, and a 肉まん from the counter. Along the way: point cards, bags, the sticker instead of a bag, and paying.
 - Pharmacy: the full ladder, with six complaints (sore throat, headache, itchy eyes, stomach ache, cough, fever). You describe the symptom, say since when or whether you have allergies, ask how many times a day, and read back the dosage.
+- Restaurant (山田さん): the full ladder, with six visits: curry on your own, ramen and a non-smoking seat, asking what's recommended, pasta and turning down a drink, two people paying separately, and asking if a card is OK. Along the way: how many people (一人, 二人), いただきます when the food comes, how it was (おいしかったです) and ごちそうさまでした as you pay.
+- Station (駅員): the full ladder, with five visits: a ticket to Tokyo, which platform the Yokohama train leaves from, how long it takes to Kamakura, whether the rapid stops at Shinagawa, and topping up an IC card. Tickets are 片道 and counted with 枚.
+- Post office (小林さん): the full ladder, with five visits: stamps and a postcard, a letter to America by airmail, a parcel to the UK by sea (and what's in it), a parcel to Osaka where you borrow a pen to write the address, and picking up a parcel with a missed-delivery slip.
 - 田中さん: the full ladder. The right greeting depends on the time of day, then a short chat that changes daily: heading out, the warm weather, rain tomorrow, the cat on the bench, the new bakery, burnable-trash day, or your weekend.
 - A lookup popup with reading, meaning, part of speech, the conjugation you saw ("お願いします ← お願いする, polite ます form") and where you met the word.
 - The notebook: words by place, words by person, corrections, grammar notes and progress.
@@ -94,12 +97,12 @@ All of these numbers are constants at the top of `src/scenario/engine.ts` and `s
 **Not built yet**
 
 - Voice, audio and music.
-- A morphological analyser (kuromoji or Sudachi) and a real dictionary (JMdict). Lines are segmented by hand and `vocab.json` has 208 entries.
+- A morphological analyser (kuromoji or Sudachi) and a real dictionary (JMdict). Lines are segmented by hand and `vocab.json` has 297 entries.
 - Indoor maps. Going into a shop opens the conversation window over the street.
 
 ## Please get the Japanese reviewed
 
-All of the Japanese here was written without a native speaker: lines, readings, glosses, grammar notes, and which answers count as natural or rude. That includes the konbini, pharmacy and 田中さん conversations added most recently, which are the newest and least checked. Have a native speaker go through `data/` before anyone learns from it. The places most likely to need a second look are the casual lines at friendship level 2, the shop staff's 敬語 (お探しですか, よろしいですか, お付けしますか), how the pharmacist reads out a dosage, 田中さん's small talk, and which wrong answers get a puzzled reaction and which get a recast.
+All of the Japanese here was written without a native speaker: lines, readings, glosses, grammar notes, and which answers count as natural or rude. That includes the restaurant, station and post office, which are the newest and least checked, and the konbini, pharmacy and 田中さん conversations just before them. Have a native speaker go through `data/` before anyone learns from it. The places most likely to need a second look are the casual lines at friendship level 2, the shop staff's 敬語 (お探しですか, よろしいですか, お付けしますか), how the pharmacist reads out a dosage, 田中さん's small talk, and which wrong answers get a puzzled reaction and which get a recast. In the new places, please check: the server's 何名様ですか, お待たせしました and お会計はご一緒ですか; whether staff still ask 禁煙席と喫煙席 today; the station window's opening どちらまでですか and 片道ですか、往復ですか; 横浜行きは何番線ですか and 快速は品川に止まりますか; the post office's 航空便と船便、どちらになさいますか, 中身は何ですか and 身分証明書はお持ちですか; 荷物を取りに来ました at the counter; and the readings 一枚, 五枚, 何番線, 二か月 and 分 (shown as ふん).
 
 ## Art
 

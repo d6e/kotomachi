@@ -1246,5 +1246,539 @@
   "reading": "え",
   "meaning": "eh? huh? (surprise or doubt)",
   "pos": "interjection"
+ },
+ {
+  "id": "山田",
+  "reading": "やまだ",
+  "meaning": "Yamada (a family name): the server at the restaurant",
+  "pos": "name"
+ },
+ {
+  "id": "駅員",
+  "reading": "えきいん",
+  "meaning": "station staff",
+  "pos": "noun"
+ },
+ {
+  "id": "小林",
+  "reading": "こばやし",
+  "meaning": "Kobayashi (a family name): the post office clerk",
+  "pos": "name"
+ },
+ {
+  "id": "レストラン",
+  "reading": "レストラン",
+  "meaning": "restaurant",
+  "pos": "noun"
+ },
+ {
+  "id": "郵便局",
+  "reading": "ゆうびんきょく",
+  "meaning": "post office",
+  "pos": "noun"
+ },
+ {
+  "id": "何名様",
+  "reading": "なんめいさま",
+  "meaning": "how many people? (staff asking politely about your party)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "一人",
+  "reading": "ひとり",
+  "meaning": "one person; alone",
+  "pos": "noun"
+ },
+ {
+  "id": "二人",
+  "reading": "ふたり",
+  "meaning": "two people",
+  "pos": "noun"
+ },
+ {
+  "id": "禁煙席",
+  "reading": "きんえんせき",
+  "meaning": "non-smoking seat",
+  "pos": "noun"
+ },
+ {
+  "id": "喫煙席",
+  "reading": "きつえんせき",
+  "meaning": "smoking seat",
+  "pos": "noun"
+ },
+ {
+  "id": "メニュー",
+  "reading": "メニュー",
+  "meaning": "menu",
+  "pos": "noun"
+ },
+ {
+  "id": "おすすめ",
+  "reading": "おすすめ",
+  "meaning": "recommendation; what the staff suggest",
+  "pos": "noun"
+ },
+ {
+  "id": "定食",
+  "reading": "ていしょく",
+  "meaning": "set meal (main dish with rice, soup and sides)",
+  "pos": "noun"
+ },
+ {
+  "id": "魚",
+  "reading": "さかな",
+  "meaning": "fish",
+  "pos": "noun"
+ },
+ {
+  "id": "カレー",
+  "reading": "カレー",
+  "meaning": "curry (with rice)",
+  "pos": "noun"
+ },
+ {
+  "id": "ラーメン",
+  "reading": "ラーメン",
+  "meaning": "ramen (noodles in soup)",
+  "pos": "noun"
+ },
+ {
+  "id": "パスタ",
+  "reading": "パスタ",
+  "meaning": "pasta",
+  "pos": "noun"
+ },
+ {
+  "id": "ピザ",
+  "reading": "ピザ",
+  "meaning": "pizza",
+  "pos": "noun"
+ },
+ {
+  "id": "ハンバーグ",
+  "reading": "ハンバーグ",
+  "meaning": "hamburg steak (a minced-meat patty)",
+  "pos": "noun"
+ },
+ {
+  "id": "飲み物",
+  "reading": "のみもの",
+  "meaning": "a drink, something to drink; staff say お飲み物",
+  "pos": "noun"
+ },
+ {
+  "id": "お待たせしました",
+  "reading": "おまたせしました",
+  "meaning": "sorry to keep you waiting (said when bringing food or your turn comes)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "ごゆっくり",
+  "reading": "ごゆっくり",
+  "meaning": "take your time, enjoy (staff to customers)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "これから",
+  "reading": "これから",
+  "meaning": "from now on; about to start",
+  "pos": "adverb"
+ },
+ {
+  "id": "もう",
+  "reading": "もう",
+  "meaning": "already",
+  "pos": "adverb"
+ },
+ {
+  "id": "食事",
+  "reading": "しょくじ",
+  "meaning": "a meal; staff say お食事",
+  "pos": "noun"
+ },
+ {
+  "id": "会計",
+  "reading": "かいけい",
+  "meaning": "the bill, paying; staff say お会計",
+  "pos": "noun"
+ },
+ {
+  "id": "別々",
+  "reading": "べつべつ",
+  "meaning": "separate; 別々で = (paying) separately",
+  "pos": "noun"
+ },
+ {
+  "id": "使える",
+  "reading": "つかえる",
+  "meaning": "can use; to be usable (potential form of 使う)",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "使う",
+  "reading": "つかう",
+  "meaning": "to use",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "東京",
+  "reading": "とうきょう",
+  "meaning": "Tokyo",
+  "pos": "name"
+ },
+ {
+  "id": "横浜",
+  "reading": "よこはま",
+  "meaning": "Yokohama",
+  "pos": "name"
+ },
+ {
+  "id": "鎌倉",
+  "reading": "かまくら",
+  "meaning": "Kamakura",
+  "pos": "name"
+ },
+ {
+  "id": "品川",
+  "reading": "しながわ",
+  "meaning": "Shinagawa (a station in Tokyo)",
+  "pos": "name"
+ },
+ {
+  "id": "大阪",
+  "reading": "おおさか",
+  "meaning": "Osaka",
+  "pos": "name"
+ },
+ {
+  "id": "アメリカ",
+  "reading": "アメリカ",
+  "meaning": "America, the USA",
+  "pos": "name"
+ },
+ {
+  "id": "イギリス",
+  "reading": "イギリス",
+  "meaning": "the UK, Britain",
+  "pos": "name"
+ },
+ {
+  "id": "切符",
+  "reading": "きっぷ",
+  "meaning": "ticket (train, bus)",
+  "pos": "noun"
+ },
+ {
+  "id": "一枚",
+  "reading": "いちまい",
+  "meaning": "one (flat thing: a ticket, a sheet, a stamp)",
+  "pos": "counter"
+ },
+ {
+  "id": "五枚",
+  "reading": "ごまい",
+  "meaning": "five (flat things)",
+  "pos": "counter"
+ },
+ {
+  "id": "五つ",
+  "reading": "いつつ",
+  "meaning": "five (things)",
+  "pos": "counter"
+ },
+ {
+  "id": "行き",
+  "reading": "いき",
+  "meaning": "bound for; 横浜行き = (the train) for Yokohama",
+  "pos": "suffix"
+ },
+ {
+  "id": "番線",
+  "reading": "ばんせん",
+  "meaning": "platform number, track; 2番線 = platform 2",
+  "pos": "counter"
+ },
+ {
+  "id": "何番線",
+  "reading": "なんばんせん",
+  "meaning": "which platform?",
+  "pos": "pronoun"
+ },
+ {
+  "id": "ほか",
+  "reading": "ほか",
+  "meaning": "other, else; ほかに = besides",
+  "pos": "noun"
+ },
+ {
+  "id": "どの",
+  "reading": "どの",
+  "meaning": "which",
+  "pos": "pre-noun"
+ },
+ {
+  "id": "くらい",
+  "reading": "くらい",
+  "meaning": "about, around (also ぐらい); どのくらい = how much, how long",
+  "pos": "particle"
+ },
+ {
+  "id": "かかる",
+  "reading": "かかる",
+  "meaning": "to take (time), to cost (money)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "いくら",
+  "reading": "いくら",
+  "meaning": "how much (money)",
+  "pos": "pronoun"
+ },
+ {
+  "id": "分",
+  "reading": "ふん",
+  "meaning": "minute(s) (read ふん or ぷん depending on the number)",
+  "pos": "counter"
+ },
+ {
+  "id": "時間",
+  "reading": "じかん",
+  "meaning": "time; hours",
+  "pos": "noun"
+ },
+ {
+  "id": "快速",
+  "reading": "かいそく",
+  "meaning": "rapid train (skips some stations)",
+  "pos": "noun"
+ },
+ {
+  "id": "各駅停車",
+  "reading": "かくえきていしゃ",
+  "meaning": "local train (stops at every station)",
+  "pos": "noun"
+ },
+ {
+  "id": "より",
+  "reading": "より",
+  "meaning": "than; 各駅停車より速い = faster than the local",
+  "pos": "particle"
+ },
+ {
+  "id": "速い",
+  "reading": "はやい",
+  "meaning": "fast",
+  "pos": "adjective (i)"
+ },
+ {
+  "id": "乗る",
+  "reading": "のる",
+  "meaning": "to get on, to ride (takes に)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "止まる",
+  "reading": "とまる",
+  "meaning": "to stop (by itself: a train stops)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "止める",
+  "reading": "とめる",
+  "meaning": "to stop (something), to park",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "ICカード",
+  "reading": "アイシーカード",
+  "meaning": "IC card, a rechargeable transit card",
+  "pos": "noun"
+ },
+ {
+  "id": "チャージ",
+  "reading": "チャージ",
+  "meaning": "topping up (a card); チャージする = to top up",
+  "pos": "noun"
+ },
+ {
+  "id": "払う",
+  "reading": "はらう",
+  "meaning": "to pay",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "お気をつけて",
+  "reading": "おきをつけて",
+  "meaning": "take care, have a safe trip (to someone setting off)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "切手",
+  "reading": "きって",
+  "meaning": "postage stamp",
+  "pos": "noun"
+ },
+ {
+  "id": "手紙",
+  "reading": "てがみ",
+  "meaning": "letter",
+  "pos": "noun"
+ },
+ {
+  "id": "荷物",
+  "reading": "にもつ",
+  "meaning": "parcel, package; luggage",
+  "pos": "noun"
+ },
+ {
+  "id": "この",
+  "reading": "この",
+  "meaning": "this (before a noun): この手紙 = this letter",
+  "pos": "pre-noun"
+ },
+ {
+  "id": "これ",
+  "reading": "これ",
+  "meaning": "this (one)",
+  "pos": "pronoun"
+ },
+ {
+  "id": "送る",
+  "reading": "おくる",
+  "meaning": "to send",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "航空便",
+  "reading": "こうくうびん",
+  "meaning": "airmail",
+  "pos": "noun"
+ },
+ {
+  "id": "船便",
+  "reading": "ふなびん",
+  "meaning": "sea mail",
+  "pos": "noun"
+ },
+ {
+  "id": "中身",
+  "reading": "なかみ",
+  "meaning": "contents, what's inside",
+  "pos": "noun"
+ },
+ {
+  "id": "本",
+  "reading": "ほん",
+  "meaning": "book",
+  "pos": "noun"
+ },
+ {
+  "id": "服",
+  "reading": "ふく",
+  "meaning": "clothes",
+  "pos": "noun"
+ },
+ {
+  "id": "住所",
+  "reading": "じゅうしょ",
+  "meaning": "address",
+  "pos": "noun"
+ },
+ {
+  "id": "書く",
+  "reading": "かく",
+  "meaning": "to write",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "ペン",
+  "reading": "ペン",
+  "meaning": "pen",
+  "pos": "noun"
+ },
+ {
+  "id": "借りる",
+  "reading": "かりる",
+  "meaning": "to borrow",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "貸す",
+  "reading": "かす",
+  "meaning": "to lend",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "も",
+  "reading": "も",
+  "meaning": "also, too; ～てもいいですか = may I ～?",
+  "pos": "particle"
+ },
+ {
+  "id": "不在票",
+  "reading": "ふざいひょう",
+  "meaning": "missed-delivery slip (left when you weren't home)",
+  "pos": "noun"
+ },
+ {
+  "id": "取る",
+  "reading": "とる",
+  "meaning": "to take; 取りに来る = come to collect",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "受け取る",
+  "reading": "うけとる",
+  "meaning": "to receive, to collect (a parcel)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "見せる",
+  "reading": "みせる",
+  "meaning": "to show",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "身分証明書",
+  "reading": "みぶんしょうめいしょ",
+  "meaning": "ID, identification",
+  "pos": "noun"
+ },
+ {
+  "id": "着く",
+  "reading": "つく",
+  "meaning": "to arrive",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "一週間",
+  "reading": "いっしゅうかん",
+  "meaning": "one week",
+  "pos": "noun"
+ },
+ {
+  "id": "二か月",
+  "reading": "にかげつ",
+  "meaning": "two months",
+  "pos": "noun"
+ },
+ {
+  "id": "片道",
+  "reading": "かたみち",
+  "meaning": "one way (ticket)",
+  "pos": "noun"
+ },
+ {
+  "id": "往復",
+  "reading": "おうふく",
+  "meaning": "round trip",
+  "pos": "noun"
+ },
+ {
+  "id": "はがき",
+  "reading": "はがき",
+  "meaning": "postcard",
+  "pos": "noun"
  }
 ]

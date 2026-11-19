@@ -1,0 +1,198 @@
+{
+  "id": "post_send",
+  "title": "At the post office",
+  "place": "post",
+  "npc": "kobayashi",
+  "maxStage": 4,
+  "start": "stamps",
+  "errand": "郵便局 で $task",
+  "variants": [
+    {
+      "id": "stamps", "price": 635,
+      "slots": { "task": "切手 を 買う", "payline": "635 円 です 。", "payline_en": "That's ¥635." }
+    },
+    {
+      "id": "letter", "price": 190,
+      "slots": { "task": "アメリカ に 手紙 を 送る", "thing": "手紙", "thing_en": "letter", "country": "アメリカ", "country_en": "America", "way": "航空便", "way_en": "Airmail", "payline": "一週間 ぐらい=くらい で 着きます=着く 。 190 円 です 。", "payline_en": "It'll arrive in about a week. That's ¥190." }
+    },
+    {
+      "id": "parcel", "price": 2800,
+      "slots": { "task": "イギリス に 荷物 を 送る", "thing": "荷物", "thing_en": "parcel", "country": "イギリス", "country_en": "the UK", "way": "船便", "way_en": "Sea mail", "payline": "二か月 ぐらい=くらい で 着きます=着く 。 2800 円 です 。", "payline_en": "It'll arrive in about two months. That's ¥2,800." }
+    },
+    {
+      "id": "address", "price": 1200,
+      "slots": { "task": "大阪 に 荷物 を 送る", "thing": "荷物", "thing_en": "parcel", "country": "大阪", "country_en": "Osaka", "payline": "明日 着きます=着く 。 1200 円 です 。", "payline_en": "It'll arrive tomorrow. That's ¥1,200." }
+    },
+    {
+      "id": "pickup", "price": 0,
+      "slots": { "task": "荷物 を 受け取る", "payline": "こちら です 。", "payline_en": "Here it is." }
+    }
+  ],
+  "nodes": {
+    "stamps": {
+      "onlyFor": ["stamps"],
+      "line": "いらっしゃいませ 。",
+      "gloss": "Welcome.",
+      "targets": ["切手", "五枚", "ください"],
+      "grammar": ["mai"],
+      "choices": [
+        { "text": "110 円 切手 を 五枚 ください 。", "gloss": "Five ¥110 stamps, please.", "result": "success" },
+        { "text": "110 円 切手 を 五つ ください 。", "gloss": "Five (things) of ¥110 stamps, please.", "result": "npc_puzzled", "reaction": "110 円 切手 を 五枚 、 です ね ？", "note": "Flat things like stamps, tickets and paper are counted with 枚: 一枚, 二枚, 五枚 (ごまい).", "grammar": "mai" },
+        { "text": "110 円 切手 が 五枚 ください 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "切手 を 五枚 、 です ね ？", "note": "The thing you ask for takes を: 切手を五枚ください.", "grammar": "wo_object" }
+      ],
+      "tiles": {
+        "answers": [["110 円 切手", "を", "五枚", "ください"]],
+        "decoys": ["が", "五つ", "に"]
+      },
+      "blank": { "before": "110 円 切手 を", "after": "ください 。", "answers": ["ごまい"] },
+      "recast": "切手 です か ？",
+      "next": { "success": "postcard" }
+    },
+    "postcard": {
+      "onlyFor": ["stamps"],
+      "line": "はい 、 110 円 切手 五枚 です 。 ほか に 何 か ？",
+      "gloss": "Here are five ¥110 stamps. Anything else?",
+      "targets": ["はがき", "も", "一枚"],
+      "grammar": ["mo_also"],
+      "choices": [
+        { "text": "はがき も 一枚 ください 。", "gloss": "A postcard too, please.", "result": "success" },
+        { "text": "はがき は 一枚 ください 。", "gloss": "As for postcards, one please.", "result": "npc_puzzled", "reaction": "はがき も 、 です ね ？", "note": "も means also, too: はがきも一枚ください = a postcard too, please. は sets a topic instead.", "grammar": "mo_also" },
+        { "text": "はがき も 一つ ください 。", "gloss": "A postcard (thing) too, please.", "result": "npc_puzzled", "reaction": "はがき 一枚 、 です ね ？", "note": "Postcards are flat, so they're counted with 枚: 一枚 (いちまい).", "grammar": "mai" }
+      ],
+      "tiles": {
+        "answers": [["はがき", "も", "一枚", "ください"]],
+        "decoys": ["は", "一つ", "を"]
+      },
+      "blank": { "before": "はがき", "after": "一枚 ください 。", "answers": ["も"] },
+      "recast": "ほか に 何 か ？",
+      "next": { "success": "pickup" }
+    },
+    "pickup": {
+      "onlyFor": ["pickup"],
+      "line": "いらっしゃいませ 。",
+      "gloss": "Welcome.",
+      "targets": ["不在票", "荷物", "取る", "来る"],
+      "grammar": ["ni_kuru"],
+      "choices": [
+        { "text": "（ 不在票 を 見せる ） 荷物 を 取り=取る に {来|き}ました=来る 。", "gloss": "(show the missed-delivery slip) I've come to pick up a parcel.", "result": "success" },
+        { "text": "（ 不在票 を 見せる ） 荷物 を 取り=取る に 行きました=行く 。", "gloss": "(show the slip) I went to pick up a parcel.", "result": "npc_puzzled", "reaction": "… ？ 取り=取る に {来|き}ました=来る 、 です ね 。", "note": "You've arrived here, so it's 来ました: 荷物を取りに来ました. 行きました means you went somewhere else.", "grammar": "ni_kuru" },
+        { "text": "（ 不在票 を 見せる ） 荷物 を 送りたい=送る です 。", "gloss": "(show the slip) I want to send a parcel.", "result": "npc_confused", "reaction": "え ？ … これ は 不在票 です よ 。 受け取り=受け取る です ね ？", "note": "送る is to send. With a missed-delivery slip you've come to collect: 荷物を取りに来ました.", "grammar": "ni_kuru" }
+      ],
+      "tiles": {
+        "answers": [["荷物 を", "取り=取る", "に", "{来|き}ました=来る"]],
+        "decoys": ["で", "行きました=行く", "送りたい=送る"]
+      },
+      "blank": { "before": "荷物 を 取り=取る", "after": "{来|き}ました=来る 。", "answers": ["に"] },
+      "recast": "不在票 です ね ？",
+      "next": { "success": "id" }
+    },
+    "id": {
+      "onlyFor": ["pickup"],
+      "line": "身分証明書 は お持ち=持つ です か ？",
+      "gloss": "Do you have some ID?",
+      "targets": ["身分証明書", "持つ", "これ"],
+      "grammar": ["omochi"],
+      "choices": [
+        {"text": "はい 、 これ です 。", "gloss": "Yes, here it is.", "result": "success"},
+        {"text": "はい 、 お持ち=持つ です 。", "gloss": "Yes, I honorably have it.", "result": "npc_amused", "reaction": "ふふ 。 はい 、 ありがとうございます 。", "note": "お持ちですか is the staff's polite way to ask about you. Don't use お～ about yourself: はい、これです.", "grammar": "omochi"},
+        {"text": "いいえ 、 これ です 。", "gloss": "No, here it is.", "result": "npc_confused", "reaction": "えっ ？ あります=ある か ？", "note": "Showing it means yes: はい、これです.", "grammar": "omochi"}
+      ],
+      "next": {"success": "send"},
+      "tiles": {
+        "answers": [["はい 、", "これ", "です"]],
+        "decoys": ["お持ち=持つ", "いいえ 、", "が"]
+      },
+      "blank": {"before": "はい 、", "after": "です 。", "answers": ["これ"]},
+      "recast": "身分証明書 は ？"
+    },
+    "send": {
+      "onlyFor": ["letter", "parcel", "address"],
+      "line": "いらっしゃいませ 。",
+      "gloss": "Welcome.",
+      "targets": ["送る", "この", "に"],
+      "grammar": ["tai", "ni_destination"],
+      "choices": [
+        { "text": "この $thing を $country に 送りたい=送る です 。", "gloss": "I'd like to send this $thing_en to $country_en.", "result": "success" },
+        { "text": "この $thing を $country から 送りたい=送る です 。", "gloss": "I'd like to send this $thing_en from $country_en.", "result": "npc_puzzled", "reaction": "$country に 、 です ね ？", "note": "Where something is going takes に: アメリカに送りたいです. から means from.", "grammar": "ni_destination" },
+        { "text": "この $thing を $country に 送ります=送る か ？", "gloss": "Will you send this $thing_en to $country_en?", "result": "npc_confused", "reaction": "え ？ … 送りたい=送る ん=の です か ？", "note": "～たいです says what you want to do: 送りたいです (I'd like to send it).", "grammar": "tai" }
+      ],
+      "tiles": {
+        "answers": [["この $thing を", "$country", "に", "送りたい=送る です"]],
+        "decoys": ["から", "で", "送ります=送る か"]
+      },
+      "blank": { "before": "この $thing を $country", "after": "送りたい=送る です 。", "answers": ["に"] },
+      "recast": "どちら に 送ります=送る か ？",
+      "next": { "success": "contents" }
+    },
+    "contents": {
+      "onlyFor": ["parcel"],
+      "line": "中身 は {何|なん}=何 です か ？",
+      "gloss": "What's inside?",
+      "targets": ["中身", "本", "服", "と"],
+      "grammar": ["to_and"],
+      "choices": [
+        { "text": "本 と 服 です 。", "gloss": "Books and clothes.", "result": "success" },
+        { "text": "本 を 服 です 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "本 と 服 、 です ね ？", "note": "と joins things in a list: 本と服 = books and clothes.", "grammar": "to_and" },
+        { "text": "いいえ 、 ありません=ある 。", "gloss": "No, there isn't any.", "result": "npc_confused", "reaction": "え ？ … 中身 は {何|なん}=何 です か ？", "note": "何ですか asks what. Answer with the things: 本と服です.", "grammar": "to_and" }
+      ],
+      "tiles": {
+        "answers": [["本", "と", "服", "です"]],
+        "decoys": ["を", "が", "か"]
+      },
+      "blank": { "before": "本", "after": "服 です 。", "answers": ["と"] },
+      "recast": "中身 は ？",
+      "next": { "success": "method" }
+    },
+    "method": {
+      "onlyFor": ["letter", "parcel"],
+      "line": "航空便 と 船便 、 どちら に なさいます=なさる か ？",
+      "gloss": "Airmail or sea mail, which would you like?",
+      "targets": ["航空便", "船便", "どちら", "で"],
+      "grammar": ["de_choice", "nasaru"],
+      "choices": [
+        { "text": "$way で お願いします=お願いする 。", "gloss": "$way_en, please.", "result": "success" },
+        { "text": "$way に お願いします=お願いする 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "$way で 、 です ね ？", "note": "で marks the option you choose: 航空便でお願いします.", "grammar": "de_choice" },
+        { "text": "$way だ 。", "gloss": "$way_en. (blunt)", "result": "npc_confused", "reaction": "えっと 、 $way です ね 。", "note": "Plain だ sounds blunt to staff. Say 航空便でお願いします.", "grammar": "plain_vs_polite" }
+      ],
+      "tiles": {
+        "answers": [["$way", "で", "お願いします=お願いする"]],
+        "decoys": ["に", "が", "だ"]
+      },
+      "blank": { "before": "$way", "after": "お願いします=お願いする 。", "answers": ["で"] },
+      "recast": "航空便 か 船便 、 です ね ？",
+      "next": { "success": "form" }
+    },
+    "form": {
+      "onlyFor": ["address"],
+      "line": "では 、 こちら に 住所 を 書いて=書く ください 。",
+      "gloss": "Then please write the address here.",
+      "targets": ["住所", "書く", "借りる", "も"],
+      "grammar": ["temo_ii", "kariru_kasu"],
+      "choices": [
+        { "text": "ペン を 借りて=借りる も いい です か ？", "gloss": "May I borrow a pen?", "result": "success" },
+        { "text": "ペン を 貸して=貸す も いい です か ？", "gloss": "May I lend (you) a pen?", "result": "npc_puzzled", "reaction": "え ？ … あ 、 ペン です ね 。 どうぞ 。", "note": "借りる is to borrow; 貸す is to lend. Asking for theirs: ペンを借りてもいいですか.", "grammar": "kariru_kasu" },
+        { "text": "ペン を 借りて=借りる ください 。", "gloss": "Please borrow a pen.", "result": "npc_confused", "reaction": "え ？ 私 が です か ？ … ペン 、 どうぞ 。", "note": "～てください asks the other person to do it. To ask permission for yourself: ～てもいいですか.", "grammar": "temo_ii" }
+      ],
+      "tiles": {
+        "answers": [["ペン を", "借りて=借りる", "も", "いい です か"]],
+        "decoys": ["貸して=貸す", "ください", "は"]
+      },
+      "blank": { "before": "ペン を", "after": "も いい です か ？", "answers": ["かりて"] },
+      "recast": "住所 を 書いて=書く ください 。",
+      "next": { "success": "pay" }
+    },
+    "pay": {
+      "line": "$payline",
+      "gloss": "$payline_en",
+      "targets": ["円", "着く"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "ありがとうございます 。", "gloss": "Thank you.", "result": "success" },
+        { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "npc_puzzled", "reaction": "えっ ？ ふふ 。 ありがとうございました=ありがとうございます 。", "note": "どういたしまして answers someone else's thank-you. Here, thank the clerk: ありがとうございます.", "grammar": "odaijini" },
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 食べ物 じゃ ありません=ある よ 。", "note": "いただきます is said right before you eat.", "grammar": "itadakimasu" }
+      ],
+      "effects": { "pay": true },
+      "end": true
+    }
+  }
+}

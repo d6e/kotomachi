@@ -390,7 +390,83 @@ function station({ b, signs, measure }: Ctx, x0: number, w: number, bd: Building
   for (const wx of [x0 + 5, x0 + w - 19]) windowPane(b, wx, 52, 14, 16);
 }
 
-const BUILD = { home, cafe, konbini, pharmacy, station } as const;
+function restaurant({ b, signs, measure }: Ctx, x0: number, w: number, bd: Building): void {
+  roof(b, x0, w, bd.roof);
+  wall(b, x0, w, 'wall2');
+  const cx = x0 + w / 2;
+  signBoard(b, signs, measure, cx, 24, bd.sign);
+  // A paper lantern hanging at each end of the sign.
+  for (const lx of [x0 + 4, x0 + w - 11]) {
+    b.rect(lx + 3, 22, 1, 3, 'out');
+    b.shape(lx, 25, 7, 10, (x, y) => ((x - 3) / 3.5) ** 2 + ((y - 4.5) / 5) ** 2 <= 1, (x, y) => (y === 2 || y === 7 ? 'lanternSh' : x >= 4 ? 'lanternSh' : 'lantern'));
+    b.rect(lx + 1, 25, 5, 1, 'out');
+    b.rect(lx + 1, 34, 5, 1, 'out');
+    b.set(lx + 2, 28, 'flowerB');
+  }
+  // Big windows with warm light and tables behind them.
+  for (const wx of [x0 + 4, x0 + w - 26]) {
+    windowPane(b, wx, 48, 22, 18, false);
+    b.rect(wx + 1, 49, 20, 3, 'lampLight');
+    for (const tx of [wx + 4, wx + 13]) {
+      b.rect(tx, 59, 6, 1, 'frame');
+      b.rect(tx + 2, 60, 2, 5, 'frame');
+      b.set(tx + 1, 58, 'white');
+    }
+  }
+  // Wooden door with a noren curtain split in three.
+  door(b, cx, 50, 'wood');
+  b.rect(cx - 8, 48, 16, 1, 'out');
+  for (let i = 0; i < 3; i++) {
+    const nx = cx - 7 + i * 5;
+    b.box(nx, 49, 4, 9, 'noren');
+    b.rect(nx + 1, 56, 2, 1, 'norenSh');
+  }
+  b.rect(cx - 2, 51, 4, 1, 'white');
+  // A chalk menu board on the step.
+  const mx = cx + 9;
+  b.box(mx, 64, 9, 11, 'bench');
+  b.box(mx + 1, 65, 7, 7, 'chalk');
+  b.rect(mx + 2, 67, 5, 1, 'white');
+  b.rect(mx + 2, 69, 3, 1, 'flowerB');
+  b.rect(mx + 1, 75, 1, 3, 'benchSh');
+  b.rect(mx + 7, 75, 1, 3, 'benchSh');
+  planterBox(b, x0 + 4, 70, 22);
+}
+
+/** The post office: a red 〒 panel, a glass door and a round red postbox out front. */
+function post({ b, signs, measure }: Ctx, x0: number, w: number, bd: Building): void {
+  roof(b, x0, w, bd.roof);
+  wall(b, x0, w);
+  const cx = x0 + w / 2;
+  const s = signBoard(b, signs, measure, cx + 9, 24, bd.sign);
+  // The 〒 mark on a white panel.
+  const px = s.x - 18;
+  const py = 24;
+  b.box(px, py, 15, 15, 'sign');
+  b.rect(px + 3, py + 3, 9, 2, 'postRed');
+  b.rect(px + 3, py + 6, 9, 2, 'postRed');
+  b.rect(px + 6, py + 8, 3, 5, 'postRed');
+  b.rect(px + 3, py + 3, 9, 1, 'roofGHi');
+  // A band in the post office's red across the front.
+  b.rect(x0, 44, w, 1, 'out');
+  b.rect(x0 + 1, 45, w - 2, 3, 'postRed');
+  b.rect(x0 + 1, 47, w - 2, 1, 'postRedSh');
+  b.rect(x0, 48, w, 1, 'out');
+  windowPane(b, x0 + 5, 53, 22, 17);
+  windowPane(b, x0 + w - 27, 53, 22, 17);
+  door(b, cx, 52, 'glass');
+  // The postbox, standing on the street side of the right window.
+  const bx = x0 + w - 13;
+  b.ellipseShadow(bx + 4.5, GROUND + 1, 6, 1.6);
+  b.shape(bx, 61, 10, 19, (x, y) => y > 1 || (x > 0 && x < 9), (x, y) => (y < 3 ? 'roofGHi' : x >= 7 ? 'postRedSh' : 'postRed'));
+  b.rect(bx, 61, 10, 1, 'out');
+  b.rect(bx + 2, 66, 6, 1, 'out');
+  b.rect(bx + 2, 70, 6, 3, 'white');
+  b.rect(bx + 4, 70, 2, 3, 'postRed');
+  b.rect(bx, 79, 10, 1, 'out');
+}
+
+const BUILD = { home, cafe, konbini, pharmacy, restaurant, post, station } as const;
 
 // ------------------------------------------------------------------ world
 
@@ -407,7 +483,7 @@ export function drawWorld(measure: Measure, grid: Grid = buildGrid()): World {
   for (const t of BACK_TREES) {
     const x = t * TILE;
     tree(b, x, 4);
-    if (t === 0 || t === 31) tree(b, x, 30);
+    if (t === 0 || t === BACK_TREES[BACK_TREES.length - 1]) tree(b, x, 30);
     flowerPatch(b, x, 46, 16, 32, t);
   }
   for (const bd of BUILDINGS) BUILD[bd.id]({ b, signs, measure }, bd.x, bd.w, bd);

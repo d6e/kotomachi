@@ -19,8 +19,12 @@ import { forms, grammar, npcs, scenarioById, scenarios, vocab } from './content.
 import { makeErrands, pickVariant } from './errands.ts';
 import { DAY_END, DAY_START, isOpen, load, newDayLog, newGame, progressFor, save, clearSave, formatClock, type GameData } from './state.ts';
 
-const PLACE_NAMES: Record<string, string> = { cafe: 'Cafe', konbini: 'Konbini', pharmacy: 'Pharmacy', street: 'Street' };
-const SCENARIO_FOR: Record<Exclude<DoorPlace, 'home'>, string> = { cafe: 'cafe_order', konbini: 'konbini_buy', pharmacy: 'pharmacy_buy' };
+const PLACE_NAMES: Record<string, string> = {
+  cafe: 'Cafe', konbini: 'Konbini', pharmacy: 'Pharmacy', restaurant: 'Restaurant', station: 'Station', post: 'Post office', street: 'Street',
+};
+const SCENARIO_FOR: Record<Exclude<DoorPlace, 'home'>, string> = {
+  cafe: 'cafe_order', konbini: 'konbini_buy', pharmacy: 'pharmacy_buy', restaurant: 'restaurant_eat', station: 'station_ticket', post: 'post_send',
+};
 /** In-game minutes per real second of walking around town. */
 const MINUTES_PER_SECOND = 1;
 const MINUTES_PER_SCENARIO = 20;
@@ -227,7 +231,7 @@ export class Game {
           ? `${due} word${due === 1 ? ' is' : 's are'} due for review. Today's errands were picked to bring them up.`
           : "Here's what's on today's list."),
       h('ul', { class: 'errands big' }, this.g.errands.map((e) => h('li', {}, h('span', { class: 'box' }), this.tokens(e.text)))),
-      h('p', { class: 'muted' }, 'Tap a word you don\'t know. The cafe is open 8:00–18:00, the pharmacy 9:00–19:00, the konbini all day.'),
+      h('p', { class: 'muted' }, 'Tap a word you don\'t know. Opening hours: cafe 8:00–18:00, pharmacy 9:00–19:00, post office 9:00–17:00, restaurant 11:00–22:00. The konbini and the station are always open.'),
       h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => this.goToTown() }, 'Head out ▶')),
     );
   }

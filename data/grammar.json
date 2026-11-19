@@ -160,5 +160,101 @@
   "title": "本当ですか: reacting to news",
   "note": "When someone tells you something new, 本当ですか (really?) or そうですか (I see) keeps the conversation going. With friends, just 本当？",
   "example": "え 、 本当 です か ？"
+ },
+ {
+  "id": "ninzuu",
+  "title": "一人, 二人: counting people",
+  "note": "People have their own counter. 一人 (ひとり) and 二人 (ふたり) are irregular; from three it's 三人 (さんにん), 四人 (よにん). 一つ and 二つ are for things. Staff ask 何名様ですか (how many people?).",
+  "example": "二人 です 。"
+ },
+ {
+  "id": "i_adj_past",
+  "title": "おいしかった: the past of い-adjectives",
+  "note": "い-adjectives make their own past: drop the last い and add かった. おいしい → おいしかった, いい → よかった. Add です to be polite: おいしかったです. おいしいでした is a common mistake.",
+  "example": "とても おいしかった=おいしい です 。"
+ },
+ {
+  "id": "betsubetsu",
+  "title": "別々で: separate checks",
+  "note": "お会計はご一緒ですか asks if you're paying together. はい agrees to one bill. To split it, say いいえ、別々でお願いします.",
+  "example": "別々 で お願いします=お願いする 。"
+ },
+ {
+  "id": "potential",
+  "title": "使えますか: can I use it?",
+  "note": "The potential form says what can be done. For る-verbs add られる; for う-verbs change the last sound to the え row and add る: 使う → 使える. カードは使えますか = can I use a card?",
+  "example": "カード は 使えます=使える か ？"
+ },
+ {
+  "id": "tai",
+  "title": "～たいです: I'd like to",
+  "note": "Take the ます-stem and add たい to say what you want to do: 送ります → 送りたい. Add です to be polite: 送りたいです. It's a natural way to open a request at a counter.",
+  "example": "手紙 を 送りたい=送る です 。"
+ },
+ {
+  "id": "mai",
+  "title": "枚: counting flat things",
+  "note": "Tickets, stamps, paper and shirts are counted with 枚: 一枚 (いちまい), 二枚, 五枚 (ごまい). The count goes right before the verb: 切手を五枚ください.",
+  "example": "切手 を 五枚 ください 。"
+ },
+ {
+  "id": "nanban",
+  "title": "何番線: which platform?",
+  "note": "番線 is the platform number at a station: 2番線 = platform 2. 何番線ですか asks which one. 横浜行き means the train bound for Yokohama.",
+  "example": "横浜 行き は 何番線 です か ？"
+ },
+ {
+  "id": "donokurai",
+  "title": "どのくらいかかりますか: how long?",
+  "note": "かかる means it takes (time or money). どのくらい (also どれくらい) asks how much or how long. いくら only asks about money. ぐらい after a number means about: 45分ぐらい.",
+  "example": "鎌倉 まで どの くらい かかります=かかる か ？"
+ },
+ {
+  "id": "tomaru",
+  "title": "止まる and 止める",
+  "note": "Japanese often has two verbs for one action. 止まる is what something does by itself (a train stops). 止める is what you do to something (stop a car). 快速は品川に止まりますか.",
+  "example": "快速 は 品川 に 止まります=止まる か ？"
+ },
+ {
+  "id": "ni_noru",
+  "title": "乗る takes に",
+  "note": "What you get on takes に, not を: 電車に乗ります, 快速に乗ります.",
+  "example": "快速 に 乗ります=乗る 。"
+ },
+ {
+  "id": "kiwotsukete",
+  "title": "お気をつけて",
+  "note": "Said to someone setting off: take care, have a safe trip. お大事に is different: it's for someone who is unwell. Answer either with ありがとうございます.",
+  "example": "お気をつけて 。"
+ },
+ {
+  "id": "temo_ii",
+  "title": "～てもいいですか: may I?",
+  "note": "て-form + もいいですか asks permission: 借りてもいいですか = may I borrow (it)? ～てください asks the other person to do something.",
+  "example": "ペン を 借りて=借りる も いい です か ？"
+ },
+ {
+  "id": "kariru_kasu",
+  "title": "借りる (borrow) and 貸す (lend)",
+  "note": "借りる is what you do when you take something for a while; 貸す is what the owner does. ペンを借りてもいいですか = may I borrow a pen? ペンを貸してください = please lend me a pen.",
+  "example": "ペン を 借りて=借りる も いい です か ？"
+ },
+ {
+  "id": "ni_kuru",
+  "title": "取りに来ました: coming to do something",
+  "note": "The ます-stem + に + 来る or 行く says why you're coming or going: 取りに来ました = I've come to pick (it) up. 来る is toward where the speaker is; 行く is away.",
+  "example": "荷物 を 取り=取る に {来|き}ました=来る 。"
+ },
+ {
+  "id": "to_and",
+  "title": "と: and (in a list)",
+  "note": "と joins nouns into a complete list: 本と服 = books and clothes. It doesn't join verbs or sentences.",
+  "example": "本 と 服 です 。"
+ },
+ {
+  "id": "mo_also",
+  "title": "も: also, too",
+  "note": "も replaces は, が or を to mean also: はがきも一枚ください = a postcard too, please. 私も = me too.",
+  "example": "はがき も 一枚 ください 。"
  }
 ]

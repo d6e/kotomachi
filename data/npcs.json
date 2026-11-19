@@ -2,5 +2,8 @@
   { "id": "yuki", "name": "ゆき", "role": "Barista at the cafe. Friendship changes how she talks to you." },
   { "id": "clerk", "name": "店員=店員", "role": "Konbini clerk" },
   { "id": "mori", "name": "森 さん", "role": "Pharmacist" },
+  { "id": "server", "name": "山田 さん", "role": "Server at the restaurant" },
+  { "id": "ekiin", "name": "駅員", "role": "Station staff at the ticket window" },
+  { "id": "kobayashi", "name": "小林 さん", "role": "Post office clerk" },
   { "id": "tanaka", "name": "田中 さん", "role": "Your neighbor" }
 ]
