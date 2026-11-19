@@ -1,0 +1,112 @@
+{
+  "id": "invite_mori",
+  "title": "An invitation from 森さん",
+  "place": "pharmacy",
+  "npc": "mori",
+  "maxStage": 4,
+  "start": "ask1",
+  "variants": [
+    {
+      "id": "first",
+      "slots": {}
+    },
+    {
+      "id": "second",
+      "slots": {}
+    }
+  ],
+  "nodes": {
+    "ask1": {
+      "onlyFor": ["first"],
+      "line": "あ 、 こんにちは 。 これ から 昼休み な ん=の 。 一緒 に 公園 を 散歩 しない=する ？",
+      "gloss": "Oh, hi. I'm about to go on my lunch break. Want to take a walk in the park with me?",
+      "targets": ["昼休み", "一緒", "公園", "散歩"],
+      "grammar": ["nai_invite"],
+      "choices": [
+        { "text": "うん 、 したい=する ！", "gloss": "Yes, I'd like that!", "result": "success", "register": "plain", "grammar": "nai_invite" },
+        { "text": "いい です ね 。", "gloss": "That sounds good.", "result": "success", "register": "polite" },
+        { "text": "お大事に 。", "gloss": "Take care of yourself.", "result": "npc_amused", "reaction": "ふふ 、 私 は 元気 だ よ 。", "note": "お大事に is for someone who's unwell. To say yes: うん、したい！", "grammar": "odaijini" }
+      ],
+      "tiles": { "answers": [["うん 、", "したい=する"]], "decoys": ["しない=する", "お大事に", "を"] },
+      "blank": { "before": "うん 、", "after": "！", "answers": ["したい"] },
+      "recast": "一緒 に 散歩 しない=する ？",
+      "next": { "success": "walk1" }
+    },
+    "walk1": {
+      "onlyFor": ["first"],
+      "line": "毎日 歩く の は 体 に いい よ 。 私 は 毎日 歩く ん=の だ 。",
+      "gloss": "Walking every day is good for you. I walk every day.",
+      "targets": ["毎日", "歩く", "体", "いい"],
+      "grammar": ["no_particle_time"],
+      "choices": [
+        { "text": "じゃあ 、 私 も 毎日 歩く ！", "gloss": "Then I'll walk every day too!", "result": "success", "register": "plain" },
+        { "text": "じゃあ 、 私 も 毎日 に 歩く ！", "gloss": "(に after 毎日)", "result": "npc_puzzled", "reaction": "ふふ 、 毎日 歩く 、 だ ね 。", "note": "毎日 needs no particle: 毎日歩く. The same goes for 今日, 明日 and 毎朝.", "grammar": "no_particle_time" },
+        { "text": "じゃあ 、 私 も 昨日 歩く ！", "gloss": "Then I'll walk yesterday!", "result": "npc_puzzled", "reaction": "昨日 ？ ふふ 、 毎日 だ よ 。", "note": "昨日 is yesterday; 毎日 is every day.", "grammar": "no_particle_time" }
+      ],
+      "tiles": { "answers": [["じゃあ 、", "私 も", "毎日", "歩く"]], "decoys": ["に", "を", "昨日"] },
+      "blank": { "before": "じゃあ 、 私 も", "after": "歩く ！", "answers": ["まいにち", "毎日"] },
+      "recast": "私 は 毎日 歩く ん=の だ 。",
+      "next": { "success": "bye1" }
+    },
+    "bye1": {
+      "onlyFor": ["first"],
+      "line": "楽しかった=楽しい ！ 一緒 に 写真 を 撮ろう=撮る 。",
+      "gloss": "That was fun! Let's take a photo together.",
+      "targets": ["写真", "撮る"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "うん 、 撮ろう=撮る ！", "gloss": "Yeah, let's!", "result": "success", "register": "plain", "grammar": "volitional" },
+        { "text": "はい 、 お願いします=お願いする 。", "gloss": "Yes, please.", "result": "success", "register": "polite" },
+        { "text": "いってきます 。", "gloss": "I'm off!", "result": "npc_amused", "reaction": "ふふ 、 どこ に 行く の ？", "note": "いってきます is for when you leave. To go along with a plan, say うん、撮ろう！ (let's take one!).", "grammar": "ittekimasu" }
+      ],
+      "effects": { "friendship": 1 },
+      "end": true,
+      "grammar": ["volitional"],
+      "next": { "success": "ask2" }
+    },
+    "ask2": {
+      "onlyFor": ["second"],
+      "line": "ねえ 、 毎朝 公園 で ラジオ体操 を して=する いる ん=の だ 。 明日 の 朝 、 一緒 に しない=する ？",
+      "gloss": "Hey, I do the radio exercises in the park every morning. Want to do them with me tomorrow morning?",
+      "targets": ["毎朝", "ラジオ体操", "明日", "朝"],
+      "grammar": ["nai_invite"],
+      "choices": [
+        { "text": "うん 、 したい=する ！", "gloss": "Yes, I'd like that!", "result": "success", "register": "plain", "grammar": "nai_invite" },
+        { "text": "いい です ね 。", "gloss": "That sounds good.", "result": "success", "register": "polite" },
+        { "text": "おやすみなさい 。", "gloss": "Good night.", "result": "npc_amused", "reaction": "ふふ 、 まだ 寝ない=寝る よ ！", "note": "おやすみなさい is for bedtime. To say you look forward to something: 楽しみ！", "grammar": "greetings_time" }
+      ],
+      "tiles": { "answers": [["うん 、", "したい=する"]], "decoys": ["しない=する", "おやすみなさい", "を"] },
+      "blank": { "before": "うん 、", "after": "！", "answers": ["したい"] },
+      "recast": "明日 の 朝 、 一緒 に しない=する ？",
+      "next": { "success": "time2" }
+    },
+    "time2": {
+      "onlyFor": ["second"],
+      "line": "六時 半 に 公園 で ね 。 ちょっと 早い けど 、 大丈夫 ？",
+      "gloss": "Six-thirty at the park, then. It's a bit early, but is that okay?",
+      "targets": ["六時", "半", "早い", "大丈夫"],
+      "grammar": ["i_adj"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "うん 、 大丈夫 ！", "gloss": "Yeah, no problem!", "result": "success", "register": "plain" },
+        { "text": "はい 、 大丈夫 です 。", "gloss": "Yes, that's fine.", "result": "success", "register": "polite" },
+        { "text": "うん 、 とても 遅い ！", "gloss": "Yeah, really late!", "result": "npc_puzzled", "reaction": "え ？ 六時 半 は 早い よ ！", "note": "早い is early; 遅い is late.", "grammar": "i_adj" }
+      ],
+      "next": { "success": "bye2" }
+    },
+    "bye2": {
+      "onlyFor": ["second"],
+      "line": "じゃあ 、 また 明日 ！ 今夜 は 早く=早い 寝て=寝る ね 。",
+      "gloss": "See you tomorrow, then! Get to bed early tonight.",
+      "targets": ["明日", "早い", "寝る"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "うん 、 また 明日 ！", "gloss": "Yeah, see you tomorrow!", "result": "success", "register": "plain", "grammar": "plain_vs_polite" },
+        { "text": "はい 、 また 明日 。", "gloss": "Yes, see you tomorrow.", "result": "success", "register": "polite" },
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 ご飯 は まだ だ よ 。", "note": "いただきます is said before eating. To say goodbye until tomorrow: また明日！", "grammar": "itadakimasu" }
+      ],
+      "effects": { "friendship": 1 },
+      "end": true
+    }
+  }
+}

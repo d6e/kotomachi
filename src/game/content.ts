@@ -16,9 +16,16 @@ import catalog from '../../data/scenarios/catalog.json' with { type: 'json' };
 import shrine from '../../data/scenarios/shrine.json' with { type: 'json' };
 import omiyage from '../../data/scenarios/omiyage.json' with { type: 'json' };
 import festival from '../../data/scenarios/festival.json' with { type: 'json' };
+import inviteYuki from '../../data/scenarios/invite_yuki.json' with { type: 'json' };
+import inviteTanaka from '../../data/scenarios/invite_tanaka.json' with { type: 'json' };
+import inviteMori from '../../data/scenarios/invite_mori.json' with { type: 'json' };
+import inviteServer from '../../data/scenarios/invite_server.json' with { type: 'json' };
+import inviteKobayashi from '../../data/scenarios/invite_kobayashi.json' with { type: 'json' };
+import gift from '../../data/scenarios/gift.json' with { type: 'json' };
 import chatterJson from '../../data/chatter.json' with { type: 'json' };
 import requestsJson from '../../data/requests.json' with { type: 'json' };
 import consequencesJson from '../../data/consequences.json' with { type: 'json' };
+import { FRIENDS, inviteScenario } from './friends.ts';
 import type { RequestData } from './errands.ts';
 import type { SceneArt } from '../town/scenes.ts';
 import { boardNotes, morningNote, type TimeOfDay, type Weather } from './weather.ts';
@@ -33,7 +40,10 @@ export const grammar: Record<string, GrammarNote> = Object.fromEntries(
 export const npcs: Record<NpcId, NpcDef> = Object.fromEntries(
   (npcsJson as NpcDef[]).map((n) => [n.id, n]),
 ) as Record<NpcId, NpcDef>;
-export const scenarios: ScenarioDef[] = [cafe, konbini, pharmacy, restaurant, station, post, neighbor, catalog, shrine, omiyage, festival] as unknown as ScenarioDef[];
+export const scenarios: ScenarioDef[] = [
+  cafe, konbini, pharmacy, restaurant, station, post, neighbor, catalog, shrine, omiyage, festival,
+  inviteYuki, inviteTanaka, inviteMori, inviteServer, inviteKobayashi, gift,
+] as unknown as ScenarioDef[];
 export const scenarioById: Record<string, ScenarioDef> = Object.fromEntries(scenarios.map((s) => [s.id, s]));
 /** The regulars' stories and everyday requests. */
 export const requests = requestsJson as unknown as RequestData;
@@ -108,6 +118,17 @@ export function validateContent(defs: ScenarioDef[] = scenarios): ContentIssue[]
     check(`small ${r.scenario}`, r.reason, {});
   }
   for (const g of Object.values(grammar)) check(`grammar ${g.id}`, g.example, {});
+  // Friends: a person, a place, gifts that exist, and each invitation's conversation and memory.
+  for (const f of FRIENDS) {
+    if (!npcs[f.id]) out.push({ where: `friend ${f.id}`, problem: 'not a person' });
+    const inv = byId[inviteScenario(f.id)];
+    if (!inv) out.push({ where: `friend ${f.id}`, problem: `no ${inviteScenario(f.id)} scenario` });
+    else if (inv.npc !== f.id) out.push({ where: inv.id, problem: `talks to ${inv.npc}, not ${f.id}` });
+    for (const i of f.invites) {
+      if (inv && !inv.variants.some((v) => v.id === i.variant)) out.push({ where: `friend ${f.id}`, problem: `no invite variant ${i.variant}` });
+      for (const l of i.lines) check(`friend ${f.id} ${i.variant} memory`, l.text, {});
+    }
+  }
   for (const c of [...chatter.street, chatter.cat, ...Object.values(chatter.stalls)]) check(`chatter ${c.en}`, c.text, {});
   for (let day = 1; day <= 7; day++) for (const n of [...boardNotes(day), morningNote(day)]) check(`notice day ${day}`, n.jp, {});
   for (const s of defs) {

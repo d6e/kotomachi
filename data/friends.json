@@ -1,0 +1,154 @@
+{
+  "friends": [
+    {
+      "id": "yuki",
+      "place": "cafe",
+      "loves": ["okashi", "aisu", "cocoa"],
+      "likes": ["nikuman", "onigiri", "ocha", "gyunyu"],
+      "invites": [
+        {
+          "variant": "first",
+          "hearts": 3,
+          "title": "Cake on ゆき's break",
+          "art": "cake",
+          "lines": [
+            { "who": "narration", "text": "（ ゆき と 一緒 に 新しい ケーキ を 食べました=食べる 。 ）", "en": "(You and ゆき share the new cake on her break.)" },
+            { "who": "friend", "text": "また 一緒 に 休憩 しよう=する ね 。", "en": "Let's take a break together again." },
+            { "who": "me", "text": "うん 、 また ね ！", "en": "Yeah, see you!" }
+          ]
+        },
+        {
+          "variant": "second",
+          "hearts": 5,
+          "title": "Fireworks by the river",
+          "art": "fireworks",
+          "lines": [
+            { "who": "narration", "text": "（ 夜 、 川 の 近く で 一緒 に 花火 を 見ました=見る 。 ）", "en": "(That night, the two of you watch the fireworks by the river.)" },
+            { "who": "friend", "text": "わあ 、 きれい ！ {来|き}て=来る よかった=いい ね 。", "en": "Wow, so pretty! I'm glad we came." },
+            { "who": "me", "text": "うん 、 最高 ！", "en": "Yeah, it's the best!" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tanaka",
+      "place": "street",
+      "loves": ["ocha", "okashi"],
+      "likes": ["nikuman", "kasa", "gyunyu", "onigiri"],
+      "invites": [
+        {
+          "variant": "first",
+          "hearts": 3,
+          "title": "Tea at 田中さん's",
+          "art": "tea",
+          "lines": [
+            { "who": "narration", "text": "（ 田中 さん の うち で お茶 を 飲みました=飲む 。 庭 に 花 が たくさん あります=ある 。 ）", "en": "(You have tea at 田中さん's place. The garden is full of flowers.)" },
+            { "who": "friend", "text": "また いつでも {来|き}て=来る ね 。", "en": "Come by any time." },
+            { "who": "me", "text": "ありがとう 。 また 来る ね 。", "en": "Thanks. I'll come again." }
+          ]
+        },
+        {
+          "variant": "second",
+          "hearts": 5,
+          "title": "Cherry blossoms in the park",
+          "art": "sakura",
+          "lines": [
+            { "who": "narration", "text": "（ 週末 、 公園 の 桜 の 下 で 一緒 に お弁当=弁当 を 食べました=食べる 。 ）", "en": "(At the weekend, you eat bento together under the cherry trees in the park.)" },
+            { "who": "friend", "text": "一緒 に 花見 が できて=できる うれしい よ 。", "en": "I'm so glad we could see the blossoms together." },
+            { "who": "me", "text": "うん 、 来年 も 一緒 に {来|こ}よう=来る ！", "en": "Yeah, let's come again next year!" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mori",
+      "place": "pharmacy",
+      "loves": ["koucha", "ocha"],
+      "likes": ["onigiri", "okashi", "mizu", "aisu"],
+      "invites": [
+        {
+          "variant": "first",
+          "hearts": 3,
+          "title": "A walk on 森さん's lunch break",
+          "art": "walk",
+          "lines": [
+            { "who": "narration", "text": "（ 昼休み に 、 森 さん と 公園 を 散歩 しました=する 。 ）", "en": "(On the lunch break, you and 森さん take a walk in the park.)" },
+            { "who": "friend", "text": "また 一緒 に 歩こう=歩く ね 。", "en": "Let's walk together again." },
+            { "who": "me", "text": "うん 、 また 歩こう=歩く ！", "en": "Yeah, let's!" }
+          ]
+        },
+        {
+          "variant": "second",
+          "hearts": 5,
+          "title": "Morning exercises in the park",
+          "art": "exercise",
+          "lines": [
+            { "who": "narration", "text": "（ 次 の 朝 、 公園 で 一緒 に ラジオ体操 を しました=する 。 ）", "en": "(The next morning, you do the radio exercises in the park together.)" },
+            { "who": "friend", "text": "朝 の ラジオ体操 、 気持ち いい でしょう=です ？", "en": "Morning exercises feel great, don't they?" },
+            { "who": "me", "text": "うん 、 元気 が 出る ！", "en": "Yeah, I feel full of energy!" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "server",
+      "place": "restaurant",
+      "loves": ["nikuman", "okashi"],
+      "likes": ["coffee", "aisu", "onigiri", "gyunyu"],
+      "invites": [
+        {
+          "variant": "first",
+          "hearts": 3,
+          "title": "The staff meal with 山田さん",
+          "art": "makanai",
+          "lines": [
+            { "who": "narration", "text": "（ 山田 さん と 一緒 に まかない の カレー を 食べました=食べる 。 ）", "en": "(You and 山田さん eat the staff-meal curry together.)" },
+            { "who": "friend", "text": "これ 、 新しい カレー の 練習 な ん=の だ 。 おいしい でしょう=です ？", "en": "This is practice for a new curry. Good, right?" },
+            { "who": "me", "text": "うん 、 とても おいしい ！", "en": "Yeah, really good!" }
+          ]
+        },
+        {
+          "variant": "second",
+          "hearts": 5,
+          "title": "The fish market in 横浜",
+          "art": "market",
+          "lines": [
+            { "who": "narration", "text": "（ 休み の 日 、 山田 さん と 横浜 の 市場 に 行きました=行く 。 ）", "en": "(On a day off, you go to the market in Yokohama with 山田さん.)" },
+            { "who": "friend", "text": "見て=見る 、 この 魚 ！ とても 新鮮 だ よ 。", "en": "Look at this fish! It's really fresh." },
+            { "who": "me", "text": "今夜 は 魚 料理 だ ね ！", "en": "Fish for dinner tonight, then!" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kobayashi",
+      "place": "post",
+      "loves": ["coffee", "latte"],
+      "likes": ["bento", "kitte", "okashi", "nikuman"],
+      "invites": [
+        {
+          "variant": "first",
+          "hearts": 3,
+          "title": "Karaoke after work",
+          "art": "karaoke",
+          "lines": [
+            { "who": "narration", "text": "（ 仕事 の 後 、 小林 さん と カラオケ で 歌いました=歌う 。 ）", "en": "(After work, you sing karaoke with 小林さん.)" },
+            { "who": "friend", "text": "歌 、 上手 だ ね ！", "en": "You're a good singer!" },
+            { "who": "me", "text": "え 、 恥ずかしい … 。", "en": "Oh, that's embarrassing..." }
+          ]
+        },
+        {
+          "variant": "second",
+          "hearts": 5,
+          "title": "Hot pot at 小林さん's",
+          "art": "nabe",
+          "lines": [
+            { "who": "narration", "text": "（ 週末 、 小林 さん の うち で 鍋 を 食べました=食べる 。 ゆき も {来|き}ました=来る 。 ）", "en": "(At the weekend, you have hot pot at 小林さん's place. ゆき comes too.)" },
+            { "who": "friend", "text": "みんな で 食べる と おいしい ね 。", "en": "Food tastes better when everyone eats together." },
+            { "who": "me", "text": "うん 、 最高 ！", "en": "Yeah, it's the best!" }
+          ]
+        }
+      ]
+    }
+  ]
+}

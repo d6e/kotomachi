@@ -152,10 +152,12 @@ test('every place, every variant, every stage plays through with correct answers
   for (const def of Object.values(scenarioById)) {
     for (const variant of def.variants) {
       for (let stage = 1; stage <= (def.maxStage ?? 2); stage++) {
+        // As a stranger and as a close friend (casual lines). Invitations only come from friends.
+        for (const friendship of def.id.startsWith('invite_') ? [25] : [0, 25])
         for (const period of ['morning', 'day', 'evening'] as const) {
-          const where = `${def.id}/${variant.id}/stage ${stage}/${period}`;
+          const where = `${def.id}/${variant.id}/stage ${stage}/${period}/friendship ${friendship}`;
           const r = new ScenarioRun({
-            def, variant, stage: stage as Mode, friendship: 0, period, vocab, rng: seeded(3), extraSlots: greetSlots(period),
+            def, variant, stage: stage as Mode, friendship, period, vocab, rng: seeded(3), extraSlots: greetSlots(period),
           });
           let steps = 0;
           while (!r.ended && steps++ < 40) {

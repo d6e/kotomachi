@@ -2410,5 +2410,371 @@
   "reading": "もちもの",
   "meaning": "your things, belongings",
   "pos": "noun"
+ },
+ {
+  "id": "写真",
+  "reading": "しゃしん",
+  "meaning": "photo, picture",
+  "pos": "noun"
+ },
+ {
+  "id": "撮る",
+  "reading": "とる",
+  "meaning": "to take (a photo)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "日本",
+  "reading": "にほん",
+  "meaning": "Japan; 日本の = Japanese",
+  "pos": "name"
+ },
+ {
+  "id": "歌",
+  "reading": "うた",
+  "meaning": "song",
+  "pos": "noun"
+ },
+ {
+  "id": "歌う",
+  "reading": "うたう",
+  "meaning": "to sing",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "歩く",
+  "reading": "あるく",
+  "meaning": "to walk",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "ねえ",
+  "reading": "ねえ",
+  "meaning": "hey, say (casual, to get a friend's attention)",
+  "pos": "interjection"
+ },
+ {
+  "id": "休憩",
+  "reading": "きゅうけい",
+  "meaning": "a break (from work)",
+  "pos": "noun"
+ },
+ {
+  "id": "うん",
+  "reading": "うん",
+  "meaning": "yeah, yes (casual)",
+  "pos": "interjection"
+ },
+ {
+  "id": "ごちそうさま",
+  "reading": "ごちそうさま",
+  "meaning": "thanks for the meal (casual ごちそうさまでした)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "甘い",
+  "reading": "あまい",
+  "meaning": "sweet",
+  "pos": "adj (i)"
+ },
+ {
+  "id": "今夜",
+  "reading": "こんや",
+  "meaning": "tonight",
+  "pos": "noun"
+ },
+ {
+  "id": "川",
+  "reading": "かわ",
+  "meaning": "river",
+  "pos": "noun"
+ },
+ {
+  "id": "花火",
+  "reading": "はなび",
+  "meaning": "fireworks",
+  "pos": "noun"
+ },
+ {
+  "id": "七時",
+  "reading": "しちじ",
+  "meaning": "seven o'clock",
+  "pos": "counter"
+ },
+ {
+  "id": "六時",
+  "reading": "ろくじ",
+  "meaning": "six o'clock",
+  "pos": "counter"
+ },
+ {
+  "id": "半",
+  "reading": "はん",
+  "meaning": "half past (六時半 = 6:30)",
+  "pos": "noun"
+ },
+ {
+  "id": "うち",
+  "reading": "うち",
+  "meaning": "home, my place",
+  "pos": "noun"
+ },
+ {
+  "id": "熱い",
+  "reading": "あつい",
+  "meaning": "hot (to the touch: tea, a bath)",
+  "pos": "adj (i)"
+ },
+ {
+  "id": "後",
+  "reading": "あと",
+  "meaning": "after; 仕事の後で = after work",
+  "pos": "noun"
+ },
+ {
+  "id": "桜",
+  "reading": "さくら",
+  "meaning": "cherry blossom, cherry tree",
+  "pos": "noun"
+ },
+ {
+  "id": "花見",
+  "reading": "はなみ",
+  "meaning": "cherry-blossom viewing (花 + 見る)",
+  "pos": "noun"
+ },
+ {
+  "id": "くれる",
+  "reading": "くれる",
+  "meaning": "to give (to me); ～てくれる = do for me",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "昼休み",
+  "reading": "ひるやすみ",
+  "meaning": "lunch break",
+  "pos": "noun"
+ },
+ {
+  "id": "体",
+  "reading": "からだ",
+  "meaning": "body; 体にいい = good for you",
+  "pos": "noun"
+ },
+ {
+  "id": "毎朝",
+  "reading": "まいあさ",
+  "meaning": "every morning",
+  "pos": "noun"
+ },
+ {
+  "id": "ラジオ体操",
+  "reading": "ラジオたいそう",
+  "meaning": "radio exercises (morning exercises to music)",
+  "pos": "noun"
+ },
+ {
+  "id": "早い",
+  "reading": "はやい",
+  "meaning": "early; 早く = early (adverb)",
+  "pos": "adj (i)"
+ },
+ {
+  "id": "けど",
+  "reading": "けど",
+  "meaning": "but, though (casual)",
+  "pos": "conjunction"
+ },
+ {
+  "id": "遅い",
+  "reading": "おそい",
+  "meaning": "late; slow",
+  "pos": "adj (i)"
+ },
+ {
+  "id": "ご飯",
+  "reading": "ごはん",
+  "meaning": "a meal; cooked rice",
+  "pos": "noun"
+ },
+ {
+  "id": "まかない",
+  "reading": "まかない",
+  "meaning": "staff meal (food a restaurant makes for its own staff)",
+  "pos": "noun"
+ },
+ {
+  "id": "野菜",
+  "reading": "やさい",
+  "meaning": "vegetables",
+  "pos": "noun"
+ },
+ {
+  "id": "休み",
+  "reading": "やすみ",
+  "meaning": "a day off, a holiday; a break",
+  "pos": "noun"
+ },
+ {
+  "id": "新鮮",
+  "reading": "しんせん",
+  "meaning": "fresh",
+  "pos": "adj (na)"
+ },
+ {
+  "id": "安い",
+  "reading": "やすい",
+  "meaning": "cheap",
+  "pos": "adj (i)"
+ },
+ {
+  "id": "カラオケ",
+  "reading": "カラオケ",
+  "meaning": "karaoke",
+  "pos": "noun"
+ },
+ {
+  "id": "どんな",
+  "reading": "どんな",
+  "meaning": "what kind of",
+  "pos": "pre-noun"
+ },
+ {
+  "id": "その",
+  "reading": "その",
+  "meaning": "that (near you); その前に = before that",
+  "pos": "pre-noun"
+ },
+ {
+  "id": "鍋",
+  "reading": "なべ",
+  "meaning": "hot pot (a pot cooked at the table)",
+  "pos": "noun"
+ },
+ {
+  "id": "わあ",
+  "reading": "わあ",
+  "meaning": "wow!",
+  "pos": "interjection"
+ },
+ {
+  "id": "大好き",
+  "reading": "だいすき",
+  "meaning": "love, really like",
+  "pos": "adj (na)"
+ },
+ {
+  "id": "ごめんなさい",
+  "reading": "ごめんなさい",
+  "meaning": "I'm sorry",
+  "pos": "set phrase"
+ },
+ {
+  "id": "どうして",
+  "reading": "どうして",
+  "meaning": "why",
+  "pos": "question word"
+ },
+ {
+  "id": "謝る",
+  "reading": "あやまる",
+  "meaning": "to apologize",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "うれしい",
+  "reading": "うれしい",
+  "meaning": "happy, glad",
+  "pos": "adj (i)"
+ },
+ {
+  "id": "気をつける",
+  "reading": "きをつける",
+  "meaning": "to be careful, to take care",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "いつでも",
+  "reading": "いつでも",
+  "meaning": "any time",
+  "pos": "adverb"
+ },
+ {
+  "id": "下",
+  "reading": "した",
+  "meaning": "under, below",
+  "pos": "noun"
+ },
+ {
+  "id": "来年",
+  "reading": "らいねん",
+  "meaning": "next year",
+  "pos": "noun"
+ },
+ {
+  "id": "練習",
+  "reading": "れんしゅう",
+  "meaning": "practice",
+  "pos": "noun"
+ },
+ {
+  "id": "みんな",
+  "reading": "みんな",
+  "meaning": "everyone",
+  "pos": "pronoun"
+ },
+ {
+  "id": "気持ち",
+  "reading": "きもち",
+  "meaning": "feeling; 気持ちいい = feels good",
+  "pos": "noun"
+ },
+ {
+  "id": "上手",
+  "reading": "じょうず",
+  "meaning": "good at, skilled",
+  "pos": "adj (na)"
+ },
+ {
+  "id": "恥ずかしい",
+  "reading": "はずかしい",
+  "meaning": "embarrassing; embarrassed",
+  "pos": "adj (i)"
+ },
+ {
+  "id": "最高",
+  "reading": "さいこう",
+  "meaning": "the best!",
+  "pos": "adj (na)"
+ },
+ {
+  "id": "料理",
+  "reading": "りょうり",
+  "meaning": "cooking, dish; 魚料理 = a fish dish",
+  "pos": "noun"
+ },
+ {
+  "id": "あげる",
+  "reading": "あげる",
+  "meaning": "to give (to someone)",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "プレゼント",
+  "reading": "プレゼント",
+  "meaning": "present, gift",
+  "pos": "noun"
+ },
+ {
+  "id": "仲良し",
+  "reading": "なかよし",
+  "meaning": "close friends",
+  "pos": "noun"
+ },
+ {
+  "id": "庭",
+  "reading": "にわ",
+  "meaning": "garden, yard",
+  "pos": "noun"
  }
 ]

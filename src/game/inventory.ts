@@ -2,6 +2,7 @@
 // put on the shelf in your room. Pure data and logic, no DOM, so it can be tested.
 
 import { requests } from './content.ts';
+import { PHOTOS } from './friends.ts';
 import { allKeepsakes } from './room.ts';
 import type { GameData } from './state.ts';
 import { SOUVENIRS, souvenirFor } from './trips.ts';
@@ -46,7 +47,7 @@ const BOUGHT: Good[] = [
 
 export const GOODS: Good[] = [
   ...BOUGHT,
-  ...allKeepsakes(requests, SOUVENIRS).map((k) => ({ id: k.id, word: k.word, keepsake: true })),
+  ...[...allKeepsakes(requests, SOUVENIRS), ...PHOTOS].map((k) => ({ id: k.id, word: k.word, keepsake: true })),
 ];
 export const goodById: Record<string, Good> = Object.fromEntries(GOODS.map((g) => [g.id, g]));
 

@@ -19,7 +19,12 @@ export interface DialogueHooks {
   seen: (tokens: Token[]) => void;
   glossOn: () => boolean;
   setGloss: (on: boolean) => void;
-  done: (run: ScenarioRun) => void;
+  /** The conversation is over. `then` is the extra button's id, if that was the one pressed. */
+  done: (run: ScenarioRun, then?: string) => void;
+  /** Hearts with whoever you're talking to, 0 to 5, for friends only. */
+  hearts?: number;
+  /** A second button at the end, like "Give something", unless it went wrong. */
+  extra?: { id: string; label: string };
   /** An answer was given (not just "next"): returns the run of right answers so far today. */
   answered?: (correct: boolean, said: Token[]) => number;
   /** Mark a word as new to you. */
@@ -274,8 +279,11 @@ export class DialogueView {
             } }),
             ' English')
         : null;
+    const hearts = hooks.hearts === undefined
+      ? null
+      : h('span', { class: 'hearts', title: `${hooks.hearts} of 5 hearts`, 'aria-label': `${hooks.hearts} of 5 hearts` }, '♥'.repeat(hooks.hearts), h('span', { class: 'hearts-empty' }, '♥'.repeat(5 - hooks.hearts)));
     this.header.append(
-      h('div', { class: 'who' }, name, this.comboEl),
+      h('div', { class: 'who' }, name, hearts, this.comboEl),
       h('div', { class: 'stage' + (view.fallback ? ' fallback' : '') }, MODE_NAMES[view.mode], glossToggle),
     );
     this.el.classList.toggle('show-gloss', hooks.glossOn());
@@ -292,7 +300,14 @@ export class DialogueView {
         this.close();
         hooks.done(r);
       } }, run.consequence ? 'And then… ▶' : 'Leave ▶');
-      this.input.append(leave);
+      const extra = hooks.extra && !run.consequence
+        ? h('button', { onclick: () => {
+            const r = this.run!;
+            this.close();
+            hooks.done(r, hooks.extra!.id);
+          } }, hooks.extra.label)
+        : null;
+      this.input.append(...(extra ? [extra, leave] : [leave]));
       leave.focus();
       return;
     }

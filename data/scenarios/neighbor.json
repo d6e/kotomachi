@@ -17,8 +17,8 @@
   ],
   "nodes": {
     "greet": {
-      "line": "あ 、 どうも 。",
-      "gloss": "Oh, hi.",
+      "line": { "0": "あ 、 どうも 。", "1": "あ 、 どうも ！", "2": "あ 、 {来|き}た=来る ね 。" },
+      "gloss": { "0": "Oh, hi.", "1": "Oh, hi!", "2": "Oh, there you are." },
       "targets": ["おはようございます", "こんにちは", "こんばんは"],
       "grammar": ["greetings_time"],
       "choices": [
@@ -33,7 +33,7 @@
     },
     "chat": {
       "onlyFor": ["outing"],
-      "line": "お出かけ=出かける です か ？",
+      "line": { "0": "お出かけ=出かける です か ？", "2": "お出かけ=出かける ？" },
       "gloss": "Heading out?",
       "targets": ["出かける", "に", "行く"],
       "grammar": ["ni_destination"],
@@ -49,8 +49,8 @@
     },
     "bye_out": {
       "onlyFor": ["outing"],
-      "line": "いってらっしゃい 。",
-      "gloss": "See you later! (said to someone leaving)",
+      "line": { "0": "いってらっしゃい 。", "1": "いってらっしゃい 。 気をつけて=気をつける 。", "2": "いってらっしゃい ！ 気をつけて=気をつける ね 。" },
+      "gloss": { "0": "See you later! (said to someone leaving)", "1": "See you later! Take care.", "2": "See you later! Be careful, okay?" },
       "targets": ["いってらっしゃい", "いってきます"],
       "grammar": ["ittekimasu"],
       "choices": [
@@ -67,7 +67,7 @@
     },
     "sunny": {
       "onlyFor": ["sunny"],
-      "line": "今日 は 暖かい です ね 。",
+      "line": { "0": "今日 は 暖かい です ね 。", "2": "今日 は 暖かい ね 。" },
       "gloss": "It's warm today, isn't it?",
       "targets": ["暖かい", "天気", "いい"],
       "grammar": ["ne_yo"],
@@ -83,7 +83,7 @@
     },
     "rain": {
       "onlyFor": ["rain"],
-      "line": "明日 は 雨 です よ 。",
+      "line": { "0": "明日 は 雨 です よ 。", "2": "明日 は 雨 だ よ 。" },
       "gloss": "It's going to rain tomorrow, you know.",
       "targets": ["雨", "明日", "本当"],
       "grammar": ["hontou"],
@@ -99,7 +99,7 @@
     },
     "rain2": {
       "onlyFor": ["rain"],
-      "line": "明日 は 傘 を 持って=持つ 行って=行く ください ね 。",
+      "line": { "0": "明日 は 傘 を 持って=持つ 行って=行く ください ね 。", "2": "明日 は 傘 を 持って=持つ 行って=行く ね 。" },
       "gloss": "Take an umbrella with you tomorrow.",
       "targets": ["傘", "持つ", "行く"],
       "grammar": ["tekudasai"],
@@ -115,7 +115,7 @@
     },
     "cat": {
       "onlyFor": ["cat"],
-      "line": "あの 猫 、 毎日 あそこ の ベンチ に いる ん=の です よ 。",
+      "line": { "0": "あの 猫 、 毎日 あそこ の ベンチ に いる ん=の です よ 。", "2": "あの 猫 、 毎日 あそこ の ベンチ に いる ん=の だ よ 。" },
       "gloss": "That cat is on that bench over there every day.",
       "targets": ["猫", "毎日", "ベンチ", "かわいい"],
       "grammar": ["i_adj"],
@@ -131,7 +131,7 @@
     },
     "bakery": {
       "onlyFor": ["bakery"],
-      "line": "駅 の 近く に 新しい パン屋 が できました=できる よ 。",
+      "line": { "0": "駅 の 近く に 新しい パン屋 が できました=できる よ 。", "2": "駅 の 近く に 新しい パン屋 が できた=できる ん=の だ よ 。" },
       "gloss": "A new bakery opened near the station.",
       "targets": ["新しい", "パン屋", "できる", "近く"],
       "grammar": ["i_adj"],
@@ -147,7 +147,7 @@
     },
     "bakery2": {
       "onlyFor": ["bakery"],
-      "line": "パン が とても おいしい です よ 。 今度 ぜひ 。",
+      "line": { "0": "パン が とても おいしい です よ 。 今度 ぜひ 。", "2": "パン が とても おいしい ん=の だ 。 今度 ぜひ 。" },
       "gloss": "The bread is really good. Try it sometime.",
       "targets": ["パン", "とても", "おいしい", "今度", "ぜひ"],
       "grammar": ["ne_yo"],
@@ -163,7 +163,7 @@
     },
     "garbage": {
       "onlyFor": ["garbage"],
-      "line": "明日 は 燃える ゴミ の 日 です よ 。",
+      "line": { "0": "明日 は 燃える ゴミ の 日 です よ 。", "2": "明日 は 燃える ゴミ の 日 だ よ 。" },
       "gloss": "Tomorrow is burnable-trash day.",
       "targets": ["燃える", "ゴミ", "日", "明日"],
       "grammar": ["ne_yo"],
@@ -179,7 +179,7 @@
     },
     "garbage2": {
       "onlyFor": ["garbage"],
-      "line": "朝 、 ここ に 出して=出す ください ね 。",
+      "line": { "0": "朝 、 ここ に 出して=出す ください ね 。", "2": "朝 、 ここ に 出して=出す ね 。" },
       "gloss": "Put it out here in the morning.",
       "targets": ["朝", "ここ", "出す"],
       "grammar": ["tekudasai"],
@@ -195,7 +195,7 @@
     },
     "weekend": {
       "onlyFor": ["weekend"],
-      "line": "週末 は 何 を します=する か ？",
+      "line": { "0": "週末 は 何 を します=する か ？", "2": "週末 は 何 を する の ？" },
       "gloss": "What are you doing this weekend?",
       "targets": ["週末", "家", "ゆっくり", "友達"],
       "grammar": ["de_place"],
@@ -210,8 +210,8 @@
       "next": { "success": "bye" }
     },
     "bye": {
-      "line": "じゃあ 、 また 。",
-      "gloss": "Well, see you.",
+      "line": { "0": "じゃあ 、 また 。", "1": "じゃあ 、 また 。 いつも ありがとう 。", "2": "じゃあ 、 また ね ！" },
+      "gloss": { "0": "Well, see you.", "1": "Well, see you. Thanks as always.", "2": "Well, see you!" },
       "targets": ["失礼する", "また"],
       "grammar": ["plain_vs_polite"],
       "maxMode": 2,

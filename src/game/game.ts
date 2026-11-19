@@ -6,16 +6,18 @@ import { startLoop } from '../engine/loop.ts';
 import { UnavailableJudge, type FreeformJudge } from '../judge/freeform.ts';
 import { lemmasOf, parseLine, plainText, type Token } from '../lang/markup.ts';
 import { Learner, type WordStatus } from '../learner/model.ts';
-import { finishRun, friendshipLevel, FRIENDSHIP_NAMES, greetSlots, MODE_NAMES, periodOf, ScenarioRun } from '../scenario/engine.ts';
-import type { Mode, NpcId, PlaceId, ScenarioDef } from '../scenario/types.ts';
+import { finishRun, greetSlots, MODE_NAMES, periodOf, ScenarioRun } from '../scenario/engine.ts';
+import type { Mode, NpcId, PlaceId, ScenarioDef, VariantDef } from '../scenario/types.ts';
 import { Town, type Interactable, type Said } from '../town/town.ts';
 import type { Scene } from '../town/rooms.ts';
 import { toCanvas } from '../town/pixels.ts';
 import { drawScene } from '../town/scenes.ts';
+import { drawMemory, isMemoryArt } from '../town/memoryart.ts';
 import { itemIcon } from '../town/roomart.ts';
 import { allKeepsakes, canOrder, CATALOG, catalogById, homeRoom } from './room.ts';
 import { ARRIVAL, canTravel, LAST_TRAIN_OUT, ON_SALE, SOUVENIRS, TRIP_MINUTES, type Trip } from './trips.ts';
 import { belongings, goodById, goodFor, receive, shelve, SHELF_SIZE, unshelve } from './inventory.ts';
+import { addPoints, canGiveToday, chatPoints, finishInvite, friendAt, friendById, FRIENDS, GIFT_POINTS, give, heartsFor, inviteReady, inviteScenario, isFriend, MAX_HEARTS, photoId, PHOTOS, POINTS, pointsOf, tasteOf, toNextHeart, type FriendId, type HeartChange, type InviteDef, type Taste } from './friends.ts';
 import { DialogueView } from '../ui/dialogue.ts';
 import { clear, h } from '../ui/dom.ts';
 import { coins, confetti, countUp, floatText, play, wait } from '../ui/fx.ts';
@@ -41,8 +43,14 @@ const SCENARIO_FOR: Partial<Record<Scene, string>> = {
 /** In-game minutes per real second of walking around town. */
 const MINUTES_PER_SECOND = 1;
 const MINUTES_PER_SCENARIO = 20;
+/** An outing with a friend takes an hour. */
+const MINUTES_PER_INVITE = 60;
+const TASTE_WORDS: Record<Taste, string> = { love: 'loved it', like: 'liked it', ok: 'said thanks', odd: 'was puzzled' };
 
 type Phase = 'title' | 'morning' | 'town' | 'talk' | 'gift' | 'oops' | 'shop' | 'night';
+
+/** Every keepsake there is: thank-you gifts, souvenirs and photos with friends. */
+const ALL_KEEPSAKES = [...allKeepsakes(requests, SOUVENIRS), ...PHOTOS];
 
 export class Game {
   private readonly input = new Input();
@@ -83,7 +91,7 @@ export class Game {
       sign: (word) => ({ text: word, furigana: /[㐀-鿿]/.test(word) && this.learner.showFurigana(word, 2) ? (vocab.get(word)?.reading ?? null) : null }),
       onInteract: (t) => this.interact(t),
       onSignClick: (word, x, y) => this.lookup({ surface: word, lemma: word, ruby: [] }, { left: x, top: y, bottom: y }, true),
-      neighborAvailable: () => !this.g.today.greeted && this.g.minutes < 21 * 60,
+      neighborAvailable: () => (!this.g.today.greeted || !!inviteReady(this.g, 'tanaka')) && this.g.minutes < 21 * 60,
       busy: () => this.phase !== 'town' || this.notebook.open || this.popup.open,
       staffName: (npc) => (npcs[npc as keyof typeof npcs] ? plainText(parseLine(npcs[npc as keyof typeof npcs].name, vocab)) : ''),
       thingName: (id) => ({ catalog: 'カタログ', shelf: '棚', tickets: '切符' })[id],
@@ -317,6 +325,7 @@ export class Game {
           ? `${due} word${due === 1 ? ' is' : 's are'} due for review. Today's errands were picked to bring them up.`
           : "Here's who could use a hand today."),
       this.dayNote(),
+      this.inviteNote(),
       h('ul', { class: 'requests' }, this.g.errands.map((e) => h('li', { class: e.arc ? 'story' : '' },
         h('div', { class: 'req-who' }, this.asker(e), e.arc ? h('span', { class: 'req-tag' }, this.storyLabel(e)) : null, e.retry ? h('span', { class: 'req-tag again' }, 'Another go') : null),
         e.reason ? h('div', { class: 'req-reason' }, this.tokens(e.reason)) : null,
@@ -327,6 +336,16 @@ export class Game {
         + (levelFor(this.g.xp) >= ON_SALE[0]!.level ? ' Trains to 鎌倉 leave the station until 17:00.' : '')),
       h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => this.goToTown() }, 'Head out ▶')),
     );
+  }
+
+  /** Friends who'd like to take you somewhere, and where to find them. */
+  private inviteNote(): HTMLElement | null {
+    const ready = FRIENDS.filter((f) => inviteReady(this.g, f.id));
+    if (!ready.length) return null;
+    return h('ul', { class: 'invites' }, ready.map((f) => h('li', { class: 'invite-note' },
+      h('span', { class: 'invite-heart', 'aria-hidden': 'true' }, '♥'),
+      this.tokens(npcs[f.id].name, false),
+      ` would like to invite you somewhere. ${f.place === 'street' ? 'Say hello on the street.' : `Talk to ${plainText(parseLine(npcs[f.id].name, vocab))} at the ${PLACE_NAMES[f.place]!.toLowerCase()}.`}`)));
   }
 
   /** Today's weather, the festival, or that it's tomorrow, in Japanese with the English under it. */
@@ -407,7 +426,7 @@ export class Game {
 
   private interact(t: Interactable): void {
     if (this.phase !== 'town') return;
-    if (t.kind === 'npc') return this.startScenario(scenarioById['neighbor_greet']!);
+    if (t.kind === 'npc') return inviteReady(this.g, 'tanaka') ? this.startInvite('tanaka') : this.startScenario(scenarioById['neighbor_greet']!);
     if (t.kind === 'bed') return this.confirmSleep();
     if (t.kind === 'train') return this.rideHome();
     if (t.kind === 'board') return this.showBoard();
@@ -430,23 +449,78 @@ export class Game {
     // Walking into a door goes inside; talking to whoever works there starts the errand.
     if (t.kind === 'door') return this.town.enter(t.place);
     const id = SCENARIO_FOR[t.place];
+    // A friend who's ready to invite you asks first, unless you're there on an errand.
+    const friend = friendAt(t.place);
+    if (friend && inviteReady(this.g, friend) && !this.g.errands.some((e) => e.scenario === id && !e.done && !e.missed)) return this.startInvite(friend);
     if (id) this.startScenario(scenarioById[id]!);
   }
 
-  private startScenario(def: ScenarioDef, variantId?: string): void {
+  private startInvite(friend: FriendId): void {
+    const invite = inviteReady(this.g, friend);
+    const def = scenarioById[inviteScenario(friend)];
+    if (invite && def) this.startScenario(def, invite.variant);
+  }
+
+  /** Things you could give a friend: anything you have that isn't a keepsake. */
+  private giftable(): { id: string; word: string; count: number }[] {
+    return belongings(this.g).filter((b) => !b.good.keepsake).map((b) => ({ id: b.good.id, word: b.good.word, count: b.count }));
+  }
+
+  /** Pick something from your things to give. */
+  private showGiftPicker(friend: FriendId): void {
+    this.phase = 'shop';
+    const name = plainText(parseLine(npcs[friend].name, vocab));
+    const given = this.g.giftsGiven?.[friend] ?? [];
+    const rows = this.giftable().map((item) => h('li', { class: 'shelf-item' },
+      this.icon(item.id, 'keepsake'),
+      h('div', { class: 'cat-word' },
+        renderTokens(parseLine(item.word, vocab), { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false), isNew: (t) => this.learner.isFresh(t.lemma) }),
+        h('div', { class: 'muted' }, this.meaningOf(item.word), item.count > 1 ? ` · ×${item.count}` : '',
+          given.includes(item.id) ? ` · ${name} ${TASTE_WORDS[tasteOf(friend, item.id)]} last time` : '')),
+      h('div', { class: 'cat-buy' }, h('button', { class: 'primary small', onclick: () => this.giveGift(friend, item.id) }, 'Give')),
+    ));
+    this.showScreen(
+      h('h2', {}, 'A present for ', this.tokens(npcs[friend].name, false)),
+      h('p', { class: 'muted' }, `One present a day. Everyone has favourites: what ${name} loves counts for more.`),
+      h('ul', { class: 'catalog shelf' }, rows),
+      h('div', { class: 'row' }, h('button', { onclick: () => this.goToTown() }, 'Not now')),
+    );
+  }
+
+  private giveGift(friend: FriendId, id: string): void {
+    const good = goodById[id];
+    const base = scenarioById['gift_give'];
+    if (!good || !base) return;
+    const taste = give(this.g, friend, id);
+    if (!taste) return;
+    this.refreshHome();
+    this.hideScreen();
+    this.phase = 'town';
+    const place = friendById[friend].place as PlaceId;
+    const def: ScenarioDef = { ...base, npc: friend, place };
+    const v = base.variants.find((x) => x.id === taste)!;
+    const variant: VariantDef = { ...v, slots: { ...v.slots, item: good.word, item_en: this.meaningOf(good.word) } };
+    this.startScenario(def, undefined, variant);
+  }
+
+  private startScenario(def: ScenarioDef, variantId?: string, variantOverride?: VariantDef): void {
     // Words already met before this conversation: only these can "level up" at its end.
     this.metBefore = new Set(vocab.all().filter((e) => this.learner.status(e.id) !== 'unseen').map((e) => e.id));
     const errand = this.g.errands.find((e) => e.scenario === def.id && !e.done && !e.missed);
     // On a trip, the shop shows you a souvenir you haven't got yet.
     const unowned = SOUVENIRS.find((s) => s.scenario === def.id && s.variant && !this.g.keepsakes.includes(s.id))?.variant;
-    const variant = def.variants.find((v) => v.id === (variantId ?? errand?.variant ?? unowned)) ?? pickVariant(def, this.learner, vocab, this.g.day + this.g.minutes);
+    const variant = variantOverride ?? def.variants.find((v) => v.id === (variantId ?? errand?.variant ?? unowned)) ?? pickVariant(def, this.learner, vocab, this.g.day + this.g.minutes);
     if (variant.price && variant.price > this.g.money) {
       this.toast("You don't have enough money for that.");
       return;
     }
     const progress = progressFor(this.g, def.id);
     const period = periodOf(this.g.minutes);
-    const friendship = def.npc === 'yuki' ? (this.g.friendship.yuki ?? 0) : 0;
+    const friend = isFriend(def.npc) ? def.npc : undefined;
+    const friendship = friend ? pointsOf(this.g, friend) : 0;
+    // After an ordinary chat with a friend you can give them something from your things.
+    const special = def.id.startsWith('invite_') || def.id === 'gift_give';
+    const extra = friend && !special && canGiveToday(this.g, friend) && this.giftable().length ? { id: 'give', label: 'Give something' } : undefined;
     const run = new ScenarioRun({ def, variant, stage: progress.stage, friendship, period, vocab, judge: this.judge, extraSlots: greetSlots(period) });
     this.activeRun = run;
     this.phase = 'talk';
@@ -471,7 +545,9 @@ export class Game {
       isNew: (t) => this.learner.isFresh(t.lemma),
       glossOn: () => this.g.settings.gloss,
       setGloss: (on) => (this.g.settings.gloss = on),
-      done: (r) => this.finishScenario(r),
+      done: (r, then) => this.finishScenario(r, then),
+      hearts: friend ? heartsFor(friendship) : undefined,
+      extra,
       answered: (ok, said) => {
         if (ok) for (const l of lemmasOf(said)) {
           this.learner.markKnown(l, this.g.day);
@@ -485,8 +561,13 @@ export class Game {
     });
   }
 
-  private finishScenario(run: ScenarioRun): void {
+  private finishScenario(run: ScenarioRun, then?: string): void {
     const def = run.def;
+    const changes: HeartChange[] = [];
+    const bump = (npc: FriendId, n: number) => {
+      const c = addPoints(this.g, npc, n);
+      if (c) changes.push(c);
+    };
     this.activeRun = null;
     // Furigana visibility as it was during the conversation.
     const shownBefore = new Map<string, Set<string>>();
@@ -529,12 +610,15 @@ export class Game {
       this.addYen(pay.reward + pay.refund, `+${yen(pay.reward)}`);
       this.g.today.yen = (this.g.today.yen ?? 0) - pay.refund;
     } else if (run.moneySpent > 0) this.addYen(-run.moneySpent, `-${yen(run.moneySpent)}`);
-    if (def.npc === 'yuki') {
-      const before = friendshipLevel(this.g.friendship.yuki ?? 0);
-      this.g.friendship.yuki = Math.max(0, (this.g.friendship.yuki ?? 0) + run.friendshipDelta);
-      const after = friendshipLevel(this.g.friendship.yuki);
-      if (after > before) this.g.today.promotions.push(`ゆき now treats you as a${after === 1 ? 'n' : ''} ${FRIENDSHIP_NAMES[after]}.`);
-    }
+    // Friendship: a present or an outing counts in full; chatting counts a little a day.
+    const friend = isFriend(def.npc) ? def.npc : undefined;
+    let invite: InviteDef | undefined;
+    if (friend && def.id === 'gift_give') bump(friend, GIFT_POINTS[run.variant.id as Taste] + Math.min(0, run.friendshipDelta));
+    else if (friend && def.id === inviteScenario(friend) && run.ended) {
+      invite = friendById[friend].invites.find((i) => i.variant === run.variant.id);
+      finishInvite(this.g, friend);
+      bump(friend, POINTS.invite + Math.min(0, run.friendshipDelta));
+    } else if (friend) bump(friend, chatPoints(this.g, friend, run.friendshipDelta));
     if (def.id === 'neighbor_greet') this.g.today.greeted = true;
     // A catalog order: it's in your room when you get home.
     const ordered = def.id === 'post_catalog' && run.ended && !run.consequence ? catalogById[run.variant.id] : undefined;
@@ -553,9 +637,13 @@ export class Game {
     }
 
     const progress = progressFor(this.g, def.id);
-    const { progress: next, promoted } = finishRun(progress, run.clean, def.maxStage);
+    const { progress: next, promoted } = invite ? { progress, promoted: false } : finishRun(progress, run.clean, def.maxStage);
     this.g.progress[def.id] = next;
-    if (promoted) {
+    if (invite) {
+      // The outing says it all.
+    } else if (def.id === 'gift_give') {
+      this.toast(`${plainText(parseLine(npcs[def.npc].name, vocab))} ${TASTE_WORDS[run.variant.id as Taste]}.`);
+    } else if (promoted) {
       const msg = `${def.title}: now stage ${next.stage}, ${MODE_NAMES[next.stage as Mode].toLowerCase()}.`;
       this.g.today.promotions.push(msg);
       this.toast(msg);
@@ -581,10 +669,14 @@ export class Game {
     if (errand && !scene) {
       errand.done = true;
       const arc = errand.arc ? requests.arcs.find((a) => a.id === errand.arc) : undefined;
+      if (isFriend(errand.from)) bump(errand.from, POINTS.request);
       if (arc && errand.step === (this.g.arcs[arc.id] ?? 0)) {
         this.g.arcs[arc.id] = errand.step + 1;
         const step = arc.steps[errand.step]!;
-        if (errand.step + 1 >= arc.steps.length) gift = arc;
+        if (errand.step + 1 >= arc.steps.length) {
+          gift = arc;
+          if (isFriend(arc.from)) bump(arc.from, POINTS.story);
+        }
         else if (step.thanks) this.toast(`${plainText(parseLine(npcs[arc.from].name, vocab))}: ${plainText(parseLine(step.thanks, vocab))}`);
       }
       if (this.g.errands.every((e) => e.done || e.missed)) {
@@ -592,17 +684,85 @@ export class Game {
         this.celebrate(3, 90);
       }
     }
-    // Over a gift or a scene the cards would cover the words, so they wait until town.
-    if (gift || scene) this.pendingUps = ups;
-    else this.showLevelUps(ups);
+    this.announceHearts(changes);
+    const picking = then === 'give' && friend && !gift && !scene && !invite;
+    // Over a gift, a scene or an outing the cards would cover the words, so they wait until town.
+    if (gift || scene || invite || picking) this.pendingUps = [...this.pendingUps, ...ups];
+    else this.showLevelUps([...this.pendingUps.splice(0), ...ups]);
     this.addXp(ups.length * XP.levelUp + (errand && !scene ? XP.errand : 0) + (run.clean ? XP.clean : 0));
-    this.g.minutes = Math.min(DAY_END - 1, this.g.minutes + MINUTES_PER_SCENARIO);
+    this.g.minutes = Math.min(DAY_END - 1, this.g.minutes + (invite ? MINUTES_PER_INVITE : MINUTES_PER_SCENARIO));
     this.town.invalidate();
     this.phase = 'town';
     this.input.clear();
     this.renderHud(true);
     if (gift) this.showGift(gift);
     else if (scene) this.showConsequence(run, scene, errand);
+    else if (invite && friend) this.showMemory(friend, invite);
+    else if (picking) this.showGiftPicker(friend);
+  }
+
+  /** Say so when someone's hearts go up, when they start talking casually, and when they'd like to invite you. */
+  private announceHearts(changes: HeartChange[]): void {
+    const said: string[] = [];
+    for (const c of changes) {
+      const name = plainText(parseLine(npcs[c.npc].name, vocab));
+      if (c.after > c.before) {
+        let msg = `${name} ${'♥'.repeat(c.after)}${c.after >= MAX_HEARTS ? ': best friends.' : '.'}`;
+        if (c.speech[1] === 2 && c.speech[0] < 2) msg += ` ${name} talks to you casually now, without です and ます.`;
+        else if (c.speech[1] === 1 && c.speech[0] < 1) msg += ` ${name} is friendlier with you now.`;
+        if (inviteReady(this.g, c.npc)) msg += ` ${name} would like to invite you somewhere.`;
+        said.push(msg);
+        this.g.today.promotions.push(msg);
+      } else if (c.after < c.before) said.push(`${name} seems a little hurt.`);
+    }
+    if (!said.length) return;
+    // After whatever the conversation itself said.
+    setTimeout(() => this.toast(said.join(' ')), 1800);
+    const up = changes.some((c) => c.after > c.before);
+    const r = this.town.canvas.getBoundingClientRect();
+    floatText({ x: r.left + r.width / 2, y: r.top + r.height / 3 }, up ? '♥' : '…', up ? 'heart' : 'sad');
+  }
+
+  /** The outing with a friend: a picture, what happened, and a photo after the first one. */
+  private showMemory(friend: FriendId, invite: InviteDef): void {
+    this.phase = 'gift';
+    const name = npcs[friend].name;
+    const art = isMemoryArt(invite.art) ? toCanvas(drawMemory(invite.art, friend)) : null;
+    if (art) art.className = 'oops-art memory-art';
+    const place = friendById[friend].place as PlaceId;
+    const lines = invite.lines.map((l) => {
+      const tokens = parseLine(l.text, vocab);
+      this.seeAll(tokens, place, friend);
+      return h('div', { class: `oops-line who-${l.who}` },
+        l.who === 'narration' ? null : h('span', { class: 'oops-who' }, l.who === 'me' ? 'You' : this.tokens(name, false)),
+        h('div', { class: 'oops-jp' }, renderTokens(tokens, { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false), isNew: (t) => this.learner.isFresh(t.lemma) })),
+        h('div', { class: 'oops-en' }, l.en),
+      );
+    });
+    const photo = invite.variant === 'first' && !this.g.keepsakes.includes(photoId(friend)) ? photoId(friend) : undefined;
+    if (photo) {
+      receive(this.g, photo);
+      this.refreshHome();
+      this.g.today.promotions.push(`A photo with ${plainText(parseLine(name, vocab))} for your shelf.`);
+    }
+    const points = pointsOf(this.g, friend);
+    const hearts = heartsFor(points);
+    const next = toNextHeart(points);
+    const more = friendById[friend].invites[this.g.invites?.[friend] ?? 0];
+    this.showScreen(
+      h('h2', {}, invite.title),
+      h('div', { class: 'oops memory' },
+        art,
+        h('div', { class: 'oops-lines' }, lines),
+        h('p', { class: 'memory-hearts' }, h('span', { class: 'hearts' }, '♥'.repeat(hearts), h('span', { class: 'hearts-empty' }, '♥'.repeat(MAX_HEARTS - hearts))),
+          next === null ? ' Best friends.' : more ? ` ${hearts < more.hearts ? 'Another invitation at ' + '♥'.repeat(more.hearts) + '.' : ''}` : ''),
+        photo ? h('p', { class: 'muted' }, 'You took a photo together: ', this.tokens('写真', false), ". It's on the shelf in your room.") : null,
+      ),
+      h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => this.goToTown() }, 'Back to town ▶')),
+    );
+    if (art) play(art, 'stamp');
+    const box = this.screen.querySelector('.memory-hearts');
+    if (box) setTimeout(() => box.isConnected && confetti(box.getBoundingClientRect().left + 40, box.getBoundingClientRect().top, 40), 200);
   }
 
   /** A wrong pick played out: a little scene, the right answer, and when it comes back. */
@@ -739,7 +899,7 @@ export class Game {
     };
     const onShelf = this.g.shelf.map((id) => row(id, this.g.bag[id] ?? 1));
     const rest = mine.filter((m) => !this.g.shelf.includes(m.good.id)).map((m) => row(m.good.id, m.count));
-    const allKeeps = allKeepsakes(requests, SOUVENIRS);
+    const allKeeps = ALL_KEEPSAKES;
     this.showScreen(
       h('h2', {}, '棚'),
       h('h3', { class: 'shelf-head' }, `On the shelf (${this.g.shelf.length} of ${SHELF_SIZE})`),
@@ -757,7 +917,7 @@ export class Game {
 
   /** Who gave you a keepsake, as a short line. */
   private fromLine(id: string): (string | Node)[] {
-    const k = allKeepsakes(requests, SOUVENIRS).find((x) => x.id === id);
+    const k = ALL_KEEPSAKES.find((x) => x.id === id);
     return k ? [' · from ', this.tokens(npcs[k.from as NpcId]?.name ?? k.from, false)] : [];
   }
 
@@ -963,15 +1123,22 @@ export class Game {
     this.notebook.close();
     const t = this.g.today;
     const newWords = [...new Set(t.newWords)];
-    const friendNow = this.g.friendship.yuki ?? 0;
-    const friendDelta = friendNow - (t.friendshipStart.yuki ?? 0);
+    const closer = FRIENDS.filter((f) => pointsOf(this.g, f.id) > (t.friendshipStart[f.id] ?? 0));
+    const cooler = FRIENDS.filter((f) => pointsOf(this.g, f.id) < (t.friendshipStart[f.id] ?? 0));
     const done = this.g.errands.filter((e) => e.done).length;
     this.showScreen(
       h('h2', {}, `Day ${this.g.day} · Night`),
       h('p', {}, `You finished ${done} of ${this.g.errands.length} errands and looked up ${t.lookups} word${t.lookups === 1 ? '' : 's'}. ¥${this.g.money.toLocaleString('en-US')} left.`),
       this.results(),
       t.promotions.length ? h('ul', { class: 'promos' }, t.promotions.map((p) => h('li', {}, p))) : null,
-      friendDelta !== 0 ? h('p', {}, `Friendship with `, this.tokens('ゆき', false), friendDelta > 0 ? ' went up.' : ' went down a little.') : null,
+      closer.length || cooler.length
+        ? h('ul', { class: 'night-friends' }, [...closer, ...cooler].map((f) => {
+            const n = heartsFor(pointsOf(this.g, f.id));
+            return h('li', {}, this.tokens(npcs[f.id].name, false), ' ',
+              h('span', { class: 'hearts' }, '♥'.repeat(n), h('span', { class: 'hearts-empty' }, '♥'.repeat(MAX_HEARTS - n))),
+              closer.includes(f) ? ' You got closer today.' : ' A little cooler today.');
+          }))
+        : null,
       h('h3', {}, `New words today (${newWords.length})`),
       newWords.length
         ? h('ul', { class: 'night-words' }, newWords.map((w) => h('li', {},

@@ -31,8 +31,8 @@
   "nodes": {
     "stamps": {
       "onlyFor": ["stamps"],
-      "line": "いらっしゃいませ 。",
-      "gloss": "Welcome.",
+      "line": { "0": "いらっしゃいませ 。", "1": "あ 、 こんにちは 。 いらっしゃいませ 。", "2": "あ 、 こんにちは ！" },
+      "gloss": { "0": "Welcome.", "1": "Oh, hello. Welcome.", "2": "Oh, hi!" },
       "targets": ["切手", "五枚", "ください"],
       "grammar": ["mai"],
       "choices": [
@@ -69,8 +69,8 @@
     },
     "pickup": {
       "onlyFor": ["pickup"],
-      "line": "いらっしゃいませ 。",
-      "gloss": "Welcome.",
+      "line": { "0": "いらっしゃいませ 。", "1": "あ 、 こんにちは 。 いらっしゃいませ 。", "2": "あ 、 こんにちは ！" },
+      "gloss": { "0": "Welcome.", "1": "Oh, hello. Welcome.", "2": "Oh, hi!" },
       "targets": ["不在票", "荷物", "取る", "来る"],
       "grammar": ["ni_kuru"],
       "choices": [
@@ -107,8 +107,8 @@
     },
     "send": {
       "onlyFor": ["letter", "parcel", "address"],
-      "line": "いらっしゃいませ 。",
-      "gloss": "Welcome.",
+      "line": { "0": "いらっしゃいませ 。", "1": "あ 、 こんにちは 。 いらっしゃいませ 。", "2": "あ 、 こんにちは ！" },
+      "gloss": { "0": "Welcome.", "1": "Oh, hello. Welcome.", "2": "Oh, hi!" },
       "targets": ["送る", "この", "に"],
       "grammar": ["tai", "ni_destination"],
       "choices": [
@@ -192,6 +192,20 @@
         { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 食べ物 じゃ ありません=ある よ 。", "note": "いただきます is said right before you eat.", "grammar": "itadakimasu" }
       ],
       "effects": { "pay": true },
+      "next": { "success": "chat" }
+    },
+    "chat": {
+      "line": { "0": "今日 は 忙しい です か ？", "1": "いつも ありがとうございます 。 今日 は 忙しい です か ？", "2": "今日 は 忙しい ？" },
+      "gloss": { "0": "Are you busy today?", "1": "Thanks for always coming in. Are you busy today?", "2": "Busy today?" },
+      "targets": ["今日", "忙しい", "ちょっと"],
+      "grammar": ["i_adj", "plain_vs_polite"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "はい 、 ちょっと 忙しい です 。", "gloss": "Yes, a little busy.", "result": "success", "register": "polite" },
+        { "text": "うん 、 ちょっと 忙しい 。", "gloss": "Yeah, a little. (casual)", "result": "success", "register": "plain", "grammar": "plain_vs_polite" },
+        { "text": "はい 、 ちょっと 忙しい な です 。", "gloss": "(な after an い-adjective)", "result": "npc_puzzled", "reaction": "ちょっと 忙しい 、 です ね 。", "note": "忙しい is an い-adjective: 忙しいです, with no な.", "grammar": "i_adj" }
+      ],
+      "effects": { "friendship": 1 },
       "end": true
     }
   }

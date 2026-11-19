@@ -1,0 +1,109 @@
+{
+  "id": "gift_give",
+  "title": "Giving a present",
+  "place": "street",
+  "npc": "yuki",
+  "maxStage": 4,
+  "start": "offer",
+  "variants": [
+    {
+      "id": "love",
+      "slots": { "item": "お茶", "item_en": "green tea" }
+    },
+    {
+      "id": "like",
+      "slots": { "item": "お茶", "item_en": "green tea" }
+    },
+    {
+      "id": "ok",
+      "slots": { "item": "お茶", "item_en": "green tea" }
+    },
+    {
+      "id": "odd",
+      "slots": { "item": "お茶", "item_en": "green tea" }
+    }
+  ],
+  "nodes": {
+    "offer": {
+      "line": { "0": "はい 、 何 でしょう=です か ？", "1": "あ 、 どう しました=する か ？", "2": "え ？ どう した=する の ？" },
+      "gloss": { "0": "Yes, what is it?", "1": "Oh, what's up?", "2": "Hm? What's up?" },
+      "targets": ["これ", "どうぞ"],
+      "grammar": ["douzo"],
+      "choices": [
+        { "text": "これ 、 どうぞ 。", "gloss": "This is for you.", "result": "success" },
+        {
+          "text": "これ 、 ください 。",
+          "gloss": "This, please (give it to me).",
+          "result": "npc_puzzled",
+          "reaction": "え ？ あ 、 これ 、 くれる ん=の です か ？",
+          "note": "ください asks for something. To give something, hold it out and say これ、どうぞ.",
+          "grammar": "douzo"
+        },
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 それ は 食べる 前 です よ 。", "note": "いただきます is what you say when you receive food or are about to eat. Giving, say これ、どうぞ.", "grammar": "douzo" }
+      ],
+      "tiles": { "answers": [["これ 、", "どうぞ"]], "decoys": ["ください", "いただきます", "を"] },
+      "blank": { "before": "これ 、", "after": "。", "answers": ["どうぞ"] },
+      "recast": "これ 、 どうぞ 、 です か ？",
+      "next": { "success": "love" }
+    },
+    "love": {
+      "onlyFor": ["love"],
+      "line": { "0": "わあ 、 $item ！ 大好き です 。 本当 に ありがとうございます ！", "2": "わあ 、 $item ！ 大好き ！ 本当 に ありがとう ！" },
+      "gloss": { "0": "Oh wow, $item_en! I love it. Thank you so much!", "2": "Oh wow, $item_en! I love it! Thanks so much!" },
+      "targets": ["好き", "うれしい", "ありがとう"],
+      "maxMode": 2,
+      "grammar": ["douzo"],
+      "choices": [
+        { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "success" },
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 それ は 私 の 言葉 です よ 。", "note": "いただきます is for whoever receives the food. When someone thanks you, say どういたしまして.", "grammar": "douzo" },
+        { "text": "ごめんなさい 。", "gloss": "I'm sorry.", "result": "npc_puzzled", "reaction": "え ？ どうして 謝る ん=の です か ？", "note": "ごめんなさい is an apology. When someone thanks you, say どういたしまして.", "grammar": "douzo" }
+      ],
+      "end": true,
+      "next": { "success": "like" }
+    },
+    "like": {
+      "onlyFor": ["like"],
+      "line": { "0": "$item です か 。 うれしい です 。 ありがとうございます 。", "2": "$item ？ うれしい ！ ありがとう 。" },
+      "gloss": { "0": "$item_en? How nice. Thank you.", "2": "$item_en? That's nice! Thanks." },
+      "targets": ["好き", "うれしい", "ありがとう"],
+      "maxMode": 2,
+      "grammar": ["douzo"],
+      "choices": [
+        { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "success" },
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 それ は 私 の 言葉 です よ 。", "note": "いただきます is for whoever receives the food. When someone thanks you, say どういたしまして.", "grammar": "douzo" },
+        { "text": "ごめんなさい 。", "gloss": "I'm sorry.", "result": "npc_puzzled", "reaction": "え ？ どうして 謝る ん=の です か ？", "note": "ごめんなさい is an apology. When someone thanks you, say どういたしまして.", "grammar": "douzo" }
+      ],
+      "end": true,
+      "next": { "success": "ok" }
+    },
+    "ok": {
+      "onlyFor": ["ok"],
+      "line": { "0": "あ 、 $item です か 。 ありがとうございます 。", "2": "あ 、 $item ？ ありがとう 。" },
+      "gloss": { "0": "Oh, $item_en. Thank you.", "2": "Oh, $item_en? Thanks." },
+      "targets": ["好き", "うれしい", "ありがとう"],
+      "maxMode": 2,
+      "grammar": ["douzo"],
+      "choices": [
+        { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "success" },
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 それ は 私 の 言葉 です よ 。", "note": "いただきます is for whoever receives the food. When someone thanks you, say どういたしまして.", "grammar": "douzo" },
+        { "text": "ごめんなさい 。", "gloss": "I'm sorry.", "result": "npc_puzzled", "reaction": "え ？ どうして 謝る ん=の です か ？", "note": "ごめんなさい is an apology. When someone thanks you, say どういたしまして.", "grammar": "douzo" }
+      ],
+      "end": true,
+      "next": { "success": "odd" }
+    },
+    "odd": {
+      "onlyFor": ["odd"],
+      "line": { "0": "え 、 $item … ？ あ 、 ありがとうございます … 。", "2": "え 、 $item … ？ ふふ 、 ありがとう … 。" },
+      "gloss": { "0": "Huh, $item_en...? Oh, thank you...", "2": "Huh, $item_en...? Heh, thanks..." },
+      "targets": ["好き", "うれしい", "ありがとう"],
+      "maxMode": 2,
+      "grammar": ["douzo"],
+      "choices": [
+        { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "success" },
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 それ は 私 の 言葉 です よ 。", "note": "いただきます is for whoever receives the food. When someone thanks you, say どういたしまして.", "grammar": "douzo" },
+        { "text": "ごめんなさい 。", "gloss": "I'm sorry.", "result": "npc_puzzled", "reaction": "え ？ どうして 謝る ん=の です か ？", "note": "ごめんなさい is an apology. When someone thanks you, say どういたしまして.", "grammar": "douzo" }
+      ],
+      "end": true
+    }
+  }
+}

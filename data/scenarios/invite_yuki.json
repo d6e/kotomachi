@@ -1,0 +1,115 @@
+{
+  "id": "invite_yuki",
+  "title": "An invitation from ゆき",
+  "place": "cafe",
+  "npc": "yuki",
+  "maxStage": 4,
+  "start": "ask1",
+  "variants": [
+    {
+      "id": "first",
+      "slots": {}
+    },
+    {
+      "id": "second",
+      "slots": {}
+    }
+  ],
+  "nodes": {
+    "ask1": {
+      "onlyFor": ["first"],
+      "line": "あ 、 {来|き}た=来る ！ ねえ 、 今 休憩 な ん=の だ 。 一緒 に ケーキ を 食べない=食べる ？",
+      "gloss": "Oh, you're here! Hey, I'm on my break. Want to have some cake with me?",
+      "targets": ["休憩", "一緒", "ケーキ", "食べる"],
+      "grammar": ["nai_invite", "tai"],
+      "choices": [
+        { "text": "うん 、 食べたい=食べる ！", "gloss": "Yeah, I'd love some!", "result": "success", "register": "plain", "grammar": "nai_invite" },
+        { "text": "はい 、 いただきます 。", "gloss": "Yes, thank you, I will.", "result": "success", "register": "polite" },
+        { "text": "ごちそうさま 。", "gloss": "Thanks for the meal.", "result": "npc_amused", "reaction": "ふふ 、 まだ 食べて=食べる いない=いる よ ！", "note": "ごちそうさま is for after you eat. To say yes to food, say うん、食べたい！ or いただきます.", "grammar": "gochisousama" }
+      ],
+      "tiles": { "answers": [["うん 、", "食べたい=食べる"]], "decoys": ["食べない=食べる", "ごちそうさま", "を"] },
+      "blank": { "before": "うん 、", "after": "！", "answers": ["たべたい"] },
+      "recast": "一緒 に ケーキ を 食べない=食べる ？",
+      "next": { "success": "taste1" }
+    },
+    "taste1": {
+      "onlyFor": ["first"],
+      "line": "これ 、 新しい ケーキ 。 どう ？ 甘い ？",
+      "gloss": "This is a new cake. What do you think? Is it sweet?",
+      "targets": ["新しい", "甘い", "おいしい", "とても"],
+      "grammar": ["i_adj"],
+      "choices": [
+        { "text": "うん 、 とても おいしい ！", "gloss": "Yeah, really good!", "result": "success", "register": "plain" },
+        { "text": "とても おいしい です 。", "gloss": "It's really good.", "result": "success", "register": "polite" },
+        { "text": "うん 、 とても おいしい だ ！", "gloss": "(だ after an い-adjective)", "result": "npc_puzzled", "reaction": "ふふ 、 おいしい ！ だ ね 。", "note": "おいしい is an い-adjective, so it stands on its own: とてもおいしい！ No だ after it.", "grammar": "i_adj" }
+      ],
+      "tiles": { "answers": [["うん 、", "とても", "おいしい"]], "decoys": ["だ", "な", "寒い"] },
+      "blank": { "before": "うん 、 とても", "after": "！", "answers": ["おいしい"] },
+      "recast": "どう ？ 甘い ？",
+      "next": { "success": "bye1" }
+    },
+    "bye1": {
+      "onlyFor": ["first"],
+      "line": "よかった=いい ！ じゃあ 、 一緒 に 写真 を 撮ろう=撮る 。",
+      "gloss": "I'm glad! Let's take a photo together, then.",
+      "targets": ["写真", "撮る"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "うん 、 撮ろう=撮る ！", "gloss": "Yeah, let's!", "result": "success", "register": "plain", "grammar": "volitional" },
+        { "text": "はい 、 お願いします=お願いする 。", "gloss": "Yes, please.", "result": "success", "register": "polite" },
+        { "text": "いってきます 。", "gloss": "I'm off!", "result": "npc_amused", "reaction": "ふふ 、 どこ に 行く の ？", "note": "いってきます is for when you leave. To go along with a plan, say うん、撮ろう！ (let's take one!).", "grammar": "ittekimasu" }
+      ],
+      "effects": { "friendship": 1 },
+      "end": true,
+      "grammar": ["volitional"],
+      "next": { "success": "ask2" }
+    },
+    "ask2": {
+      "onlyFor": ["second"],
+      "line": "ねえ 、 今夜 川 で 花火 が ある ん=の だ 。 一緒 に 見=見る に 行かない=行く ？",
+      "gloss": "Hey, there are fireworks by the river tonight. Want to go and watch them with me?",
+      "targets": ["今夜", "川", "花火", "見る"],
+      "grammar": ["nai_invite", "ni_kuru"],
+      "choices": [
+        { "text": "うん 、 行きたい=行く ！", "gloss": "Yeah, I'd love to!", "result": "success", "register": "plain", "grammar": "nai_invite" },
+        { "text": "いい です ね 。", "gloss": "That sounds good.", "result": "success", "register": "polite" },
+        { "text": "花火 を 食べたい=食べる 。", "gloss": "I want to eat the fireworks.", "result": "npc_amused", "reaction": "ふふ 、 花火 は 見る の ！", "note": "花火 are fireworks: you 見る (watch) them. To say yes: うん、行きたい！", "grammar": "nai_invite" }
+      ],
+      "tiles": { "answers": [["うん 、", "行きたい=行く"]], "decoys": ["行かない=行く", "食べたい=食べる", "を"] },
+      "blank": { "before": "うん 、", "after": "！", "answers": ["いきたい"] },
+      "recast": "一緒 に 見=見る に 行かない=行く ？",
+      "next": { "success": "time2" }
+    },
+    "time2": {
+      "onlyFor": ["second"],
+      "line": "じゃあ 、 七時 に 駅 の 前 で 会おう=会う 。 いい ？",
+      "gloss": "Then let's meet in front of the station at seven. Okay?",
+      "targets": ["七時", "駅", "前", "会う"],
+      "grammar": ["volitional", "de_place"],
+      "choices": [
+        { "text": "うん 、 七時 に 駅 の 前 で ね 。", "gloss": "Yeah, seven, in front of the station.", "result": "success" },
+        { "text": "うん 、 七時 で 駅 の 前 に ね 。", "gloss": "(particles swapped)", "result": "npc_puzzled", "reaction": "七時 に 、 駅 の 前 で ね 。", "note": "A time takes に (七時に); the place where you meet takes で (駅の前で).", "grammar": "de_place" },
+        { "text": "うん 、 昨日 の 七時 ね 。", "gloss": "Yeah, seven yesterday.", "result": "npc_puzzled", "reaction": "昨日 ？ ふふ 、 今夜 だ よ 。", "note": "昨日 is yesterday. The fireworks are 今夜, tonight.", "grammar": "de_place" }
+      ],
+      "tiles": { "answers": [["うん 、", "七時", "に", "駅 の 前", "で", "ね"]], "decoys": ["を", "が", "昨日"] },
+      "blank": { "before": "うん 、 七時", "after": "駅 の 前 で ね 。", "answers": ["に"] },
+      "recast": "七時 に 駅 の 前 で 会おう=会う 。",
+      "next": { "success": "bye2" }
+    },
+    "bye2": {
+      "onlyFor": ["second"],
+      "line": "楽しみ ！ じゃあ 、 また 夜 に ね 。",
+      "gloss": "Can't wait! See you tonight, then.",
+      "targets": ["楽しみ", "夜"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "うん 、 楽しみ ！", "gloss": "Yeah, can't wait!", "result": "success", "register": "plain", "grammar": "plain_vs_polite" },
+        { "text": "楽しみ です 。", "gloss": "I'm looking forward to it.", "result": "success", "register": "polite" },
+        { "text": "おやすみなさい 。", "gloss": "Good night.", "result": "npc_amused", "reaction": "ふふ 、 まだ 寝ない=寝る よ ！", "note": "おやすみなさい is for bedtime. To say you look forward to something: 楽しみ！", "grammar": "greetings_time" }
+      ],
+      "effects": { "friendship": 1 },
+      "end": true,
+      "grammar": ["plain_vs_polite"]
+    }
+  }
+}

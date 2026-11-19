@@ -1,0 +1,122 @@
+{
+  "id": "invite_kobayashi",
+  "title": "An invitation from 小林さん",
+  "place": "post",
+  "npc": "kobayashi",
+  "maxStage": 4,
+  "start": "ask1",
+  "variants": [
+    {
+      "id": "first",
+      "slots": {}
+    },
+    {
+      "id": "second",
+      "slots": {}
+    }
+  ],
+  "nodes": {
+    "ask1": {
+      "onlyFor": ["first"],
+      "line": "あ 、 こんにちは ！ ねえ 、 仕事 の 後 で カラオケ に 行かない=行く ？",
+      "gloss": "Oh, hi! Hey, want to go to karaoke after work?",
+      "targets": ["仕事", "後", "カラオケ", "行く"],
+      "grammar": ["nai_invite", "tai"],
+      "choices": [
+        { "text": "うん 、 行きたい=行く ！", "gloss": "Yeah, I'd love to!", "result": "success", "register": "plain", "grammar": "nai_invite" },
+        { "text": "いい です ね 。", "gloss": "That sounds good.", "result": "success", "register": "polite" },
+        { "text": "切手 を ください 。", "gloss": "Stamps, please.", "result": "npc_amused", "reaction": "ふふ 、 今 は カラオケ の 話 だ よ 。", "note": "小林さん is asking you out, not serving you. To say yes: うん、行きたい！", "grammar": "nai_invite" }
+      ],
+      "tiles": { "answers": [["うん 、", "行きたい=行く"]], "decoys": ["行かない=行く", "ください", "を"] },
+      "blank": { "before": "うん 、", "after": "！", "answers": ["いきたい"] },
+      "recast": "仕事 の 後 で カラオケ に 行かない=行く ？",
+      "next": { "success": "sing1" }
+    },
+    "sing1": {
+      "onlyFor": ["first"],
+      "line": "やった ！ どんな 歌 が 好き ？",
+      "gloss": "Yay! What kind of songs do you like?",
+      "targets": ["どんな", "歌", "好き", "日本"],
+      "grammar": ["ga_suki"],
+      "choices": [
+        { "text": "日本 の 歌 が 好き ！", "gloss": "I like Japanese songs!", "result": "success", "register": "plain" },
+        { "text": "日本 の 歌 を 好き ！", "gloss": "(を with 好き)", "result": "npc_puzzled", "reaction": "日本 の 歌 が 好き 、 だ ね 。", "note": "好き takes が: 日本の歌が好き.", "grammar": "ga_suki" },
+        { "text": "コーヒー が 好き ！", "gloss": "I like coffee!", "result": "npc_amused", "reaction": "ふふ 、 歌 の 話 だ よ 。", "note": "The question was about songs (歌).", "grammar": "ga_suki" }
+      ],
+      "tiles": { "answers": [["日本", "の", "歌", "が", "好き"]], "decoys": ["を", "に", "コーヒー"] },
+      "blank": { "before": "日本 の 歌", "after": "好き ！", "answers": ["が"] },
+      "recast": "どんな 歌 が 好き ？",
+      "next": { "success": "bye1" }
+    },
+    "bye1": {
+      "onlyFor": ["first"],
+      "line": "じゃあ 、 六時 に ！ あ 、 その 前 に 写真 を 撮ろう=撮る 。",
+      "gloss": "Six o'clock, then! Oh, let's take a photo first.",
+      "targets": ["写真", "撮る"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "うん 、 撮ろう=撮る ！", "gloss": "Yeah, let's!", "result": "success", "register": "plain", "grammar": "volitional" },
+        { "text": "はい 、 お願いします=お願いする 。", "gloss": "Yes, please.", "result": "success", "register": "polite" },
+        { "text": "いってきます 。", "gloss": "I'm off!", "result": "npc_amused", "reaction": "ふふ 、 どこ に 行く の ？", "note": "いってきます is for when you leave. To go along with a plan, say うん、撮ろう！ (let's take one!).", "grammar": "ittekimasu" }
+      ],
+      "effects": { "friendship": 1 },
+      "end": true,
+      "grammar": ["volitional"],
+      "next": { "success": "ask2" }
+    },
+    "ask2": {
+      "onlyFor": ["second"],
+      "line": "寒い ね 。 週末 、 うち で 鍋 を しない=する ？ ゆき も 来る よ 。",
+      "gloss": "Cold, isn't it? Want to have hot pot at my place this weekend? ゆき is coming too.",
+      "targets": ["寒い", "週末", "うち", "鍋"],
+      "grammar": ["nai_invite", "tai"],
+      "choices": [
+        { "text": "うん 、 したい=する ！", "gloss": "Yeah, I'd love to!", "result": "success", "register": "plain", "grammar": "nai_invite" },
+        { "text": "いい です ね 。", "gloss": "That sounds good.", "result": "success", "register": "polite" },
+        { "text": "うん 、 暑い ね ！", "gloss": "Yeah, it's hot!", "result": "npc_puzzled", "reaction": "え ？ 寒い よ ！", "note": "暑い is hot weather; 寒い is cold. To say yes: うん、したい！", "grammar": "i_adj" }
+      ],
+      "tiles": { "answers": [["うん 、", "したい=する"]], "decoys": ["しない=する", "暑い", "を"] },
+      "blank": { "before": "うん 、", "after": "！", "answers": ["したい"] },
+      "recast": "うち で 鍋 を しない=する ？",
+      "next": { "success": "bring2" }
+    },
+    "bring2": {
+      "onlyFor": ["second"],
+      "line": "何 か 持って=持つ {来|き}て=来る くれる ？",
+      "gloss": "Could you bring something?",
+      "targets": ["何", "持つ", "野菜"],
+      "grammar": ["iku_kuru"],
+      "choices": [
+        { "text": "うん 、 野菜 を 持って=持つ 行く ね 。", "gloss": "Sure, I'll bring some vegetables.", "result": "success" },
+        {
+          "text": "うん 、 野菜 を 持って=持つ 来る ね 。",
+          "gloss": "(I'll bring them here)",
+          "result": "npc_puzzled",
+          "reaction": "ふふ 、 持って=持つ 行く 、 だ よ 。",
+          "note": "You're going to 小林さん's place, so it's 持って行く. 持って来る is bringing something to where you are now.",
+          "grammar": "iku_kuru"
+        },
+        { "text": "うん 、 野菜 に 持って=持つ 行く ね 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "野菜 を 、 だ ね 。", "note": "The thing you bring takes を: 野菜を持って行く.", "grammar": "wo_object" }
+      ],
+      "tiles": { "answers": [["うん 、", "野菜", "を", "持って=持つ", "行く", "ね"]], "decoys": ["来る", "に", "で"] },
+      "blank": { "before": "うん 、 野菜 を 持って=持つ", "after": "ね 。", "answers": ["いく"] },
+      "recast": "何 か 持って=持つ {来|き}て=来る くれる ？",
+      "next": { "success": "bye2" }
+    },
+    "bye2": {
+      "onlyFor": ["second"],
+      "line": "じゃあ 、 週末 に ね ！ 楽しみ ！",
+      "gloss": "See you at the weekend! Can't wait!",
+      "targets": ["楽しみ", "週末"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "うん 、 楽しみ ！", "gloss": "Yeah, can't wait!", "result": "success", "register": "plain", "grammar": "plain_vs_polite" },
+        { "text": "楽しみ です 。", "gloss": "I'm looking forward to it.", "result": "success", "register": "polite" },
+        { "text": "おやすみなさい 。", "gloss": "Good night.", "result": "npc_amused", "reaction": "ふふ 、 まだ 寝ない=寝る よ ！", "note": "おやすみなさい is for bedtime. To say you look forward to something: 楽しみ！", "grammar": "greetings_time" }
+      ],
+      "effects": { "friendship": 1 },
+      "end": true,
+      "grammar": ["plain_vs_polite"]
+    }
+  }
+}

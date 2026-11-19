@@ -3,7 +3,9 @@
 
 import { parseLine, type Token, type Vocab } from '../lang/markup.ts';
 import type { Learner } from '../learner/model.ts';
-import { friendshipLevel, FRIENDSHIP_LEVELS, FRIENDSHIP_NAMES, MODE_NAMES, PROMOTE_AFTER_CLEAN_RUNS } from '../scenario/engine.ts';
+import { MODE_NAMES, PROMOTE_AFTER_CLEAN_RUNS } from '../scenario/engine.ts';
+import { goodById } from '../game/inventory.ts';
+import { FRIENDS, heartsFor, MAX_HEARTS, pointsOf, speechLevel, tasteOf, toNextHeart } from '../game/friends.ts';
 import type { GrammarNote, NpcDef, NpcId, ScenarioDef } from '../scenario/types.ts';
 import type { GameData } from '../game/state.ts';
 import { clear, h } from './dom.ts';
@@ -207,7 +209,7 @@ export class Notebook {
           h('div', { class: 'stat' }, h('b', {}, String(counts.unseen)), ' not met yet'),
         )),
     );
-    const rows = scenarios.map((s) => {
+    const rows = scenarios.filter((s) => !s.id.startsWith('invite_') && s.id !== 'gift_give').map((s) => {
       const p = g.progress[s.id];
       const stage = p?.stage ?? 1;
       return h('tr', {},
@@ -217,13 +219,30 @@ export class Notebook {
       );
     });
     this.body.append(h('section', { class: 'nb-group' }, h('h3', {}, 'Conversations'), h('table', { class: 'nb-table' }, h('tbody', {}, rows))));
-    const pts = g.friendship.yuki ?? 0;
-    const level = friendshipLevel(pts);
-    const next = FRIENDSHIP_LEVELS[level + 1];
-    this.body.append(h('section', { class: 'nb-group' }, h('h3', {}, 'Friendship'),
-      h('p', {}, renderTokens(parseLine(npcs.yuki.name, vocab), { furigana: ALWAYS }),
-        `: ${FRIENDSHIP_NAMES[level]} (${pts} pts${next !== undefined ? `, ${next} for ${FRIENDSHIP_NAMES[level + 1]}` : ''}). `,
-        level === 0 ? 'She speaks politely (です/ます).' : level === 1 ? 'Polite, with casual asides (よね, ちょっと).' : 'She talks to you in plain form now.'),
+    this.body.append(h('section', { class: 'nb-group' }, h('h3', {}, 'Friends'),
+      h('p', { class: 'muted' }, 'Hearts grow when you do what someone asks, chat with them, and give them presents (one a day). At ♥ they get friendlier, at ♥♥ they drop です and ます, and at ♥♥♥ and ♥♥♥♥♥ they invite you somewhere.'),
+      h('ul', { class: 'nb-friends' }, FRIENDS.map((f) => {
+        const pts = pointsOf(g, f.id);
+        const hearts = heartsFor(pts);
+        const next = toNextHeart(pts);
+        const speech = speechLevel(pts);
+        const done = g.invites?.[f.id] ?? 0;
+        const invite = f.invites[done];
+        const loved = (g.giftsGiven?.[f.id] ?? []).filter((id) => tasteOf(f.id, id) === 'love');
+        const thing = (id: string) => vocab.get(goodById[id]?.word.split('=').pop() ?? '')?.meaning ?? id;
+        return h('li', { class: 'nb-friend' },
+          h('div', { class: 'nb-friend-head' },
+            renderTokens(parseLine(npcs[f.id].name, vocab), { furigana: ALWAYS }),
+            h('span', { class: 'hearts' }, '♥'.repeat(hearts), h('span', { class: 'hearts-empty' }, '♥'.repeat(MAX_HEARTS - hearts))),
+            h('span', { class: 'muted' }, ` ${this.ctx!.placeName(f.place)}`)),
+          h('div', { class: 'muted' },
+            speech === 0 ? 'Speaks politely (です/ます).' : speech === 1 ? 'Polite, with friendly asides.' : 'Talks to you casually, in plain form.',
+            next === null ? ' Best friends.' : ` ${next} point${next === 1 ? '' : 's'} to the next heart.`,
+            invite ? (hearts >= invite.hearts ? ' Would like to invite you somewhere.' : ` An invitation at ${'♥'.repeat(invite.hearts)}.`) : '',
+            done ? ` Outings together: ${done}.` : '',
+            loved.length ? ` Loves: ${loved.map(thing).join(', ')}.` : ''),
+        );
+      })),
     ));
   }
 }

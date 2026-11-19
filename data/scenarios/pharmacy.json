@@ -76,8 +76,8 @@
   ],
   "nodes": {
     "greet": {
-      "line": "こんにちは 。 どう されました=する か ？",
-      "gloss": "Hello. What seems to be the trouble?",
+      "line": { "0": "こんにちは 。 どう されました=する か ？", "1": "あ 、 こんにちは 。 今日 は どう されました=する か ？", "2": "あ 、 こんにちは ！ 今日 は どう した=する の ？" },
+      "gloss": { "0": "Hello. What seems to be the trouble?", "1": "Oh, hello. What seems to be the trouble today?", "2": "Oh, hi! What's up today?" },
       "targets": ["どう", "する", "が", "痛い"],
       "grammar": ["ga_itai"],
       "choices": [
@@ -196,6 +196,20 @@
         { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "npc_puzzled", "reaction": "えっ ？ ふふ 、 お大事に 。", "note": "どういたしまして answers someone else's thank-you. Here, thank the pharmacist: ありがとうございます.", "grammar": "odaijini" }
       ],
       "effects": { "pay": true },
+      "next": { "success": "chat" }
+    },
+    "chat": {
+      "line": { "0": "寒い です から 、 気をつけて=気をつける ください ね 。", "1": "いつも ありがとうございます 。 寒い です から 、 気をつけて=気をつける ください ね 。", "2": "寒い から 、 気をつけて=気をつける ね 。" },
+      "gloss": { "0": "It's cold, so do take care.", "1": "Thanks for always coming in. It's cold, so do take care.", "2": "It's cold, so take care, okay?" },
+      "targets": ["寒い", "から", "気をつける"],
+      "grammar": ["plain_vs_polite"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "ありがとうございます 。", "gloss": "Thank you.", "result": "success", "register": "polite" },
+        { "text": "うん 、 ありがとう 。", "gloss": "Yeah, thanks. (casual)", "result": "success", "register": "plain", "grammar": "plain_vs_polite" },
+        { "text": "おめでとうございます 。", "gloss": "Congratulations!", "result": "npc_amused", "reaction": "ふふ 、 何 が です か ？", "note": "おめでとうございます is congratulations. When someone tells you to take care, say ありがとうございます.", "grammar": "odaijini" }
+      ],
+      "effects": { "friendship": 1 },
       "end": true
     }
   }

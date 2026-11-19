@@ -28,6 +28,10 @@ export interface DayLog {
   yen?: number;
   /** The night's combo bonus, once given. */
   bonus?: number;
+  /** Friendship points from chatting today, per person (capped a day). */
+  chat?: Partial<Record<NpcId, number>>;
+  /** Who you've given a present to today (one each a day). */
+  gifted?: NpcId[];
 }
 
 export interface GameData {
@@ -40,7 +44,12 @@ export interface GameData {
   xp: number;
   learner: LearnerData;
   progress: Record<string, ScenarioProgress>;
+  /** Friendship points per person; hearts and how casually they talk come from these. */
   friendship: Partial<Record<NpcId, number>>;
+  /** How many of each friend's invitations you've been on. Older saves don't have it. */
+  invites?: Partial<Record<NpcId, number>>;
+  /** What you've given each friend, so the notebook can say what they liked. */
+  giftsGiven?: Partial<Record<NpcId, string[]>>;
   errands: Errand[];
   /** The day each scenario/variant was last given as an errand, so a week stays varied. */
   recentErrands?: Record<string, number>;
@@ -62,7 +71,7 @@ export interface GameData {
 }
 
 export function newDayLog(friendship: GameData['friendship']): DayLog {
-  return { newWords: [], corrections: [], promotions: [], lookups: 0, greeted: false, friendshipStart: { ...friendship }, clean: 0, levelUps: 0, bestCombo: 0, xp: 0, yen: 0 };
+  return { newWords: [], corrections: [], promotions: [], lookups: 0, greeted: false, friendshipStart: { ...friendship }, clean: 0, levelUps: 0, bestCombo: 0, xp: 0, yen: 0, chat: {}, gifted: [] };
 }
 
 export function newGame(): GameData {
@@ -75,6 +84,8 @@ export function newGame(): GameData {
     learner: emptyLearner(),
     progress: {},
     friendship: { yuki: 0 },
+    invites: {},
+    giftsGiven: {},
     errands: [],
     arcs: {},
     keepsakes: [],
@@ -124,6 +135,12 @@ export function migrate(raw: unknown): GameData | null {
   // Experience didn't exist yet: start from what this player already knows.
   if (version === 1) g.xp = estimateXp(g.learner, g.day);
   g.xp ??= 0;
+  // Friendships with more than ゆき came later: everyone else starts at zero.
+  if (!g.friendship || typeof g.friendship !== 'object') g.friendship = { yuki: 0 };
+  g.invites = g.invites && typeof g.invites === 'object' ? g.invites : {};
+  g.giftsGiven = g.giftsGiven && typeof g.giftsGiven === 'object' ? g.giftsGiven : {};
+  g.today.chat ??= {};
+  g.today.gifted ??= [];
   // Before you had things of your own, only keepsakes were kept, and all of them sat on the shelf.
   if (!old.bag || typeof old.bag !== 'object') {
     g.bag = Object.fromEntries(g.keepsakes.map((k) => [k, 1]));

@@ -571,3 +571,24 @@ input.blank:focus { outline: none; background: #fff8f2; }
 .notices { list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 10px; }
 .notice { padding: 8px 12px; border-radius: 10px; background: #fffaf0; border: 2px solid #e8d9b8; font-size: 19px; line-height: 2; }
 .notice .muted { font-size: 14px; line-height: 1.4; }
+
+/* Friendship: hearts beside a friend's name, the outing card, and the present picker. */
+.hearts { color: #ff5f8f; letter-spacing: 1px; white-space: nowrap; font-size: 14px; }
+.hearts-empty { color: #e3dcea; }
+.dlg-header .who > .hearts {
+  background: #fff; border: 2px solid var(--out); border-radius: 999px; padding: 1px 8px; line-height: 1.5;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25); font-size: 13px;
+}
+.fx-float.heart { color: #ff5f8f; font-size: 34px; }
+.fx-float.sad { color: #c9c1d2; font-size: 28px; }
+.invites { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 6px; }
+.invite-note { background: #fff0f5; border: 2px solid #ffb3cb; border-radius: 10px; padding: 6px 10px; line-height: 1.7; }
+.invite-heart { color: #ff5f8f; margin-right: 6px; }
+.memory-art { border-color: #ff8fb1; }
+.memory-hearts { margin: 12px 0 4px; font-weight: 700; }
+.memory-hearts .hearts { font-size: 20px; margin-right: 4px; }
+.night-friends { list-style: none; padding: 0; margin: 6px 0; display: grid; gap: 4px; }
+.nb-friends { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.nb-friend { border: 2px solid var(--line, #e3dcea); border-radius: 10px; padding: 6px 10px; }
+.nb-friend-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; font-size: 17px; }
+.dlg-input > button + button { margin-left: 8px; }

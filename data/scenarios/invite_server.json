@@ -1,0 +1,115 @@
+{
+  "id": "invite_server",
+  "title": "An invitation from 山田さん",
+  "place": "restaurant",
+  "npc": "server",
+  "maxStage": 4,
+  "start": "ask1",
+  "variants": [
+    {
+      "id": "first",
+      "slots": {}
+    },
+    {
+      "id": "second",
+      "slots": {}
+    }
+  ],
+  "nodes": {
+    "ask1": {
+      "onlyFor": ["first"],
+      "line": "あ 、 いらっしゃい ！ ねえ 、 今 まかない を 作った=作る ん=の だ 。 一緒 に 食べない=食べる ？",
+      "gloss": "Oh, welcome! Hey, I just made the staff meal. Want to eat with me?",
+      "targets": ["まかない", "作る", "一緒", "食べる"],
+      "grammar": ["nai_invite", "tai"],
+      "choices": [
+        { "text": "うん 、 食べたい=食べる ！", "gloss": "Yeah, I'd love to!", "result": "success", "register": "plain", "grammar": "nai_invite" },
+        { "text": "はい 、 いただきます 。", "gloss": "Yes, thank you, I will.", "result": "success", "register": "polite" },
+        { "text": "ごちそうさま 。", "gloss": "Thanks for the meal.", "result": "npc_amused", "reaction": "ふふ 、 まだ 食べて=食べる いない=いる よ 。", "note": "ごちそうさま is for after you eat. To say yes to food, say うん、食べたい！ or いただきます.", "grammar": "gochisousama" }
+      ],
+      "tiles": { "answers": [["うん 、", "食べたい=食べる"]], "decoys": ["食べない=食べる", "ごちそうさま", "を"] },
+      "blank": { "before": "うん 、", "after": "！", "answers": ["たべたい"] },
+      "recast": "一緒 に 食べない=食べる ？",
+      "next": { "success": "dish1" }
+    },
+    "dish1": {
+      "onlyFor": ["first"],
+      "line": "今日 は 野菜 カレー だ よ 。 辛い の は 大丈夫 ？",
+      "gloss": "Today it's vegetable curry. Are you okay with spicy food?",
+      "targets": ["野菜", "カレー", "辛い", "好き"],
+      "grammar": ["ga_suki"],
+      "choices": [
+        { "text": "うん 、 辛い の が 好き ！", "gloss": "Yeah, I like spicy food!", "result": "success", "register": "plain" },
+        { "text": "辛い の が 好き です 。", "gloss": "I like spicy food.", "result": "success", "register": "polite" },
+        { "text": "うん 、 辛い の を 好き ！", "gloss": "(を with 好き)", "result": "npc_puzzled", "reaction": "ふふ 、 辛い の が 好き 、 だ ね 。", "note": "好き takes が for what you like: 辛いのが好き.", "grammar": "ga_suki" }
+      ],
+      "tiles": { "answers": [["うん 、", "辛い", "の", "が", "好き"]], "decoys": ["を", "に", "だ"] },
+      "blank": { "before": "うん 、 辛い の", "after": "好き ！", "answers": ["が"] },
+      "recast": "辛い の は 大丈夫 ？",
+      "next": { "success": "bye1" }
+    },
+    "bye1": {
+      "onlyFor": ["first"],
+      "line": "よかった=いい ！ じゃあ 、 写真 も 撮ろう=撮る よ 。",
+      "gloss": "Great! Let's take a photo too.",
+      "targets": ["写真", "撮る"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "うん 、 撮ろう=撮る ！", "gloss": "Yeah, let's!", "result": "success", "register": "plain", "grammar": "volitional" },
+        { "text": "はい 、 お願いします=お願いする 。", "gloss": "Yes, please.", "result": "success", "register": "polite" },
+        { "text": "いってきます 。", "gloss": "I'm off!", "result": "npc_amused", "reaction": "ふふ 、 どこ に 行く の ？", "note": "いってきます is for when you leave. To go along with a plan, say うん、撮ろう！ (let's take one!).", "grammar": "ittekimasu" }
+      ],
+      "effects": { "friendship": 1 },
+      "end": true,
+      "grammar": ["volitional"],
+      "next": { "success": "ask2" }
+    },
+    "ask2": {
+      "onlyFor": ["second"],
+      "line": "今度 の 休み に 横浜 の 市場 に 行く ん=の だ 。 一緒 に 行かない=行く ？",
+      "gloss": "On my next day off I'm going to the market in Yokohama. Want to come with me?",
+      "targets": ["今度", "休み", "横浜", "市場"],
+      "grammar": ["nai_invite", "tai"],
+      "choices": [
+        { "text": "うん 、 行きたい=行く ！", "gloss": "Yeah, I'd love to!", "result": "success", "register": "plain", "grammar": "nai_invite" },
+        { "text": "いい です ね 。", "gloss": "That sounds good.", "result": "success", "register": "polite" },
+        { "text": "いらっしゃいませ 。", "gloss": "Welcome! (shop greeting)", "result": "npc_amused", "reaction": "ふふ 、 それ は 私 の 言葉 だ よ 。", "note": "いらっしゃいませ is what staff say to customers. To say yes: うん、行きたい！", "grammar": "irasshaimase" }
+      ],
+      "tiles": { "answers": [["うん 、", "行きたい=行く"]], "decoys": ["行かない=行く", "いらっしゃいませ", "を"] },
+      "blank": { "before": "うん 、", "after": "！", "answers": ["いきたい"] },
+      "recast": "一緒 に 行かない=行く ？",
+      "next": { "success": "buy2" }
+    },
+    "buy2": {
+      "onlyFor": ["second"],
+      "line": "新鮮 な 魚 が 安い ん=の だ よ 。 何 を 買いたい=買う ？",
+      "gloss": "The fresh fish there is cheap. What do you want to buy?",
+      "targets": ["新鮮", "魚", "安い", "買う"],
+      "grammar": ["tai", "wo_object"],
+      "choices": [
+        { "text": "魚 を 買いたい=買う ！", "gloss": "I want to buy fish!", "result": "success" },
+        { "text": "魚 で 買いたい=買う ！", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "魚 を 、 だ ね 。", "note": "What you want to buy takes を: 魚を買いたい.", "grammar": "wo_object" },
+        { "text": "魚 を 飲みたい=飲む ！", "gloss": "I want to drink fish!", "result": "npc_amused", "reaction": "ふふ 、 魚 は 飲めない=飲む よ ！", "note": "飲む is to drink. For shopping, 買う: 魚を買いたい.", "grammar": "tai" }
+      ],
+      "tiles": { "answers": [["魚", "を", "買いたい=買う"]], "decoys": ["で", "に", "飲みたい=飲む"] },
+      "blank": { "before": "魚 を", "after": "！", "answers": ["かいたい"] },
+      "recast": "何 を 買いたい=買う ？",
+      "next": { "success": "bye2" }
+    },
+    "bye2": {
+      "onlyFor": ["second"],
+      "line": "じゃあ 、 朝 七時 に 駅 で ね ！",
+      "gloss": "Then I'll see you at the station at seven in the morning!",
+      "targets": ["楽しみ", "朝", "駅"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "うん 、 楽しみ ！", "gloss": "Yeah, can't wait!", "result": "success", "register": "plain", "grammar": "plain_vs_polite" },
+        { "text": "楽しみ です 。", "gloss": "I'm looking forward to it.", "result": "success", "register": "polite" },
+        { "text": "おやすみなさい 。", "gloss": "Good night.", "result": "npc_amused", "reaction": "ふふ 、 まだ 寝ない=寝る よ ！", "note": "おやすみなさい is for bedtime. To say you look forward to something: 楽しみ！", "grammar": "greetings_time" }
+      ],
+      "effects": { "friendship": 1 },
+      "end": true,
+      "grammar": ["plain_vs_polite"]
+    }
+  }
+}

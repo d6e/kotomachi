@@ -34,8 +34,8 @@
   ],
   "nodes": {
     "greet": {
-      "line": "いらっしゃいませ 。 何名様 です か ？",
-      "gloss": "Welcome! How many in your party?",
+      "line": { "0": "いらっしゃいませ 。 何名様 です か ？", "1": "あ 、 いらっしゃいませ ！ 何名様 です か ？", "2": "あ 、 いらっしゃい ！ 何名様 ？" },
+      "gloss": { "0": "Welcome! How many in your party?", "1": "Oh, welcome! How many in your party?", "2": "Oh, welcome! How many of you?" },
       "targets": ["何名様", "一人", "二人"],
       "grammar": ["ninzuu"],
       "choices": [
@@ -235,6 +235,20 @@
         { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "npc_puzzled", "reaction": "えっ ？ ふふ 。 ありがとうございました=ありがとうございます 。", "note": "どういたしまして answers someone else's thank-you. Paying after a meal, say ごちそうさまでした.", "grammar": "gochisousama" }
       ],
       "effects": { "pay": true },
+      "next": { "success": "chat" }
+    },
+    "chat": {
+      "line": { "0": "ありがとうございました=ありがとうございます 。 また どうぞ 。", "1": "いつも ありがとうございます ！ また {来|き}て=来る ください ね 。", "2": "いつも ありがとう ！ また {来|き}て=来る ね 。" },
+      "gloss": { "0": "Thank you very much. Please come again.", "1": "Thanks for always coming! Please come again, okay?", "2": "Thanks as always! Come again, okay?" },
+      "targets": ["また", "来る"],
+      "grammar": ["plain_vs_polite"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "はい 、 また {来|き}ます=来る 。", "gloss": "Yes, I'll come again.", "result": "success", "register": "polite" },
+        { "text": "うん 、 また 来る ね ！", "gloss": "Yeah, I'll be back! (casual)", "result": "success", "register": "plain", "grammar": "plain_vs_polite" },
+        { "text": "いらっしゃいませ 。", "gloss": "Welcome!", "result": "npc_amused", "reaction": "ふふ 、 それ は 私 の 言葉 です よ 。", "note": "いらっしゃいませ is what staff say to customers coming in.", "grammar": "irasshaimase" }
+      ],
+      "effects": { "friendship": 1 },
       "end": true
     }
   }

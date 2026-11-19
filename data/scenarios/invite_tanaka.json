@@ -1,0 +1,136 @@
+{
+  "id": "invite_tanaka",
+  "title": "An invitation from 田中さん",
+  "place": "street",
+  "npc": "tanaka",
+  "maxStage": 4,
+  "start": "ask1",
+  "variants": [
+    {
+      "id": "first",
+      "slots": {}
+    },
+    {
+      "id": "second",
+      "slots": {}
+    }
+  ],
+  "nodes": {
+    "ask1": {
+      "onlyFor": ["first"],
+      "line": "あ 、 こんにちは 。 ねえ 、 うち で お茶 を 飲まない=飲む ？ お菓子 も ある よ 。",
+      "gloss": "Oh, hello. Say, why don't you come and have some tea at my place? I've got sweets too.",
+      "targets": ["うち", "お茶", "飲む", "お菓子"],
+      "grammar": ["nai_invite", "tai"],
+      "choices": [
+        { "text": "うん 、 飲みたい=飲む ！", "gloss": "Yes, I'd love some!", "result": "success", "register": "plain", "grammar": "nai_invite" },
+        { "text": "はい 、 ぜひ 。", "gloss": "Yes, I'd love to.", "result": "success", "register": "polite" },
+        { "text": "ごちそうさま 。", "gloss": "Thanks for the meal.", "result": "npc_amused", "reaction": "ふふ 、 まだ 飲んで=飲む いない=いる よ 。", "note": "ごちそうさま is for after you eat or drink. To say yes: うん、飲みたい！", "grammar": "gochisousama" }
+      ],
+      "tiles": { "answers": [["うん 、", "飲みたい=飲む"]], "decoys": ["飲まない=飲む", "ごちそうさま", "を"] },
+      "blank": { "before": "うん 、", "after": "！", "answers": ["のみたい"] },
+      "recast": "うち で お茶 を 飲まない=飲む ？",
+      "next": { "success": "tea1" }
+    },
+    "tea1": {
+      "onlyFor": ["first"],
+      "line": "はい 、 どうぞ 。 熱い から 気をつけて=気をつける ね 。",
+      "gloss": "Here you go. It's hot, so be careful.",
+      "targets": ["どうぞ", "熱い", "から", "気をつける"],
+      "grammar": ["itadakimasu"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "いただきます 。", "gloss": "Thank you, I will (before drinking).", "result": "success" },
+        { "text": "ごちそうさま 。", "gloss": "Thanks for the meal.", "result": "npc_amused", "reaction": "ふふ 、 それ は 飲んだ=飲む 後 だ よ 。", "note": "ごちそうさま comes after. Before you start: いただきます.", "grammar": "itadakimasu" },
+        { "text": "いってきます 。", "gloss": "I'm off!", "result": "npc_amused", "reaction": "え ？ もう 帰る の ？", "note": "いってきます is for leaving. Before you drink: いただきます.", "grammar": "itadakimasu" }
+      ],
+      "next": { "success": "talk1" }
+    },
+    "talk1": {
+      "onlyFor": ["first"],
+      "line": "この お菓子 、 孫 が 送って=送る くれた=くれる ん=の だ 。 おいしい ？",
+      "gloss": "My grandchild sent me these sweets. Are they good?",
+      "targets": ["孫", "送る", "おいしい", "とても"],
+      "grammar": ["i_adj"],
+      "choices": [
+        { "text": "うん 、 とても おいしい ！", "gloss": "Yes, really good!", "result": "success", "register": "plain" },
+        { "text": "とても おいしい です 。", "gloss": "They're really good.", "result": "success", "register": "polite" },
+        { "text": "うん 、 とても かわいい ！", "gloss": "Yes, really cute!", "result": "npc_amused", "reaction": "ふふ 、 お菓子 は おいしい 、 だ よ 。", "note": "かわいい is cute. For food, say おいしい.", "grammar": "i_adj" }
+      ],
+      "tiles": { "answers": [["うん 、", "とても", "おいしい"]], "decoys": ["かわいい", "だ", "な"] },
+      "blank": { "before": "うん 、 とても", "after": "！", "answers": ["おいしい"] },
+      "recast": "おいしい ？",
+      "effects": { "friendship": 1 },
+      "end": true,
+      "next": { "success": "ask2" }
+    },
+    "ask2": {
+      "onlyFor": ["second"],
+      "line": "週末 、 公園 の 桜 が きれい だ よ 。 一緒 に 花見 を しない=する ？",
+      "gloss": "The cherry blossoms in the park will be lovely this weekend. Shall we go and see them together?",
+      "targets": ["週末", "桜", "きれい", "花見"],
+      "grammar": ["nai_invite", "tai"],
+      "choices": [
+        { "text": "うん 、 したい=する ！", "gloss": "Yes, I'd love to!", "result": "success", "register": "plain", "grammar": "nai_invite" },
+        { "text": "いい です ね 。", "gloss": "That sounds good.", "result": "success", "register": "polite" },
+        {
+          "text": "うん 、 桜 を 食べたい=食べる ！",
+          "gloss": "Yes, I want to eat the blossoms!",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 桜 は 見る ん=の だ よ 。",
+          "note": "花見 is looking at the blossoms (花 + 見る). To say yes: うん、したい！",
+          "grammar": "nai_invite"
+        }
+      ],
+      "tiles": { "answers": [["うん 、", "したい=する"]], "decoys": ["しない=する", "食べたい=食べる", "を"] },
+      "blank": { "before": "うん 、", "after": "！", "answers": ["したい"] },
+      "recast": "一緒 に 花見 を しない=する ？",
+      "next": { "success": "bring2" }
+    },
+    "bring2": {
+      "onlyFor": ["second"],
+      "line": "お弁当=弁当 は 私 が 作る よ 。 お茶 を 持って=持つ {来|き}て=来る くれる ？",
+      "gloss": "I'll make the bento. Could you bring the tea?",
+      "targets": ["弁当", "作る", "お茶", "持つ"],
+      "grammar": ["wo_object", "iku_kuru"],
+      "choices": [
+        { "text": "うん 、 お茶 を 持って=持つ 行く ね 。", "gloss": "Sure, I'll bring the tea.", "result": "success" },
+        { "text": "うん 、 お茶 で 持って=持つ 行く ね 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "お茶 を 、 だ ね 。 ありがとう 。", "note": "The thing you bring takes を: お茶を持って行く.", "grammar": "wo_object" },
+        {
+          "text": "うん 、 お茶 を 持って=持つ 来る ね 。",
+          "gloss": "(I'll bring it here)",
+          "result": "npc_puzzled",
+          "reaction": "ふふ 、 持って=持つ 行く 、 だ よ 。",
+          "note": "You're going to where 田中さん will be, so it's 持って行く. 持って来る is bringing something to where you are now.",
+          "grammar": "iku_kuru"
+        }
+      ],
+      "tiles": { "answers": [["うん 、", "お茶", "を", "持って=持つ", "行く", "ね"]], "decoys": ["で", "来る", "が"] },
+      "blank": { "before": "うん 、 お茶", "after": "持って=持つ 行く ね 。", "answers": ["を"] },
+      "recast": "お茶 を 持って=持つ {来|き}て=来る くれる ？",
+      "next": { "success": "bye2" }
+    },
+    "bye2": {
+      "onlyFor": ["second"],
+      "line": "じゃあ 、 週末 に ね 。 楽しみ だ ね 。",
+      "gloss": "See you at the weekend, then. Something to look forward to.",
+      "targets": ["楽しみ", "週末"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "うん 、 楽しみ ！", "gloss": "Yeah, can't wait!", "result": "success", "register": "plain", "grammar": "plain_vs_polite" },
+        { "text": "楽しみ です 。", "gloss": "I'm looking forward to it.", "result": "success", "register": "polite" },
+        {
+          "text": "いらっしゃいませ 。",
+          "gloss": "Welcome! (shop greeting)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 ここ は お店=店 じゃ ない=ある よ 。",
+          "note": "いらっしゃいませ is what shop staff say. To say you look forward to it: 楽しみ！",
+          "grammar": "irasshaimase"
+        }
+      ],
+      "effects": { "friendship": 1 },
+      "end": true,
+      "grammar": ["plain_vs_polite"]
+    }
+  }
+}

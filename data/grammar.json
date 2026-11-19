@@ -268,5 +268,41 @@
   "title": "頑張って and 頑張ります",
   "note": "頑張って cheers someone else on: good luck, go for it! About yourself, answer 頑張ります: I'll do my best.",
   "example": "はい 、 頑張ります=頑張る 。"
+ },
+ {
+  "id": "nai_invite",
+  "title": "～ない？: inviting a friend",
+  "note": "Between friends, a plain negative question is an invitation: 食べない？ = want to eat? 行かない？ = want to go? The polite version is ～ませんか (行きませんか). To accept, say what you'd like with ～たい: うん、行きたい！",
+  "example": "一緒 に 行かない=行く ？"
+ },
+ {
+  "id": "volitional",
+  "title": "～よう / ～おう: let's",
+  "note": "The plain 'let's' form: 撮る → 撮ろう, 歩く → 歩こう, 会う → 会おう, する → しよう, 来る → 来よう. Friends use it for plans; the polite version is ～ましょう.",
+  "example": "写真 を 撮ろう=撮る ！"
+ },
+ {
+  "id": "ga_suki",
+  "title": "～が好き: what you like",
+  "note": "好き (liked) is a na-adjective, not a verb, so what you like takes が, not を: 歌が好き. Add です to be polite: 歌が好きです.",
+  "example": "日本 の 歌 が 好き です 。"
+ },
+ {
+  "id": "iku_kuru",
+  "title": "持って行く and 持って来る",
+  "note": "持って行く is taking something with you to somewhere else; 持って来る is bringing it to where the speaker is. Going to a friend's place, you say 持って行くね; they ask you to 持って来て.",
+  "example": "お茶 を 持って=持つ 行く ね 。"
+ },
+ {
+  "id": "no_particle_time",
+  "title": "毎日, 今日, 明日: no particle",
+  "note": "Time words relative to now (毎日, 毎朝, 今日, 明日, 今夜) don't take に: 毎日歩く, 明日行く. Clock times and dates do: 七時に.",
+  "example": "毎日 歩く 。"
+ },
+ {
+  "id": "douzo",
+  "title": "これ、どうぞ: giving something",
+  "note": "Hold it out and say これ、どうぞ (here, this is for you). ください is for asking to be given something. When they thank you, どういたしまして.",
+  "example": "これ 、 どうぞ 。"
  }
 ]

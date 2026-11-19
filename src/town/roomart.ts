@@ -7,6 +7,7 @@ import { TILE } from './map.ts';
 import type { Role } from './palette.ts';
 import { Buf, hash } from './pixels.ts';
 import { cellAt, ROOM_COLS, ROOM_ROWS, type RoomDef } from './rooms.ts';
+import { photoMini } from './memoryart.ts';
 
 export interface RoomArt {
   base: Buf;
@@ -587,6 +588,8 @@ type Mini = (b: Buf, x: number, base: number) => void;
 const genericKeepsake: Mini = (b, x, base) => b.box(x + 1, base - 5, 5, 5, 'gold');
 /** Things for the shelf are 6px wide (7 at most) and stand on a shelf line at y = base. Keepsakes first, then everyday things. */
 export const KEEPSAKE_ART: Record<string, Mini> = {
+  // Photos from the first outing with each friend.
+  ...Object.fromEntries((['yuki', 'tanaka', 'mori', 'server', 'kobayashi'] as const).map((f) => [`photo_${f}`, photoMini(f)])),
   mug: (b, x, base) => {
     b.box(x + 1, base - 5, 4, 5, 'white');
     b.rect(x + 5, base - 4, 1, 2, 'out');
