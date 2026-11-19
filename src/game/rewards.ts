@@ -33,8 +33,11 @@ export const STAGE_PAY: Record<number, number> = { 1: 500, 2: 700, 3: 1000, 4: 1
  * What an errand pays: the reward for its stage, 15% less for each miss (never under
  * half), plus whatever you spent on it, paid back by whoever asked.
  */
-export function errandPay(stage: number, misses: number, spent: number): { reward: number; refund: number } {
-  const base = STAGE_PAY[stage] ?? STAGE_PAY[4]!;
+/** What a second try pays, after yesterday's mix-up: a little less, never nothing. */
+export const RETRY_PAY = 0.8;
+
+export function errandPay(stage: number, misses: number, spent: number, retry = false): { reward: number; refund: number } {
+  const base = (STAGE_PAY[stage] ?? STAGE_PAY[4]!) * (retry ? RETRY_PAY : 1);
   const factor = Math.max(0.5, 1 - 0.15 * Math.max(0, misses));
   return { reward: Math.round((base * factor) / 10) * 10, refund: Math.max(0, spent) };
 }

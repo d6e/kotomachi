@@ -173,6 +173,30 @@ ruby.no-furi rt { visibility: hidden; }
 }
 .gift-word { font-size: 34px; line-height: 1.8; }
 
+/* A wrong pick played out: a little picture, the lines, then what would have worked. */
+.errands li.missed .jp, .errands li.missed .asker { opacity: 0.55; }
+.errands li.missed .box { background: #ffe9a8; color: var(--out); }
+.errands .again { font-size: 11px; font-weight: 800; color: var(--accent-dk); text-transform: uppercase; letter-spacing: 0.06em; }
+.req-tag.again { color: var(--frame); }
+.oops-art {
+  display: block; width: min(100%, 384px); aspect-ratio: 96 / 56; margin: 4px auto 10px; image-rendering: pixelated;
+  border: 3px solid var(--out); border-radius: 10px; background: #fff;
+}
+.oops-lines { display: grid; gap: 6px; }
+.oops-line { display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: baseline; }
+.oops-line > :not(.oops-who) { grid-column: 2; }
+.oops-who { font-size: 13px; font-weight: 700; color: var(--accent-dk); white-space: nowrap; grid-row: 1; }
+.oops-line.who-narration .oops-jp, .oops-line.who-narration .oops-en { grid-column: 1 / -1; }
+.oops-line.who-narration .oops-jp { color: var(--muted); }
+.oops-jp { font-size: 19px; line-height: 2; }
+.oops-en { font-size: 13px; color: var(--muted); margin-top: -4px; }
+.oops-outcome { font-weight: 700; margin: 10px 0 6px; }
+.oops-fix { background: #f2fbf4; border: 2px solid #9fd8ae; border-radius: 10px; padding: 6px 12px; }
+.oops-fix-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--good); }
+.oops-fix .right-answer { font-size: 19px; }
+.oops-fix .muted { margin: 2px 0 0; font-size: 13px; }
+.oops-later { margin: 10px 0 0; font-weight: 700; color: var(--frame); }
+
 /* Who asked for an errand: a small name tag. A story step gets the accent colour. */
 .asker {
   flex: none; font-size: 13px; line-height: 1.6; padding: 0 7px; border-radius: 7px; border: 2px solid var(--out);

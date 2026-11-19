@@ -146,7 +146,7 @@
       "choices": [
         { "text": "$num 番線 です ね 。", "gloss": "Platform $num, got it.", "result": "success" },
         { "text": "わかりました=わかる 。", "gloss": "Understood.", "result": "success" },
-        { "text": "$bad 番線 です ね 。", "gloss": "Platform $bad, got it.", "result": "npc_puzzled", "reaction": "いいえ 、 $num 番線 です よ 。", "note": "Listen for the number before 番線: that's the platform.", "grammar": "nanban" }
+        { "text": "$bad 番線 です ね 。", "gloss": "Platform $bad, got it.", "result": "npc_puzzled", "reaction": "いいえ 、 $num 番線 です よ 。", "note": "Listen for the number before 番線: that's the platform.", "grammar": "nanban", "consequence": "wrong_platform" }
       ],
       "next": { "success": "time" }
     },
@@ -178,7 +178,7 @@
       "choices": [
         { "text": "$mins 分 です ね 。", "gloss": "$mins minutes, got it.", "result": "success" },
         { "text": "わかりました=わかる 。", "gloss": "Understood.", "result": "success" },
-        { "text": "$badmins 分 です ね 。", "gloss": "$badmins minutes, got it.", "result": "npc_puzzled", "reaction": "いいえ 、 $mins 分 ぐらい=くらい です よ 。", "note": "Listen for the number before 分 (minutes). ぐらい means about.", "grammar": "donokurai" }
+        { "text": "$badmins 分 です ね 。", "gloss": "$badmins minutes, got it.", "result": "npc_puzzled", "reaction": "いいえ 、 $mins 分 ぐらい=くらい です よ 。", "note": "Listen for the number before 分 (minutes). ぐらい means about.", "grammar": "donokurai", "consequence": "missed_train" }
       ],
       "next": { "success": "rapid" }
     },

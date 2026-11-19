@@ -19,6 +19,10 @@ export interface Errand {
   /** A step in someone's story: the arc's id and the step's index. */
   arc?: string;
   step?: number;
+  /** A wrong pick played out: the request is off for today and comes back tomorrow. */
+  missed?: boolean;
+  /** Back from yesterday after a mix-up: pays a little less. */
+  retry?: boolean;
 }
 
 /** One request in a regular's story. */

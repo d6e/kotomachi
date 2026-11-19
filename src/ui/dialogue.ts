@@ -291,7 +291,7 @@ export class DialogueView {
         const r = this.run!;
         this.close();
         hooks.done(r);
-      } }, 'Leave ▶');
+      } }, run.consequence ? 'And then… ▶' : 'Leave ▶');
       this.input.append(leave);
       leave.focus();
       return;

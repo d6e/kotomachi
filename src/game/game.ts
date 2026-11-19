@@ -7,9 +7,11 @@ import { UnavailableJudge, type FreeformJudge } from '../judge/freeform.ts';
 import { lemmasOf, parseLine, plainText, type Token } from '../lang/markup.ts';
 import { Learner, type WordStatus } from '../learner/model.ts';
 import { finishRun, friendshipLevel, FRIENDSHIP_NAMES, greetSlots, MODE_NAMES, periodOf, ScenarioRun } from '../scenario/engine.ts';
-import type { Mode, PlaceId, ScenarioDef } from '../scenario/types.ts';
+import type { Mode, NpcId, PlaceId, ScenarioDef } from '../scenario/types.ts';
 import { Town, type Interactable } from '../town/town.ts';
 import type { DoorPlace } from '../town/map.ts';
+import { toCanvas } from '../town/pixels.ts';
+import { drawScene } from '../town/scenes.ts';
 import { DialogueView } from '../ui/dialogue.ts';
 import { clear, h } from '../ui/dom.ts';
 import { coins, confetti, countUp, floatText, play, wait } from '../ui/fx.ts';
@@ -17,7 +19,7 @@ import { correctionItem, Notebook, type NotebookContext } from '../ui/notebook.t
 import { Popup } from '../ui/popup.ts';
 import { ALWAYS, renderTokens, unmarkNew } from '../ui/text.ts';
 import { comboMultiplier, errandPay, levelFor, levelProgress, XP, xpForLevel } from './rewards.ts';
-import { forms, grammar, npcs, requests, scenarioById, scenarios, vocab } from './content.ts';
+import { consequences, forms, grammar, npcs, requests, scenarioById, scenarios, vocab, type ConsequenceDef, type SceneWho } from './content.ts';
 import { pickVariant, planRequests, type Errand } from './errands.ts';
 import { DAY_END, DAY_START, isOpen, load, newDayLog, newGame, progressFor, save, clearSave, formatClock, type GameData } from './state.ts';
 
@@ -33,7 +35,7 @@ const SCENARIO_FOR: Record<Exclude<DoorPlace, 'home'>, string> = {
 const MINUTES_PER_SECOND = 1;
 const MINUTES_PER_SCENARIO = 20;
 
-type Phase = 'title' | 'morning' | 'town' | 'talk' | 'gift' | 'night';
+type Phase = 'title' | 'morning' | 'town' | 'talk' | 'gift' | 'oops' | 'night';
 
 export class Game {
   private readonly input = new Input();
@@ -56,6 +58,8 @@ export class Game {
   private shownDone = new Set<string>();
   private readonly levelUps: HTMLElement;
   private metBefore = new Set<string>();
+  /** Level-up cards held back while a gift or a scene is on screen. */
+  private pendingUps: string[] = [];
 
   constructor(root: HTMLElement) {
     const canvas = h('canvas', { id: 'town', 'aria-label': 'The town. Walk with the arrow keys or WASD, or tap where to go.' });
@@ -214,7 +218,7 @@ export class Game {
   // ------------------------------------------------------------------ HUD
 
   private renderHud(force = false): void {
-    const key = `${this.phase}|${Math.floor(this.g.minutes / 10)}|${this.g.money}|${this.g.xp}|${this.g.errands.map((e) => e.done).join()}|${this.g.day}`;
+    const key = `${this.phase}|${Math.floor(this.g.minutes / 10)}|${this.g.money}|${this.g.xp}|${this.g.errands.map((e) => (e.done ? 1 : e.missed ? 2 : 0)).join()}|${this.g.day}`;
     if (!force && key === this.hudKey) return;
     this.hudKey = key;
     clear(this.hud);
@@ -223,6 +227,7 @@ export class Game {
       const key = `${e.scenario}/${e.variant}`;
       const fresh = e.done && !this.shownDone.has(key);
       if (e.done && this.phase === 'town') this.shownDone.add(key);
+      if (e.missed) return h('li', { class: 'missed' }, h('span', { class: 'box' }, '↻'), this.asker(e), this.tokens(e.text), h('span', { class: 'again' }, 'tomorrow'));
       return h('li', { class: (e.done ? 'done' : '') + (fresh && this.phase === 'town' ? ' just-done' : '') }, h('span', { class: 'box' }, e.done ? '✓' : ''), this.asker(e), this.tokens(e.text));
     }));
     this.hud.append(
@@ -279,7 +284,9 @@ export class Game {
 
   private planDay(): void {
     const recent = (this.g.recentErrands ??= {});
-    this.g.errands = planRequests({ defs: scenarios, requests, arcs: this.g.arcs, learner: this.learner, vocab, day: this.g.day, recent });
+    // A request that went wrong yesterday comes back first, for another go.
+    const carried = this.g.errands.filter((e) => e.missed && !e.done).map((e) => ({ ...e, missed: false, retry: true }));
+    this.g.errands = planRequests({ defs: scenarios, requests, arcs: this.g.arcs, learner: this.learner, vocab, day: this.g.day, recent, carried });
     for (const e of this.g.errands) recent[`${e.scenario}/${e.variant}`] = this.g.day;
   }
 
@@ -294,7 +301,7 @@ export class Game {
           ? `${due} word${due === 1 ? ' is' : 's are'} due for review. Today's errands were picked to bring them up.`
           : "Here's who could use a hand today."),
       h('ul', { class: 'requests' }, this.g.errands.map((e) => h('li', { class: e.arc ? 'story' : '' },
-        h('div', { class: 'req-who' }, this.asker(e), e.arc ? h('span', { class: 'req-tag' }, this.storyLabel(e)) : null),
+        h('div', { class: 'req-who' }, this.asker(e), e.arc ? h('span', { class: 'req-tag' }, this.storyLabel(e)) : null, e.retry ? h('span', { class: 'req-tag again' }, 'Another go') : null),
         e.reason ? h('div', { class: 'req-reason' }, this.tokens(e.reason)) : null,
         e.reasonEn ? h('details', { class: 'req-en' }, h('summary', {}, 'English'), e.reasonEn) : null,
         h('div', { class: 'req-task' }, h('span', { class: 'box' }), this.tokens(e.text)),
@@ -314,11 +321,15 @@ export class Game {
     this.phase = 'town';
     this.input.clear();
     this.renderHud(true);
+    if (this.pendingUps.length) {
+      this.showLevelUps(this.pendingUps);
+      this.pendingUps = [];
+    }
   }
 
   private confirmSleep(): void {
     if (this.phase !== 'town') return;
-    const left = this.g.errands.filter((e) => !e.done).length;
+    const left = this.g.errands.filter((e) => !e.done && !e.missed).length;
     if (left > 0 && !confirm(`${left} errand${left === 1 ? '' : 's'} left. Go home and end the day?`)) return;
     this.goToNight();
   }
@@ -340,7 +351,7 @@ export class Game {
   private startScenario(def: ScenarioDef): void {
     // Words already met before this conversation: only these can "level up" at its end.
     this.metBefore = new Set(vocab.all().filter((e) => this.learner.status(e.id) !== 'unseen').map((e) => e.id));
-    const errand = this.g.errands.find((e) => e.scenario === def.id && !e.done);
+    const errand = this.g.errands.find((e) => e.scenario === def.id && !e.done && !e.missed);
     const variant = def.variants.find((v) => v.id === errand?.variant) ?? pickVariant(def, this.learner, vocab, this.g.day + this.g.minutes);
     if (variant.price && variant.price > this.g.money) {
       this.toast("You don't have enough money for that.");
@@ -419,9 +430,14 @@ export class Game {
     if (this.g.corrections.length > 300) this.g.corrections.splice(0, this.g.corrections.length - 300);
 
     // An errand is paid for by whoever asked: what you spent comes back, plus a reward.
-    const errand = this.g.errands.find((e) => e.scenario === def.id && e.variant === run.variant.id && !e.done);
-    if (errand) {
-      const pay = errandPay(run.stage, run.corrections.length, run.moneySpent);
+    const errand = this.g.errands.find((e) => e.scenario === def.id && e.variant === run.variant.id && !e.done && !e.missed);
+    const scene = run.consequence ? consequences[run.consequence] : undefined;
+    if (errand && scene) {
+      // It went wrong: whoever asked covers what you spent, there's no reward today, and
+      // the request comes back tomorrow.
+      errand.missed = true;
+    } else if (errand) {
+      const pay = errandPay(run.stage, run.corrections.length, run.moneySpent, errand.retry);
       this.g.money -= run.moneySpent;
       this.addYen(pay.reward + pay.refund, `+${yen(pay.reward)}`);
       this.g.today.yen = (this.g.today.yen ?? 0) - pay.refund;
@@ -442,6 +458,8 @@ export class Game {
       this.g.today.promotions.push(msg);
       this.toast(msg);
       this.celebrate(2.5, 50);
+    } else if (scene) {
+      // The scene says it all.
     } else if (run.clean) {
       this.toast(next.stage >= def.maxStage ? 'Clean visit.' : `Clean visit (${next.cleanRuns}/3 to the next stage).`);
     } else {
@@ -449,7 +467,7 @@ export class Game {
     }
 
     let gift: (typeof requests.arcs)[number] | null = null;
-    if (errand) {
+    if (errand && !scene) {
       errand.done = true;
       const arc = errand.arc ? requests.arcs.find((a) => a.id === errand.arc) : undefined;
       if (arc && errand.step === (this.g.arcs[arc.id] ?? 0)) {
@@ -458,19 +476,76 @@ export class Game {
         if (errand.step + 1 >= arc.steps.length) gift = arc;
         else if (step.thanks) this.toast(`${plainText(parseLine(npcs[arc.from].name, vocab))}: ${plainText(parseLine(step.thanks, vocab))}`);
       }
-      if (this.g.errands.every((e) => e.done)) {
+      if (this.g.errands.every((e) => e.done || e.missed)) {
         this.toast("That's every errand for today. Nice work!");
         this.celebrate(3, 90);
       }
     }
-    this.showLevelUps(ups);
-    this.addXp(ups.length * XP.levelUp + (errand ? XP.errand : 0) + (run.clean ? XP.clean : 0));
+    // Over a gift or a scene the cards would cover the words, so they wait until town.
+    if (gift || scene) this.pendingUps = ups;
+    else this.showLevelUps(ups);
+    this.addXp(ups.length * XP.levelUp + (errand && !scene ? XP.errand : 0) + (run.clean ? XP.clean : 0));
     this.g.minutes = Math.min(DAY_END - 1, this.g.minutes + MINUTES_PER_SCENARIO);
     this.town.invalidate();
     this.phase = 'town';
     this.input.clear();
     this.renderHud(true);
     if (gift) this.showGift(gift);
+    else if (scene) this.showConsequence(run, scene, errand);
+  }
+
+  /** A wrong pick played out: a little scene, the right answer, and when it comes back. */
+  private showConsequence(run: ScenarioRun, scene: ConsequenceDef, errand: Errand | undefined): void {
+    this.phase = 'oops';
+    const slots = run.slots;
+    // English slots ($bad_en) go in as they are; Japanese ones ($num) as plain text.
+    const en = (s: string) => s.replace(/\$([a-z_]+)/g, (m, k: string) => (slots[k] === undefined ? m : k.endsWith('_en') ? slots[k] : plainText(parseLine(slots[k], vocab))));
+    const asker = errand?.from ?? run.def.npc;
+    const speaker = (who: SceneWho) => who === 'asker' ? npcs[asker].name : who === 'staff' ? npcs[run.def.npc].name : null;
+    const art = toCanvas(drawScene(scene.art));
+    art.className = 'oops-art';
+    const fix = run.corrections[run.corrections.length - 1];
+    const lines = scene.lines.map((l) => {
+      const tokens = parseLine(l.text, vocab, slots);
+      this.seeAll(tokens, run.def.place, run.def.npc);
+      const who = speaker(l.who);
+      return h('div', { class: `oops-line who-${l.who}` },
+        who ? h('span', { class: 'oops-who' }, this.tokens(who, false)) : l.who === 'me' || l.who === 'announce' ? h('span', { class: 'oops-who' }, l.who === 'me' ? 'You' : 'Announcement') : null,
+        h('div', { class: 'oops-jp' }, renderTokens(tokens, { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false), isNew: (t) => this.learner.isFresh(t.lemma) })),
+        h('div', { class: 'oops-en' }, en(l.en)),
+      );
+    });
+    const later = errand
+      ? `${plainText(parseLine(npcs[asker].name, vocab))} will ask again tomorrow.`
+      : 'You can try again any time.';
+    this.showScreen(
+      h('h2', {}, `Oops: ${scene.title.toLowerCase()}`),
+      h('div', { class: 'oops' },
+        art,
+        h('div', { class: 'oops-lines' }, lines),
+        h('p', { class: 'oops-outcome' }, en(scene.outcome_en)),
+        fix?.betterTokens?.length
+          ? h('div', { class: 'oops-fix' },
+              h('div', { class: 'oops-fix-label' }, 'What would have worked'),
+              h('div', { class: 'right-answer' }, h('span', { class: 'tick', 'aria-hidden': 'true' }, '✓'), renderTokens(fix.betterTokens, { furigana: ALWAYS })),
+              h('p', { class: 'muted' }, fix.note))
+          : null,
+        h('p', { class: 'oops-later' }, later),
+      ),
+      h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => this.goToTown() }, 'Back to town ▶')),
+    );
+    play(art, 'wobble');
+  }
+
+  private seeAll(tokens: Token[], place: PlaceId, npc: NpcId): void {
+    let fresh = 0;
+    for (const l of lemmasOf(tokens)) {
+      if (this.learner.see(l, { day: this.g.day, place, npc })) {
+        this.g.today.newWords.push(l);
+        fresh++;
+      }
+    }
+    if (fresh) this.addXp(fresh * XP.newWord);
   }
 
   /** The end of a regular's story: their thanks and a keepsake. */

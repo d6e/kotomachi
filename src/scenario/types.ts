@@ -30,6 +30,12 @@ export interface ChoiceDef {
   register?: 'plain' | 'polite';
   /** The answer is only right at this time of day (greetings). */
   correctWhen?: Period;
+  /**
+   * A wrong pick that changes how things turn out (the wrong platform, the wrong ramen).
+   * Instead of a retry the conversation ends and a short scene plays (an id in
+   * data/consequences.json); the request comes back the next day.
+   */
+  consequence?: string;
 }
 
 export interface TilesDef {

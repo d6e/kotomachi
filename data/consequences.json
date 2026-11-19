@@ -1,0 +1,100 @@
+{
+ "wrong_platform": {
+  "title": "On the wrong train",
+  "art": "train",
+  "lines": [
+   {
+    "who": "narration",
+    "text": "$bad 番線 の 電車 に 乗りました=乗る 。",
+    "en": "You got on the train at platform $bad."
+   },
+   {
+    "who": "announce",
+    "text": "次 は 終点 です 。",
+    "en": "“The next stop is the end of the line.”"
+   },
+   {
+    "who": "me",
+    "text": "あれ ？ ここ は どこ ？",
+    "en": "Huh? Where am I?"
+   }
+  ],
+  "outcome_en": "You rode all the way to the end of the line and took the slow train back."
+ },
+ "missed_train": {
+  "title": "Late for the train",
+  "art": "clock",
+  "lines": [
+   {
+    "who": "narration",
+    "text": "ゆっくり コーヒー を 飲みました=飲む 。",
+    "en": "You thought the ride was only $badmins minutes, so you stopped for a coffee first."
+   },
+   {
+    "who": "me",
+    "text": "あ ！ 時間 が ありません=ある ！",
+    "en": "Oh no, I'm out of time!"
+   },
+   {
+    "who": "narration",
+    "text": "電車 は もう 出ました=出る 。",
+    "en": "The train had already gone."
+   }
+  ],
+  "outcome_en": "The ride takes about $mins minutes, so you'd have been late anyway."
+ },
+ "wrong_dose": {
+  "title": "A worrying note",
+  "art": "phone",
+  "lines": [
+   {
+    "who": "narration",
+    "text": "メモ に $bad と 書きました=書く 。",
+    "en": "You wrote “$bad_en” on the note."
+   },
+   {
+    "who": "asker",
+    "text": "あれ ？ ちょっと 心配 です 。 電話 します=する ね 。",
+    "en": "Huh? I'm a little worried. I'll give them a call."
+   },
+   {
+    "who": "staff",
+    "text": "いいえ 、 $chk です よ 。",
+    "en": "No, it's “$chk_en”."
+   },
+   {
+    "who": "asker",
+    "text": "大丈夫 です 。 明日 また お願いします=お願いする 。",
+    "en": "It's fine. Could you check with them again tomorrow?"
+   }
+  ],
+  "outcome_en": "The phone call sorted it out, and nobody took anything the wrong way."
+ },
+ "gekikara": {
+  "title": "Extra hot",
+  "art": "ramen",
+  "lines": [
+   {
+    "who": "narration",
+    "text": "激辛 ラーメン が 来ました=来る 。",
+    "en": "The extra-hot ramen arrived. It was very, very red."
+   },
+   {
+    "who": "narration",
+    "text": "一口 食べました=食べる 。",
+    "en": "You took one bite."
+   },
+   {
+    "who": "me",
+    "text": "辛い ！ 水 ！ 水 ！",
+    "en": "Hot! Water! Water!"
+   },
+   {
+    "who": "staff",
+    "text": "ふふ 、 普通 も あります=ある よ 。",
+    "en": "Heh, we do have regular too, you know."
+   }
+  ],
+  "outcome_en": "You couldn't finish it."
+ }
+}

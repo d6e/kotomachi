@@ -119,6 +119,20 @@
       },
       "blank": { "before": "$dish を", "after": "。", "answers": ["おねがいします", "ください"] },
       "recast": "ご注文=注文 は ？",
+      "next": { "success": "spice" }
+    },
+    "spice": {
+      "onlyFor": ["ramen"],
+      "line": "辛さ は 普通 と 激辛 が あります=ある 。 どちら に します=する か ？",
+      "gloss": "We have regular and extra hot. Which would you like?",
+      "targets": ["辛さ", "普通", "激辛", "どちら"],
+      "grammar": ["de_choice"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "普通 で お願いします=お願いする 。", "gloss": "Regular, please.", "result": "success" },
+        { "text": "激辛 で お願いします=お願いする 。", "gloss": "Extra hot, please.", "result": "npc_amused", "note": "激辛 means extra hot: 激 (fierce) + 辛 (spicy). The regular level is 普通: 普通でお願いします.", "grammar": "de_choice", "consequence": "gekikara" },
+        { "text": "辛さ を 食べます=食べる 。", "gloss": "I'll eat the spiciness.", "result": "npc_puzzled", "reaction": "えっと 、 普通 です か 、 激辛 です か ？", "note": "Pick one with で: 普通でお願いします.", "grammar": "de_choice" }
+      ],
       "next": { "success": "drink" }
     },
     "drink": {

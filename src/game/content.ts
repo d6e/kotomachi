@@ -13,7 +13,9 @@ import restaurant from '../../data/scenarios/restaurant.json' with { type: 'json
 import station from '../../data/scenarios/station.json' with { type: 'json' };
 import post from '../../data/scenarios/post.json' with { type: 'json' };
 import requestsJson from '../../data/requests.json' with { type: 'json' };
+import consequencesJson from '../../data/consequences.json' with { type: 'json' };
 import type { RequestData } from './errands.ts';
+import type { SceneArt } from '../town/scenes.ts';
 import { parseLine, Vocab, type ParseIssue, type VocabEntry } from '../lang/markup.ts';
 import type { GrammarNote, NpcDef, NpcId, ScenarioDef } from '../scenario/types.ts';
 
@@ -29,6 +31,20 @@ export const scenarios: ScenarioDef[] = [cafe, konbini, pharmacy, restaurant, st
 export const scenarioById: Record<string, ScenarioDef> = Object.fromEntries(scenarios.map((s) => [s.id, s]));
 /** The regulars' stories and everyday requests. */
 export const requests = requestsJson as unknown as RequestData;
+
+/** Who says a line in a consequence scene. */
+export type SceneWho = 'narration' | 'me' | 'asker' | 'staff' | 'announce';
+
+/** A short scene that plays when a wrong pick changes how things turn out. */
+export interface ConsequenceDef {
+  title: string;
+  /** Which little picture to draw. */
+  art: SceneArt;
+  /** Lines in markup, with the conversation's slots ($bad, $num...), and English. */
+  lines: { who: SceneWho; text: string; en: string }[];
+  outcome_en: string;
+}
+export const consequences = consequencesJson as unknown as Record<string, ConsequenceDef>;
 
 export interface ContentIssue {
   where: string;
@@ -88,6 +104,12 @@ export function validateContent(defs: ScenarioDef[] = scenarios): ContentIssue[]
           check(where, c.text, slots);
           if (c.reaction) check(`${where} reaction`, c.reaction, slots);
           if (c.grammar && !grammar[c.grammar]) out.push({ where, problem: `unknown grammar note ${c.grammar}` });
+          if (c.consequence) {
+            const scene = consequences[c.consequence];
+            if (!scene) out.push({ where, problem: `unknown consequence ${c.consequence}` });
+            else for (const l of scene.lines) check(`${where} consequence ${c.consequence}`, l.text, slots);
+            if (c.result === 'success') out.push({ where, problem: 'a right answer cannot have a consequence' });
+          }
         }
         if (n.recast) check(`${where} recast`, n.recast, slots);
         for (const a of n.tiles?.answers ?? []) for (const t of a) check(`${where} tile`, t, slots);

@@ -210,6 +210,8 @@ export class ScenarioRun {
   moneySpent = 0;
   clean = true;
   ended = false;
+  /** Set when a wrong pick ended the conversation with a consequence scene. */
+  consequence: string | null = null;
   nodeId: string;
 
   private readonly opts: RunOptions;
@@ -417,6 +419,14 @@ export class ScenarioRun {
       const ended = this.advance('success');
       // Reactions are for mistakes; on success the NPC simply carries on.
       return { correct: true, result: 'success', said, ended };
+    }
+    if (choice.consequence) {
+      // No retry: you go off and it plays out. The correction still goes in the notebook.
+      this.fail(resolved.result, said, resolved.note ?? 'Not quite right here.', choice.grammar);
+      this.consequence = choice.consequence;
+      this.ended = true;
+      this.prompt = null;
+      return { correct: false, result: resolved.result, said, ended: true };
     }
     this.removedChoices.add(index);
     const npcReply = reaction ?? this.parse(node.recast ?? GENERIC_RECAST);

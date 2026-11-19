@@ -1900,5 +1900,77 @@
   "reading": "はちうえ",
   "meaning": "potted plant",
   "pos": "noun"
+ },
+ {
+  "id": "電車",
+  "reading": "でんしゃ",
+  "meaning": "train",
+  "pos": "noun"
+ },
+ {
+  "id": "次",
+  "reading": "つぎ",
+  "meaning": "next; 次は = the next stop is",
+  "pos": "noun"
+ },
+ {
+  "id": "終点",
+  "reading": "しゅうてん",
+  "meaning": "last stop, end of the line",
+  "pos": "noun"
+ },
+ {
+  "id": "あれ",
+  "reading": "あれ",
+  "meaning": "huh? (surprise); also: that thing over there",
+  "pos": "interjection"
+ },
+ {
+  "id": "メモ",
+  "reading": "メモ",
+  "meaning": "memo, note",
+  "pos": "noun"
+ },
+ {
+  "id": "心配",
+  "reading": "しんぱい",
+  "meaning": "worry; 心配です = I'm worried",
+  "pos": "na-adjective"
+ },
+ {
+  "id": "電話",
+  "reading": "でんわ",
+  "meaning": "phone, phone call; 電話する = to call",
+  "pos": "noun"
+ },
+ {
+  "id": "一口",
+  "reading": "ひとくち",
+  "meaning": "one bite, one mouthful",
+  "pos": "noun"
+ },
+ {
+  "id": "辛い",
+  "reading": "からい",
+  "meaning": "spicy, hot",
+  "pos": "i-adjective"
+ },
+ {
+  "id": "激辛",
+  "reading": "げきから",
+  "meaning": "extra hot, fiery (spice level)",
+  "pos": "noun"
+ },
+ {
+  "id": "普通",
+  "reading": "ふつう",
+  "meaning": "regular, normal, ordinary",
+  "pos": "na-adjective"
+ },
+ {
+  "id": "辛さ",
+  "reading": "からさ",
+  "meaning": "spiciness, spice level",
+  "pos": "noun"
  }
 ]

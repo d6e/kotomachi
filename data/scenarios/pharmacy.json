@@ -174,7 +174,7 @@
       "choices": [
         { "text": "$chk です ね 。", "gloss": "$chk_en, got it.", "result": "success" },
         { "text": "わかりました=わかる 。", "gloss": "Understood.", "result": "success" },
-        { "text": "$bad です ね 。", "gloss": "$bad_en, got it.", "result": "npc_puzzled", "reaction": "いいえ 、 $chk です よ 。", "note": "Listen for the details: 一回 once, 二回 twice, 三回 three times, 四回 four times; 食前 before meals, 食後 after meals, 寝る前 before bed.", "grammar": "counters_kai" }
+        { "text": "$bad です ね 。", "gloss": "$bad_en, got it.", "result": "npc_puzzled", "reaction": "いいえ 、 $chk です よ 。", "note": "Listen for the details: 一回 once, 二回 twice, 三回 three times, 四回 four times; 食前 before meals, 食後 after meals, 寝る前 before bed.", "grammar": "counters_kai", "consequence": "wrong_dose" }
       ],
       "tiles": {
         "answers": [["$chk", "です", "ね"]],
