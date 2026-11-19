@@ -191,6 +191,9 @@ ruby.no-furi rt { visibility: hidden; }
 .cat-state { font-size: 12px; font-weight: 800; color: var(--muted); }
 .cat-state.owned { color: var(--good); }
 button.small { padding: 4px 12px; font-size: 14px; }
+.trip-name { font-size: 22px; line-height: 1.9; }
+.cat-item.building, .cat-item.late { opacity: 0.75; }
+.cat-state.building { font-size: 15px; color: var(--ink); }
 
 /* A wrong pick played out: a little picture, the lines, then what would have worked. */
 .errands li.missed .jp, .errands li.missed .asker { opacity: 0.55; }

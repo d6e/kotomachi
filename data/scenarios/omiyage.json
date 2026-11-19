@@ -1,0 +1,254 @@
+{
+  "id": "omiyage_buy",
+  "title": "Souvenirs in Kamakura",
+  "place": "omiyage",
+  "npc": "sato",
+  "maxStage": 4,
+  "errand": "鎌倉 で $item を 買う",
+  "start": "welcome",
+  "variants": [
+    {
+      "id": "okimono",
+      "price": 1500,
+      "slots": {
+        "item": "大仏 の 置物",
+        "item_en": "Great Buddha figurine"
+      }
+    },
+    {
+      "id": "ehagaki",
+      "price": 300,
+      "slots": {
+        "item": "絵はがき",
+        "item_en": "picture postcard"
+      }
+    },
+    {
+      "id": "okashi",
+      "price": 1000,
+      "slots": {
+        "item": "お菓子",
+        "item_en": "box of sweets"
+      }
+    }
+  ],
+  "nodes": {
+    "welcome": {
+      "line": "いらっしゃいませ 。 何 か お探し=探す です か ？",
+      "gloss": "Welcome. Are you looking for anything?",
+      "targets": [
+        "お土産",
+        "買う"
+      ],
+      "grammar": [
+        "tai"
+      ],
+      "choices": [
+        {
+          "text": "お土産 を 買いたい=買う です 。",
+          "gloss": "I'd like to buy a souvenir.",
+          "result": "success"
+        },
+        {
+          "text": "お土産 を 売りたい=売る です 。",
+          "gloss": "I'd like to sell a souvenir.",
+          "result": "npc_amused",
+          "reaction": "え ？ ふふ 、 買いたい=買う 、 です よ ね ？",
+          "note": "売る means sell, 買う means buy: お土産を買いたいです.",
+          "grammar": "tai"
+        },
+        {
+          "text": "はい 、 お探し=探す です 。",
+          "gloss": "Yes, I'm looking.",
+          "result": "npc_confused",
+          "reaction": "えっと … 何 を お探し=探す です か ？",
+          "note": "お探しですか is the shop's polite question. Say what you want: お土産を買いたいです.",
+          "grammar": "tai"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "お土産",
+            "を",
+            "買いたい=買う",
+            "です"
+          ]
+        ],
+        "decoys": [
+          "売りたい=売る",
+          "に",
+          "お探し=探す"
+        ]
+      },
+      "blank": {
+        "before": "お土産 を",
+        "after": "です 。",
+        "answers": [
+          "かいたい"
+        ]
+      },
+      "recast": "何 か お探し=探す です か ？",
+      "next": {
+        "success": "suggest"
+      }
+    },
+    "suggest": {
+      "line": "$item は どう です か ？ 人気 です よ 。",
+      "gloss": "How about the $item_en? It's popular.",
+      "targets": [
+        "人気",
+        "これ"
+      ],
+      "grammar": [
+        "kosoado"
+      ],
+      "choices": [
+        {
+          "text": "いい です ね 。 これ を ください 。",
+          "gloss": "That's nice. I'll take this, please.",
+          "result": "success"
+        },
+        {
+          "text": "いい です ね 。 どれ を ください 。",
+          "gloss": "That's nice. Which one, please.",
+          "result": "npc_puzzled",
+          "reaction": "これ 、 です か ？",
+          "note": "どれ asks 'which one?'. For the one in front of you, say これをください.",
+          "grammar": "kosoado"
+        },
+        {
+          "text": "はい 、 人気 です 。",
+          "gloss": "Yes, it's popular.",
+          "result": "npc_confused",
+          "reaction": "えっと … いかが です か ？",
+          "note": "人気です is the shop telling you it sells well. To buy it, say これをください.",
+          "grammar": "kosoado"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "これ",
+            "を",
+            "ください"
+          ]
+        ],
+        "decoys": [
+          "どれ",
+          "は",
+          "人気"
+        ]
+      },
+      "blank": {
+        "before": "いい です ね 。",
+        "after": "を ください 。",
+        "answers": [
+          "これ"
+        ]
+      },
+      "recast": "$item は どう です か ？",
+      "next": {
+        "success": "pay"
+      }
+    },
+    "pay": {
+      "line": "$price 円 です 。",
+      "gloss": "That's ¥$price.",
+      "targets": [
+        "カード",
+        "現金"
+      ],
+      "grammar": [
+        "de_choice"
+      ],
+      "effects": {
+        "pay": true
+      },
+      "choices": [
+        {
+          "text": "カード で お願いします=お願いする 。",
+          "gloss": "By card, please.",
+          "result": "success"
+        },
+        {
+          "text": "現金 で 。",
+          "gloss": "Cash.",
+          "result": "success"
+        },
+        {
+          "text": "カード を お願いします=お願いする 。",
+          "gloss": "A card, please.",
+          "result": "npc_puzzled",
+          "reaction": "カード で 、 です ね 。",
+          "note": "How you pay takes で: カードでお願いします.",
+          "grammar": "de_choice"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "カード",
+            "で",
+            "お願いします=お願いする"
+          ],
+          [
+            "現金",
+            "で",
+            "お願いします=お願いする"
+          ]
+        ],
+        "decoys": [
+          "を",
+          "に"
+        ]
+      },
+      "blank": {
+        "before": "カード",
+        "after": "お願いします=お願いする 。",
+        "answers": [
+          "で"
+        ]
+      },
+      "recast": "カード です か ？ 現金 です か ？",
+      "next": {
+        "success": "bye"
+      }
+    },
+    "bye": {
+      "line": "ありがとうございました=ありがとうございます 。 また どうぞ 。",
+      "gloss": "Thank you very much. Please come again.",
+      "targets": [
+        "また"
+      ],
+      "grammar": [
+        "irasshaimase"
+      ],
+      "maxMode": 2,
+      "choices": [
+        {
+          "text": "ありがとうございます 。",
+          "gloss": "Thank you.",
+          "result": "success"
+        },
+        {
+          "text": "いらっしゃいませ 。",
+          "gloss": "Welcome (to my shop).",
+          "result": "npc_amused",
+          "reaction": "ふふ 。 それ は 私 の 言葉 です よ 。",
+          "note": "いらっしゃいませ is what shops say to customers. Just say ありがとうございます.",
+          "grammar": "irasshaimase"
+        },
+        {
+          "text": "いただきます 。",
+          "gloss": "(said before eating)",
+          "result": "npc_amused",
+          "reaction": "ふふ 。",
+          "note": "いただきます is for just before you eat. To thank someone, say ありがとうございます.",
+          "grammar": "itadakimasu"
+        }
+      ],
+      "end": true
+    }
+  }
+}

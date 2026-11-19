@@ -53,6 +53,10 @@ export interface SmallRequest {
   from: NpcId;
   reason: string;
   reason_en: string;
+  /** Only asked once you've reached this level (a trip needs a ticket you can buy). */
+  level?: number;
+  /** Needs a train trip: at most one of these a day, and not every day. */
+  trip?: boolean;
 }
 
 export interface RequestData {
@@ -155,6 +159,8 @@ export interface PlanInput {
   recent?: Record<string, number>;
   /** Requests that came back from yesterday (they go first). */
   carried?: Errand[];
+  /** The player's level, for requests that need one. */
+  level?: number;
 }
 
 /**
@@ -189,8 +195,13 @@ export function planRequests(input: PlanInput): Errand[] {
     story++;
   }
 
-  // Places for everyday requests, the most useful first.
-  const places = [...new Set(requests.small.map((r) => r.scenario))]
+  // Places for everyday requests, the most useful first. Trip requests wait for the
+  // level that buys the ticket, and come up on some days only.
+  const level = input.level ?? 1;
+  const tripDay = dayHash(day, 'trip') < 0.5;
+  const small = requests.small.filter((r) => (r.level ?? 1) <= level && (!r.trip || tripDay));
+  let trips = out.filter((e) => small.some((r) => r.trip && r.scenario === e.scenario)).length;
+  const places = [...new Set(small.map((r) => r.scenario))]
     .filter((id) => byId.get(id)?.errand && !usedPlace.has(id))
     .map((id) => {
       const def = byId.get(id)!;
@@ -203,7 +214,11 @@ export function planRequests(input: PlanInput): Errand[] {
   for (const c of places) {
     if (out.length >= ERRANDS_PER_DAY) break;
     // Someone who hasn't asked yet today, if anyone can ask for this place.
-    const askers = requests.small.filter((r) => r.scenario === c.def.id);
+    const askers = small.filter((r) => r.scenario === c.def.id);
+    if (askers.some((r) => r.trip)) {
+      if (trips >= 1) continue;
+      trips++;
+    }
     const used = new Set(out.map((e) => e.from));
     const r = askers.find((x) => !used.has(x.from)) ?? askers[Math.floor(dayHash(day, c.def.id + 'who') * askers.length)]!;
     out.push({ scenario: c.def.id, variant: c.v.id, text: fill(c.def, c.v), done: false, from: r.from, reason: r.reason, reasonEn: r.reason_en });

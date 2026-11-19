@@ -8,8 +8,8 @@
 
 export type Result = 'success' | 'npc_confused' | 'npc_amused' | 'npc_puzzled';
 export type Period = 'morning' | 'day' | 'evening';
-export type PlaceId = 'cafe' | 'konbini' | 'pharmacy' | 'restaurant' | 'station' | 'post' | 'street';
-export type NpcId = 'yuki' | 'clerk' | 'mori' | 'server' | 'ekiin' | 'kobayashi' | 'tanaka';
+export type PlaceId = 'cafe' | 'konbini' | 'pharmacy' | 'restaurant' | 'station' | 'post' | 'street' | 'shrine' | 'omiyage';
+export type NpcId = 'yuki' | 'clerk' | 'mori' | 'server' | 'ekiin' | 'kobayashi' | 'tanaka' | 'takahashi' | 'sato';
 
 /** 0 = no input (continue), 1..5 = ladder rungs. */
 export type Mode = 0 | 1 | 2 | 3 | 4 | 5;

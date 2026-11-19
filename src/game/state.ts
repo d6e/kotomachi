@@ -143,6 +143,9 @@ export const HOURS: Record<string, [number, number]> = {
   pharmacy: [9 * 60, 19 * 60],
   restaurant: [11 * 60, 22 * 60],
   post: [9 * 60, 17 * 60],
+  // On the 鎌倉 trip.
+  shrine: [9 * 60, 17 * 60],
+  omiyage: [9 * 60, 19 * 60],
 };
 
 export function isOpen(place: string, minutes: number): boolean {

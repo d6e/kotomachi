@@ -1,0 +1,247 @@
+{
+  "id": "shrine_visit",
+  "title": "A charm at the shrine",
+  "place": "shrine",
+  "npc": "takahashi",
+  "maxStage": 4,
+  "errand": "鎌倉 の 神社 で $item の お守り を 買う",
+  "start": "greet",
+  "variants": [
+    {
+      "id": "kenkou",
+      "price": 800,
+      "slots": {
+        "item": "健康",
+        "item_en": "good health"
+      }
+    },
+    {
+      "id": "gakugyou",
+      "price": 800,
+      "slots": {
+        "item": "学業",
+        "item_en": "studies"
+      }
+    }
+  ],
+  "nodes": {
+    "greet": {
+      "line": "こんにちは 。 お参り です か ？",
+      "gloss": "Hello. Have you come to pray?",
+      "targets": [
+        "お参り",
+        "来る"
+      ],
+      "grammar": [
+        "ni_kuru"
+      ],
+      "choices": [
+        {
+          "text": "はい 、 お参り に 来ました=来る 。",
+          "gloss": "Yes, I've come to pray.",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 お参り で 来ました=来る 。",
+          "gloss": "(wrong particle)",
+          "result": "npc_puzzled",
+          "reaction": "お参り に 、 です ね 。 どうぞ 。",
+          "note": "Coming to do something takes に: お参りに来ました.",
+          "grammar": "ni_kuru"
+        },
+        {
+          "text": "はい 、 電車 に 乗ります=乗る 。",
+          "gloss": "Yes, I'll get on the train.",
+          "result": "npc_confused",
+          "reaction": "え ？ ここ は 神社 です よ 。",
+          "note": "お参りですか asks whether you've come to pray. Answer お参りに来ました.",
+          "grammar": "ni_kuru"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "はい 、",
+            "お参り",
+            "に",
+            "来ました=来る"
+          ]
+        ],
+        "decoys": [
+          "で",
+          "を",
+          "乗ります=乗る"
+        ]
+      },
+      "blank": {
+        "before": "はい 、 お参り",
+        "after": "来ました=来る 。",
+        "answers": [
+          "に"
+        ]
+      },
+      "recast": "お参り です か ？",
+      "next": {
+        "success": "charm"
+      }
+    },
+    "charm": {
+      "line": "お守り は いかが です か ？ $item の お守り が 人気 です よ 。",
+      "gloss": "Would you like a charm? The one for $item_en is popular.",
+      "targets": [
+        "お守り",
+        "人気",
+        "一つ"
+      ],
+      "grammar": [
+        "hitotsu",
+        "mai"
+      ],
+      "choices": [
+        {
+          "text": "$item の お守り を 一つ ください 。",
+          "gloss": "One charm for $item_en, please.",
+          "result": "success"
+        },
+        {
+          "text": "$item の お守り を 一枚 ください 。",
+          "gloss": "One sheet of the $item_en charm, please.",
+          "result": "npc_puzzled",
+          "reaction": "一つ 、 です ね 。",
+          "note": "お守り is counted with 一つ. 一枚 is for flat things like tickets and stamps.",
+          "grammar": "mai"
+        },
+        {
+          "text": "お守り は 人気 です 。",
+          "gloss": "Charms are popular.",
+          "result": "npc_confused",
+          "reaction": "はい 、 そう です ね … 。 いかが です か ？",
+          "note": "That only repeats what you heard. To ask for one, say ～を一つください.",
+          "grammar": "hitotsu"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "$item",
+            "の",
+            "お守り",
+            "を",
+            "一つ",
+            "ください"
+          ]
+        ],
+        "decoys": [
+          "一枚",
+          "は",
+          "人気"
+        ]
+      },
+      "blank": {
+        "before": "$item の お守り を",
+        "after": "ください 。",
+        "answers": [
+          "ひとつ"
+        ]
+      },
+      "recast": "お守り は いかが です か ？",
+      "next": {
+        "success": "pay"
+      }
+    },
+    "pay": {
+      "line": "$price 円 です 。",
+      "gloss": "That's ¥$price.",
+      "targets": [
+        "円"
+      ],
+      "grammar": [
+        "itadakimasu"
+      ],
+      "effects": {
+        "pay": true
+      },
+      "choices": [
+        {
+          "text": "はい 、 どうぞ 。",
+          "gloss": "Here you are.",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 いただきます 。",
+          "gloss": "(said before eating)",
+          "result": "npc_amused",
+          "reaction": "ふふ 。 $price 円 です よ 。",
+          "note": "いただきます is for just before you eat. Handing money over, say はい、どうぞ.",
+          "grammar": "itadakimasu"
+        },
+        {
+          "text": "ごちそうさまでした 。",
+          "gloss": "Thank you for the meal.",
+          "result": "npc_amused",
+          "reaction": "… ？ $price 円 です 。",
+          "note": "ごちそうさまでした is for after a meal, not when you pay.",
+          "grammar": "gochisousama"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "はい 、",
+            "どうぞ"
+          ]
+        ],
+        "decoys": [
+          "いただきます",
+          "ください"
+        ]
+      },
+      "blank": {
+        "before": "はい 、",
+        "after": "。",
+        "answers": [
+          "どうぞ"
+        ]
+      },
+      "recast": "$price 円 です 。",
+      "next": {
+        "success": "bye"
+      }
+    },
+    "bye": {
+      "line": "ありがとうございます 。 お気をつけて 。",
+      "gloss": "Thank you. Take care on your way.",
+      "targets": [
+        "お気をつけて"
+      ],
+      "grammar": [
+        "kiwotsukete"
+      ],
+      "maxMode": 2,
+      "choices": [
+        {
+          "text": "ありがとうございます 。",
+          "gloss": "Thank you.",
+          "result": "success"
+        },
+        {
+          "text": "いってきます 。",
+          "gloss": "I'm off! (said leaving home)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 いってらっしゃい 。",
+          "note": "いってきます is for leaving your own home or workplace. Answer お気をつけて with ありがとうございます.",
+          "grammar": "ittekimasu"
+        },
+        {
+          "text": "おやすみなさい 。",
+          "gloss": "Good night.",
+          "result": "npc_puzzled",
+          "reaction": "え ？ … はい 。",
+          "note": "おやすみなさい is for bedtime. Answer お気をつけて with ありがとうございます.",
+          "grammar": "greetings_time"
+        }
+      ],
+      "end": true
+    }
+  }
+}

@@ -17,7 +17,15 @@ export const ROOM_ROWS = 13;
  * 'x' postbox, 'b' bed, 'r' rug (walkable), 'w' low table at home, 'o' something you
  * bought for your room (drawn from the room's decor list).
  */
-export type RoomCell = ' ' | '#' | '.' | 'D' | 'S' | '=' | 'h' | 'H' | 'f' | 'm' | 't' | 'c' | 'p' | 'n' | 'g' | 'k' | 'x' | 'b' | 'r' | 'w' | 'o';
+export type RoomCell = ' ' | '#' | '.' | 'D' | 'S' | '=' | 'h' | 'H' | 'f' | 'm' | 't' | 'c' | 'p' | 'n' | 'g' | 'k' | 'x' | 'b' | 'r' | 'w' | 'o'
+  // Outdoors on a trip: 'T' tree, ',' stone path, 'L' stone lantern, 'P' a torii's post,
+  // '1' and '2' doors into the places there (walk onto one to go in).
+  | 'T' | ',' | 'L' | 'P' | '1' | '2';
+
+/** The places you can reach by train: the town you arrive in, and the places in it. */
+export type TripPlace = 'kamakura' | 'shrine' | 'omiyage';
+/** Anywhere with its own room-sized map: the insides on the street, and trip places. */
+export type Scene = DoorPlace | TripPlace;
 
 /** Things in a room you can use: the catalog at the post office, your shelf at home. */
 export type ThingId = 'catalog' | 'shelf' | 'tickets';
@@ -30,12 +38,12 @@ export interface DecorItem {
   spot?: TilePos;
 }
 
-const WALKABLE: ReadonlySet<string> = new Set(['.', 'D', 'r']);
+const WALKABLE: ReadonlySet<string> = new Set(['.', 'D', 'r', ',', '1', '2']);
 
 export type FloorKind = 'wood' | 'tile' | 'stone' | 'tatami';
 
 export interface RoomDef {
-  place: DoorPlace;
+  place: Scene;
   rows: string[];
   floor: FloorKind;
   /** The back wall's colour roles: fill and its shadow. */
@@ -52,6 +60,12 @@ export interface RoomDef {
   decor?: DecorItem[];
   /** Keepsake ids, shown on the shelf (home only). */
   keepsakes?: string[];
+  /** Drawn as an open-air area instead of a room (a trip's town). */
+  outdoor?: boolean;
+  /** Doors in this map to other places: walk onto the cell to go in. */
+  doors?: { cell: RoomCell; to: TripPlace }[];
+  /** Where the 'D' door leads: the street (unset), another trip place, or the train home. */
+  exit?: TripPlace | 'train';
 }
 
 export const ROOMS: Record<DoorPlace, RoomDef> = {
@@ -149,6 +163,7 @@ export const ROOMS: Record<DoorPlace, RoomDef> = {
     wall: 'stationWall',
     sign: '切符',
     staff: 'ekiin',
+    things: [{ cell: 'm', id: 'tickets' }],
     rows: [
       '                    ',
       '                    ',
@@ -213,6 +228,99 @@ export const ROOMS: Record<DoorPlace, RoomDef> = {
 };
 
 export const ROOM_PLACES = Object.keys(ROOMS) as DoorPlace[];
+
+/**
+ * 鎌倉, the first trip. You step off the train at the bottom, walk up the stone path,
+ * through a torii to the shrine on the left, or to the souvenir shop on the right.
+ */
+export const TRIP_ROOMS: Record<TripPlace, RoomDef> = {
+  kamakura: {
+    place: 'kamakura',
+    floor: 'stone',
+    wall: 'wall',
+    outdoor: true,
+    exit: 'train',
+    doors: [{ cell: '1', to: 'shrine' }, { cell: '2', to: 'omiyage' }],
+    rows: [
+      'TTTTTTTTTTTTTTTTTTTT',
+      'TTTTTTTTTTTTTTTTTTTT',
+      'T.#####....#######.T',
+      'T.#####....#######.T',
+      'T.##1##.L..###2###.T',
+      'T...,.........,....T',
+      'T..P,P........,..n.T',
+      'T...,,,,,,,,,,,....T',
+      'T.T......,......T..T',
+      'T..L.....,.....L...T',
+      'T........,.........T',
+      'TTTTTTTTT,TTTTTTTTTT',
+      '         D          ',
+    ],
+  },
+  shrine: {
+    place: 'shrine',
+    floor: 'wood',
+    wall: 'cream',
+    sign: 'お守り',
+    staff: 'takahashi',
+    exit: 'kamakura',
+    rows: [
+      '                    ',
+      '                    ',
+      ' ################## ',
+      ' ################## ',
+      ' #p..hhh.S.hhh...p# ',
+      ' #.....=====......# ',
+      ' #................# ',
+      ' #................# ',
+      ' #nn..........nn..# ',
+      ' #................# ',
+      ' #p..............p# ',
+      ' ########D######### ',
+      '                    ',
+    ],
+  },
+  omiyage: {
+    place: 'omiyage',
+    floor: 'wood',
+    wall: 'wall2',
+    sign: 'お土産',
+    staff: 'sato',
+    exit: 'kamakura',
+    rows: [
+      '                    ',
+      '                    ',
+      ' ################## ',
+      ' ################## ',
+      ' #hhh..hhShh...hhh# ',
+      ' #.....=====......# ',
+      ' #................# ',
+      ' #..HHH......HHH..# ',
+      ' #................# ',
+      ' #..HHH......HHH..# ',
+      ' #p..............p# ',
+      ' ########D######### ',
+      '                    ',
+    ],
+  },
+};
+
+/** Any place's map. */
+export function roomFor(scene: Scene): RoomDef {
+  return scene in ROOMS ? ROOMS[scene as DoorPlace] : TRIP_ROOMS[scene as TripPlace];
+}
+
+/** Where a door cell is in a map. */
+export function doorCell(room: RoomDef, to: TripPlace): TilePos | null {
+  const d = room.doors?.find((x) => x.to === to);
+  return d ? find(room, d.cell) : null;
+}
+
+/** The trip place whose door is on this tile, if any. */
+export function doorTo(room: RoomDef, tx: number, ty: number): TripPlace | null {
+  const c = cellAt(room, tx, ty);
+  return room.doors?.find((d) => d.cell === c)?.to ?? null;
+}
 
 export function cellAt(room: RoomDef, tx: number, ty: number): RoomCell {
   return (room.rows[ty]?.[tx] ?? ' ') as RoomCell;

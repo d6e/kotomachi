@@ -26,7 +26,7 @@ export type Measure = (text: string) => number;
 
 // ------------------------------------------------------------------ ground
 
-function grass(b: Buf, x0: number, y0: number, w: number, h: number): void {
+export function grass(b: Buf, x0: number, y0: number, w: number, h: number): void {
   b.rect(x0, y0, w, h, 'grass');
   for (let ty = y0; ty < y0 + h; ty += 8)
     for (let tx = x0; tx < x0 + w; tx += 8) {
@@ -51,7 +51,7 @@ export function flower(b: Buf, x: number, y: number, petal: Role): void {
   b.set(x, y, 'flowerC');
 }
 
-function flowerPatch(b: Buf, x0: number, y0: number, w: number, h: number, seed = 0): void {
+export function flowerPatch(b: Buf, x0: number, y0: number, w: number, h: number, seed = 0): void {
   for (let y = y0 + 3; y < y0 + h - 1; y += 5)
     for (let x = x0 + 3; x < x0 + w - 1; x += 6) {
       const r = hash(x, y, seed + 9);
@@ -89,7 +89,7 @@ function dirtTile(b: Buf, grid: Grid, tx: number, ty: number): void {
   }
 }
 
-function tree(b: Buf, x0: number, y0: number): void {
+export function tree(b: Buf, x0: number, y0: number): void {
   b.ellipseShadow(x0 + 8.5, y0 + 15, 7, 2.2);
   b.shape(x0 + 5, y0 + 10, 6, 6, (x, y) => x >= 0 && x < 6 && y >= 0 && y < 6, (x) => (x >= 3 ? 'trunkSh' : 'trunk'));
   // A few overlapping circles make the canopy round and a bit bumpy.
@@ -123,7 +123,7 @@ function lamp(b: Buf, cx: number, yTop: number, yBottom: number): void {
   b.box(cx - 2, yBottom - 2, 5, 3, 'lamp');
 }
 
-function bench(b: Buf, x0: number, y0: number): void {
+export function bench(b: Buf, x0: number, y0: number): void {
   b.ellipseShadow(x0 + 8, y0 + 13, 8, 2);
   b.box(x0, y0 + 2, 16, 4, 'bench');
   b.box(x0, y0 + 6, 16, 3, 'benchSh');

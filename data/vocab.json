@@ -2038,5 +2038,125 @@
   "reading": "とどける",
   "meaning": "to deliver; 届けます = we'll deliver it",
   "pos": "verb (ru)"
+ },
+ {
+  "id": "高橋",
+  "reading": "たかはし",
+  "meaning": "Takahashi (a family name): at the shrine's charm counter in Kamakura",
+  "pos": "name"
+ },
+ {
+  "id": "佐藤",
+  "reading": "さとう",
+  "meaning": "Sato (a family name): runs the souvenir shop in Kamakura",
+  "pos": "name"
+ },
+ {
+  "id": "神社",
+  "reading": "じんじゃ",
+  "meaning": "Shinto shrine",
+  "pos": "noun"
+ },
+ {
+  "id": "お参り",
+  "reading": "おまいり",
+  "meaning": "a visit to a shrine or temple to pray",
+  "pos": "noun"
+ },
+ {
+  "id": "お守り",
+  "reading": "おまもり",
+  "meaning": "good-luck charm from a shrine or temple",
+  "pos": "noun"
+ },
+ {
+  "id": "人気",
+  "reading": "にんき",
+  "meaning": "popularity; 人気です = it's popular",
+  "pos": "noun"
+ },
+ {
+  "id": "健康",
+  "reading": "けんこう",
+  "meaning": "health",
+  "pos": "noun"
+ },
+ {
+  "id": "学業",
+  "reading": "がくぎょう",
+  "meaning": "studies, schoolwork",
+  "pos": "noun"
+ },
+ {
+  "id": "お土産",
+  "reading": "おみやげ",
+  "meaning": "souvenir; a gift you bring back from a trip",
+  "pos": "noun"
+ },
+ {
+  "id": "大仏",
+  "reading": "だいぶつ",
+  "meaning": "great statue of the Buddha (Kamakura has a famous one)",
+  "pos": "noun"
+ },
+ {
+  "id": "置物",
+  "reading": "おきもの",
+  "meaning": "ornament, figurine",
+  "pos": "noun"
+ },
+ {
+  "id": "絵はがき",
+  "reading": "えはがき",
+  "meaning": "picture postcard",
+  "pos": "noun"
+ },
+ {
+  "id": "お菓子",
+  "reading": "おかし",
+  "meaning": "sweets, snacks",
+  "pos": "noun"
+ },
+ {
+  "id": "売る",
+  "reading": "うる",
+  "meaning": "to sell",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "どれ",
+  "reading": "どれ",
+  "meaning": "which one (of three or more)",
+  "pos": "pronoun"
+ },
+ {
+  "id": "箱根",
+  "reading": "はこね",
+  "meaning": "Hakone (hot springs in the mountains)",
+  "pos": "name"
+ },
+ {
+  "id": "日光",
+  "reading": "にっこう",
+  "meaning": "Nikko (old shrines in the forest)",
+  "pos": "name"
+ },
+ {
+  "id": "工事中",
+  "reading": "こうじちゅう",
+  "meaning": "under construction",
+  "pos": "noun"
+ },
+ {
+  "id": "旅行",
+  "reading": "りょこう",
+  "meaning": "trip, travel",
+  "pos": "noun"
+ },
+ {
+  "id": "楽しみ",
+  "reading": "たのしみ",
+  "meaning": "something to look forward to; 楽しみにしています = I'm looking forward to it",
+  "pos": "noun"
  }
 ]

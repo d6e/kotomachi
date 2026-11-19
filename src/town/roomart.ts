@@ -44,6 +44,8 @@ const COUNTERS: Record<string, Pick<Theme, 'counterTop' | 'counterFront' | 'coun
   station: { counterTop: 'stone', counterFront: 'stationWallSh', counterBand: 'navy' },
   post: { counterTop: 'tileA', counterFront: 'cream', counterBand: 'postRed' },
   home: { counterTop: 'woodHi', counterFront: 'wood', counterBand: 'woodSh' },
+  shrine: { counterTop: 'woodHi', counterFront: 'roofA', counterBand: 'white' },
+  omiyage: { counterTop: 'woodHi', counterFront: 'wood', counterBand: 'noren' },
 };
 
 const isWall = (c: string) => c === '#';
@@ -131,6 +133,7 @@ export function drawRoom(room: RoomDef, measure: Measure): RoomArt {
           break;
         case 'h':
           if (room.keepsakes) keepsakeShelf(b, x, y, room.keepsakes);
+          else if (room.place === 'shrine') charmRack(b, x, y, tx);
           else wallShelf(b, x, y, tx);
           break;
         case 'H':
@@ -293,6 +296,35 @@ function decorate(b: Buf, signs: SignSpot[], measure: Measure, room: RoomDef, th
       for (const tx of [4, 12]) windowPane(b, tx * TILE + 2, mid + 2, 3 * TILE - 4, 18);
       break;
     }
+    case 'shrine': {
+      // A rope with white paper zigzags along the wall, and wooden prayer plaques.
+      b.rect(2 * TILE, mid, 16 * TILE, 3, 'dirt');
+      b.rect(2 * TILE, mid, 16 * TILE, 1, 'dirtSh');
+      for (let x = 2 * TILE + 6; x < 18 * TILE; x += 22) {
+        b.rect(x, mid + 3, 2, 2, 'white');
+        b.rect(x + 1, mid + 5, 2, 2, 'white');
+        b.rect(x, mid + 7, 2, 2, 'white');
+      }
+      for (const tx of [3, 14]) for (let i = 0; i < 3; i++) {
+        const x = tx * TILE + i * 9 - 4;
+        b.box(x, mid + 10, 8, 7, 'woodHi');
+        b.rect(x + 2, mid + 12, 4, 1, 'ink');
+        b.rect(x + 2, mid + 14, 3, 1, 'ink');
+      }
+      signAt(9 * TILE + 8);
+      break;
+    }
+    case 'omiyage':
+      signAt(9 * TILE + 8);
+      windowPane(b, 4 * TILE + 2, mid + 2, 28, 18);
+      windowPane(b, 12 * TILE + 2, mid + 2, 28, 18);
+      for (const tx of [7, 11]) {
+        const lx = tx * TILE + 5;
+        b.rect(lx + 2, wallY + 4, 1, 3, 'out');
+        b.box(lx, mid + 3, 6, 9, 'lantern');
+        b.rect(lx + 1, mid + 4, 1, 7, 'lanternSh');
+      }
+      break;
     case 'home': {
       windowPane(b, 7 * TILE + 6, mid + 3, 30, 18);
       // A wall clock and a calendar.
@@ -521,6 +553,20 @@ function lowTable(b: Buf, x: number, y: number): void {
 // ------------------------------------------------------------------ your room
 
 /** Your shelf at home, with a little picture of each keepsake on it. */
+/** Rows of charms on red cloth, at the shrine's counter. */
+function charmRack(b: Buf, x: number, y: number, seed: number): void {
+  b.box(x, y - 11, TILE, 26, 'woodSh');
+  b.rect(x + 1, y - 10, TILE - 2, 24, 'roofA');
+  const colours: Role[] = ['white', 'roofB', 'gold', 'roofC', 'flowerA', 'roofD'];
+  for (let r = 0; r < 3; r++)
+    for (let i = 0; i < 3; i++) {
+      const cx = x + 2 + i * 4;
+      const cy = y - 8 + r * 8;
+      b.box(cx, cy, 3, 5, colours[Math.floor(hash(seed, r * 3 + i, 6) * colours.length)]!);
+      b.set(cx + 1, cy + 2, 'gold');
+    }
+}
+
 function keepsakeShelf(b: Buf, x: number, y: number, keepsakes: string[]): void {
   b.box(x - 2, y - 11, TILE + 4, 26, 'woodSh');
   for (let s = 0; s < 3; s++) {
@@ -528,10 +574,10 @@ function keepsakeShelf(b: Buf, x: number, y: number, keepsakes: string[]): void 
     b.rect(x - 1, sy, TILE + 2, 7, 'wood');
     b.rect(x - 1, sy + 6, TILE + 2, 1, 'out');
   }
-  // Two to a shelf, top shelf first.
-  keepsakes.slice(0, 6).forEach((id, i) => {
-    const sx = x + (i % 2) * 8;
-    const sy = y - 9 + Math.floor(i / 2) * 8;
+  // Three to a shelf, top shelf first.
+  keepsakes.slice(0, 9).forEach((id, i) => {
+    const sx = x - 1 + (i % 3) * 6;
+    const sy = y - 9 + Math.floor(i / 3) * 8;
     (KEEPSAKE_ART[id] ?? genericKeepsake)(b, sx, sy + 6);
   });
   for (let i = -1; i < TILE + 1; i++) b.shadow(x + i, y + 15);
@@ -569,6 +615,13 @@ export const KEEPSAKE_ART: Record<string, Mini> = {
   omamori: (b, x, base) => {
     b.box(x + 1, base - 6, 4, 6, 'roofG');
     b.rect(x + 2, base - 4, 2, 1, 'gold');
+  },
+  // A picture postcard of the sea, leaning against the back.
+  ehagaki: (b, x, base) => {
+    b.box(x, base - 5, 7, 5, 'white');
+    b.rect(x + 1, base - 4, 5, 1, 'glass');
+    b.rect(x + 1, base - 3, 5, 1, 'water');
+    b.set(x + 4, base - 4, 'flowerB');
   },
 };
 

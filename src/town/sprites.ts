@@ -297,4 +297,27 @@ export const STAFF: Record<string, StaffArt> = {
     rows: [...SHORT_HAIR, ...FACE, '..OkkCCCCCCkkO..', '.OSOCCCcCCCCOSO.', '..OOcCCCCCCcOO..', BODY[3]!],
     key: staffKey({ C: 'postRed', c: 'postRedSh', k: 'white' }),
   },
+  // 高橋さん at the shrine's charm counter in 鎌倉: black hair tied back, a white robe
+  // crossed at the front, and pale blue trousers.
+  takahashi: {
+    rows: [
+      '......OOOO......',
+      '....OOHHHHOO....',
+      '...OHHhhHHHHO...',
+      '..OHHhHHHHHHHO..',
+      '.OHHHHHHHHHHHHO.',
+      '.OHHHHHHHHHHHHO.',
+      ...FACE,
+      '..OCCkCCCCkCCO..',
+      '.OSOCCCkkCCCOSO.',
+      '..OOddddddddOO..',
+      '...OddO..OddO...',
+    ],
+    key: staffKey({ H: 'hairK', h: 'hairKHi', D: 'hairKSh', C: 'white', c: 'greySh', k: 'greySh', d: 'roofBHi' }),
+  },
+  // 佐藤さん at the souvenir shop: grey hair and a green apron with a pocket.
+  sato: {
+    rows: [...SHORT_HAIR, ...FACE, '..OkCCCCCCCCkO..', '.OSOCCkkkkCCOSO.', '..OOcCCCCCCcOO..', BODY[3]!],
+    key: staffKey({ H: 'grey', h: 'white', D: 'greySh', C: 'top2', c: 'top2Sh', k: 'white' }),
+  },
 };

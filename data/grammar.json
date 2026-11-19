@@ -256,5 +256,11 @@
   "title": "も: also, too",
   "note": "も replaces は, が or を to mean also: はがきも一枚ください = a postcard too, please. 私も = me too.",
   "example": "はがき も 一枚 ください 。"
+ },
+ {
+  "id": "kosoado",
+  "title": "これ, それ, あれ, どれ",
+  "note": "これ is the thing near you, それ the thing near the other person, あれ the thing over there, and どれ asks which one. To take the thing in front of you, say これをください.",
+  "example": "これ を ください 。"
  }
 ]

@@ -9,11 +9,12 @@ import { Learner, type WordStatus } from '../learner/model.ts';
 import { finishRun, friendshipLevel, FRIENDSHIP_NAMES, greetSlots, MODE_NAMES, periodOf, ScenarioRun } from '../scenario/engine.ts';
 import type { Mode, NpcId, PlaceId, ScenarioDef } from '../scenario/types.ts';
 import { Town, type Interactable } from '../town/town.ts';
-import type { DoorPlace } from '../town/map.ts';
+import type { Scene } from '../town/rooms.ts';
 import { toCanvas } from '../town/pixels.ts';
 import { drawScene } from '../town/scenes.ts';
 import { itemIcon } from '../town/roomart.ts';
 import { allKeepsakes, canOrder, CATALOG, catalogById, homeRoom } from './room.ts';
+import { ARRIVAL, canTravel, LAST_TRAIN_OUT, SOUVENIRS, souvenirFor, TRIP_MINUTES, TRIPS, type Trip } from './trips.ts';
 import { DialogueView } from '../ui/dialogue.ts';
 import { clear, h } from '../ui/dom.ts';
 import { coins, confetti, countUp, floatText, play, wait } from '../ui/fx.ts';
@@ -29,9 +30,11 @@ const yen = (n: number): string => `¥${n.toLocaleString('en-US')}`;
 
 const PLACE_NAMES: Record<string, string> = {
   cafe: 'Cafe', konbini: 'Konbini', pharmacy: 'Pharmacy', restaurant: 'Restaurant', station: 'Station', post: 'Post office', street: 'Street',
+  shrine: 'Shrine in Kamakura', omiyage: 'Souvenir shop in Kamakura',
 };
-const SCENARIO_FOR: Record<Exclude<DoorPlace, 'home'>, string> = {
+const SCENARIO_FOR: Partial<Record<Scene, string>> = {
   cafe: 'cafe_order', konbini: 'konbini_buy', pharmacy: 'pharmacy_buy', restaurant: 'restaurant_eat', station: 'station_ticket', post: 'post_send',
+  shrine: 'shrine_visit', omiyage: 'omiyage_buy',
 };
 /** In-game minutes per real second of walking around town. */
 const MINUTES_PER_SECOND = 1;
@@ -290,7 +293,7 @@ export class Game {
     const recent = (this.g.recentErrands ??= {});
     // A request that went wrong yesterday comes back first, for another go.
     const carried = this.g.errands.filter((e) => e.missed && !e.done).map((e) => ({ ...e, missed: false, retry: true }));
-    this.g.errands = planRequests({ defs: scenarios, requests, arcs: this.g.arcs, learner: this.learner, vocab, day: this.g.day, recent, carried });
+    this.g.errands = planRequests({ defs: scenarios, requests, arcs: this.g.arcs, learner: this.learner, vocab, day: this.g.day, recent, carried, level: levelFor(this.g.xp) });
     for (const e of this.g.errands) recent[`${e.scenario}/${e.variant}`] = this.g.day;
   }
 
@@ -310,7 +313,8 @@ export class Game {
         e.reasonEn ? h('details', { class: 'req-en' }, h('summary', {}, 'English'), e.reasonEn) : null,
         h('div', { class: 'req-task' }, h('span', { class: 'box' }), this.tokens(e.text)),
       ))),
-      h('p', { class: 'muted' }, 'Tap a word you don\'t know. Each errand pays back what you spend, plus a reward. Opening hours: cafe 8:00–18:00, pharmacy 9:00–19:00, post office 9:00–17:00, restaurant 11:00–22:00. The konbini and the station are always open.'),
+      h('p', { class: 'muted' }, 'Tap a word you don\'t know. Each errand pays back what you spend, plus a reward. Opening hours: cafe 8:00–18:00, pharmacy 9:00–19:00, post office 9:00–17:00, restaurant 11:00–22:00. The konbini and the station are always open.'
+        + (levelFor(this.g.xp) >= TRIPS[0]!.level ? ' Trains to 鎌倉 leave the station until 17:00.' : '')),
       h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => this.goToTown() }, 'Head out ▶')),
     );
   }
@@ -342,9 +346,11 @@ export class Game {
     if (this.phase !== 'town') return;
     if (t.kind === 'npc') return this.startScenario(scenarioById['neighbor_greet']!);
     if (t.kind === 'bed') return this.confirmSleep();
+    if (t.kind === 'train') return this.rideHome();
     if (t.kind === 'thing') {
       if (t.id === 'catalog') return this.showCatalog();
       if (t.id === 'shelf') return this.showShelf();
+      if (t.id === 'tickets') return this.showTrips();
       return;
     }
     if (t.place === 'home') return this.town.enter('home');
@@ -354,14 +360,17 @@ export class Game {
     }
     // Walking into a door goes inside; talking to whoever works there starts the errand.
     if (t.kind === 'door') return this.town.enter(t.place);
-    this.startScenario(scenarioById[SCENARIO_FOR[t.place]]!);
+    const id = SCENARIO_FOR[t.place];
+    if (id) this.startScenario(scenarioById[id]!);
   }
 
   private startScenario(def: ScenarioDef, variantId?: string): void {
     // Words already met before this conversation: only these can "level up" at its end.
     this.metBefore = new Set(vocab.all().filter((e) => this.learner.status(e.id) !== 'unseen').map((e) => e.id));
     const errand = this.g.errands.find((e) => e.scenario === def.id && !e.done && !e.missed);
-    const variant = def.variants.find((v) => v.id === (variantId ?? errand?.variant)) ?? pickVariant(def, this.learner, vocab, this.g.day + this.g.minutes);
+    // On a trip, the shop shows you a souvenir you haven't got yet.
+    const unowned = SOUVENIRS.find((s) => s.scenario === def.id && s.variant && !this.g.keepsakes.includes(s.id))?.variant;
+    const variant = def.variants.find((v) => v.id === (variantId ?? errand?.variant ?? unowned)) ?? pickVariant(def, this.learner, vocab, this.g.day + this.g.minutes);
     if (variant.price && variant.price > this.g.money) {
       this.toast("You don't have enough money for that.");
       return;
@@ -464,6 +473,14 @@ export class Game {
       this.g.furniture.push(ordered.id);
       this.refreshHome();
     }
+    // Something bought on a trip for yourself goes on your shelf (bought for someone, it's theirs).
+    const souvenir = run.ended && !run.consequence && !errand ? souvenirFor(def.id, run.variant.id) : undefined;
+    const keptSouvenir = souvenir && !this.g.keepsakes.includes(souvenir.id) ? souvenir : undefined;
+    if (keptSouvenir) {
+      this.g.keepsakes.push(keptSouvenir.id);
+      this.g.today.promotions.push(`A souvenir for your shelf: ${vocab.get(keptSouvenir.word)?.meaning ?? keptSouvenir.word}.`);
+      this.refreshHome();
+    }
 
     const progress = progressFor(this.g, def.id);
     const { progress: next, promoted } = finishRun(progress, run.clean, def.maxStage);
@@ -477,6 +494,8 @@ export class Game {
       // The scene says it all.
     } else if (ordered) {
       this.toast(`Ordered: ${vocab.get(ordered.word)?.meaning ?? ordered.word}. It'll be in your room when you get home.`);
+    } else if (keptSouvenir) {
+      this.toast(`A souvenir: ${keptSouvenir.word} (${vocab.get(keptSouvenir.word)?.reading ?? ''}). It's on the shelf in your room.`);
     } else if (run.clean) {
       this.toast(next.stage >= def.maxStage ? 'Clean visit.' : `Clean visit (${next.cleanRuns}/3 to the next stage).`);
     } else {
@@ -611,7 +630,7 @@ export class Game {
   /** Your shelf at home: every keepsake, and its word. */
   private showShelf(): void {
     this.phase = 'shop';
-    const all = allKeepsakes(requests);
+    const all = allKeepsakes(requests, SOUVENIRS);
     const mine = all.filter((k) => this.g.keepsakes.includes(k.id));
     const items = mine.map((k) => h('li', { class: 'shelf-item' },
       this.icon(k.id, 'keepsake'),
@@ -623,10 +642,68 @@ export class Game {
       h('h2', {}, '棚'),
       mine.length
         ? h('ul', { class: 'catalog shelf' }, items)
-        : h('p', {}, 'Nothing here yet. When a neighbour\'s story ends, they give you something to keep, and it goes on this shelf.'),
+        : h('p', {}, 'Nothing here yet. When a neighbour\'s story ends, they give you something to keep, and it goes on this shelf. So do souvenirs from trips.'),
       h('p', { class: 'muted' }, `${mine.length} of ${all.length} keepsakes. Things for the rest of the room are in the catalog at the post office.`),
       h('div', { class: 'row' }, h('button', { onclick: () => this.goToTown() }, 'Close')),
     );
+  }
+
+  /** The ticket machines at the station: where the trains go, and what you need to go. */
+  private showTrips(): void {
+    this.phase = 'shop';
+    const level = levelFor(this.g.xp);
+    const rows = TRIPS.map((trip) => {
+      const state = canTravel(trip, level, this.g.money, this.g.minutes);
+      const tokens = parseLine(trip.name, vocab);
+      this.seeAll(tokens, 'station', 'ekiin');
+      const name = renderTokens(tokens, { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false), isNew: (t) => this.learner.isFresh(t.lemma) });
+      const action = state === 'ok'
+        ? h('button', { class: 'primary small', onclick: () => this.travel(trip) }, 'Buy and go')
+        : state === 'building'
+          ? h('span', { class: 'cat-state building' }, this.tokens('工事中', false))
+          : h('span', { class: `cat-state ${state}` }, state === 'level' ? `Needs Lv ${trip.level}` : state === 'late' ? 'No more trains today' : 'Not enough ¥');
+      return h('li', { class: `cat-item trip ${state}` },
+        h('div', { class: 'trip-name' }, name),
+        h('div', { class: 'cat-word' }, h('div', { class: 'muted' }, trip.blurb)),
+        h('div', { class: 'cat-buy' }, h('div', { class: 'cat-price' }, yen(trip.fare)), action),
+      );
+    });
+    const label = parseLine('往復 切符', vocab);
+    this.seeAll(label, 'station', 'ekiin');
+    this.showScreen(
+      h('h2', {}, renderTokens(parseLine('切符', vocab), { furigana: ALWAYS })),
+      h('p', { class: 'muted' }, 'A return ticket (', renderTokens(label, { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false), isNew: (t) => this.learner.isFresh(t.lemma) }),
+        `) for a day out. The ride is ${TRIP_MINUTES} minutes each way, and the last train out leaves at ${formatClock(LAST_TRAIN_OUT)}. You have ${yen(this.g.money)}.`),
+      h('ul', { class: 'catalog trips' }, rows),
+      h('div', { class: 'row' }, h('button', { onclick: () => this.goToTown() }, 'Close')),
+    );
+  }
+
+  /** Buy the ticket and ride out. */
+  private travel(trip: Trip): void {
+    const to = ARRIVAL[trip.id];
+    if (!to || canTravel(trip, levelFor(this.g.xp), this.g.money, this.g.minutes) !== 'ok') return;
+    this.hideScreen();
+    this.addYen(-trip.fare, `-${yen(trip.fare)}`);
+    this.g.minutes += TRIP_MINUTES;
+    this.g.today.promotions.push(`You took the train to ${trip.name}.`);
+    this.town.enter(to);
+    this.phase = 'town';
+    this.input.clear();
+    this.renderHud(true);
+    this.toast(`${trip.name} に 着きました: you're in ${trip.id[0]!.toUpperCase()}${trip.id.slice(1)}. Walk back onto the platform for the train home.`);
+  }
+
+  /** The train back from a trip, into the station. */
+  private rideHome(): void {
+    this.g.minutes += TRIP_MINUTES;
+    if (this.g.minutes >= DAY_END) {
+      this.goToNight();
+      return;
+    }
+    this.town.enter('station');
+    this.toast('Back at the station in ことまち.');
+    this.renderHud(true);
   }
 
   /** The end of a regular's story: their thanks and a keepsake. */
@@ -818,7 +895,7 @@ export class Game {
   // ------------------------------------------------------------------ testing hooks
 
   /** State snapshot for automated play-tests. */
-  debugState(): { phase: Phase; scene: DoorPlace | null; day: number; minutes: number; money: number; stage: Record<string, number>; friendship: number; words: number } {
+  debugState(): { phase: Phase; scene: Scene | null; day: number; minutes: number; money: number; stage: Record<string, number>; friendship: number; words: number } {
     return {
       phase: this.phase,
       scene: this.town.scene,
@@ -856,12 +933,12 @@ export class Game {
   }
 
   /** Teleport to the counter inside a place, or next to the neighbor (play-test helper). */
-  debugGoTo(place: DoorPlace | 'tanaka'): void {
+  debugGoTo(place: Scene | 'tanaka'): void {
     this.town.debugGoTo(place);
   }
 
   /** Teleport to a door on the street (play-test helper). */
-  debugTownDoor(place: DoorPlace): void {
+  debugTownDoor(place: Exclude<Scene, 'kamakura' | 'shrine' | 'omiyage'>): void {
     this.town.debugTownDoor(place);
   }
 

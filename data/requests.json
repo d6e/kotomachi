@@ -62,6 +62,9 @@
     { "scenario": "konbini_buy", "from": "kobayashi", "reason": "買い物 を お願いします=お願いする 。", "reason_en": "Could you do a little shopping for me?" },
     { "scenario": "station_ticket", "from": "server", "reason": "切符 を お願いします=お願いする 。", "reason_en": "Could you buy a ticket for me?" },
     { "scenario": "post_send", "from": "tanaka", "reason": "郵便局 に 行きます=行く か ？ お願いします=お願いする 。", "reason_en": "Are you going to the post office? Could you take care of something for me?" },
-    { "scenario": "pharmacy_buy", "from": "server", "reason": "薬 を お願いします=お願いする 。", "reason_en": "Could you pick up some medicine for me?" }
+    { "scenario": "pharmacy_buy", "from": "server", "reason": "薬 を お願いします=お願いする 。", "reason_en": "Could you pick up some medicine for me?" },
+    { "scenario": "shrine_visit", "from": "tanaka", "reason": "鎌倉 に 行きます=行く か ？ お守り を お願いします=お願いする 。", "reason_en": "Are you going to Kamakura? Could you get me a charm from the shrine there?", "level": 3, "trip": true },
+    { "scenario": "omiyage_buy", "from": "yuki", "reason": "鎌倉 の お土産 、 楽しみ に して=する います=いる ！", "reason_en": "Bring me something back from Kamakura! I'm looking forward to it.", "level": 3, "trip": true },
+    { "scenario": "omiyage_buy", "from": "kobayashi", "reason": "鎌倉 の 絵はがき 、 いい です よ 。", "reason_en": "The picture postcards from Kamakura are lovely.", "level": 3, "trip": true }
   ]
 }

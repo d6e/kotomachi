@@ -68,5 +68,8 @@
  "食べます=食べる": "polite form (～ます) of 食べる",
  "送ります=送る": "polite form (～ます) of 送る",
  "来て=来る": "て-form of 来る (irregular: 来 is read き here)",
- "要ります=要る": "polite form (～ます) of 要る, 'to need'"
+ "要ります=要る": "polite form (～ます) of 要る, 'to need'",
+ "買いたい=買う": "ます-stem 買い + たい: want to buy",
+ "売りたい=売る": "ます-stem 売り + たい: want to sell",
+ "して=する": "て-form of する; ～ています says something is going on now"
 }

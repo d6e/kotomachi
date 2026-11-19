@@ -14,15 +14,18 @@ import {
 import { UI } from './palette.ts';
 import { Buf, toCanvas } from './pixels.ts';
 import { drawRoom } from './roomart.ts';
-import { bedSpot, bedTiles, cellAt, roomDoor, roomEntrance, ROOMS, roomSolid, staffSpot, talkSpot, thingAt, thingNear, thingSpot, type RoomDef, type ThingId } from './rooms.ts';
+import { drawArea } from './tripart.ts';
+import { bedSpot, bedTiles, cellAt, doorCell, doorTo, roomDoor, roomEntrance, roomFor, ROOMS, roomSolid, staffSpot, talkSpot, thingAt, thingNear, thingSpot, type RoomDef, type Scene, type ThingId } from './rooms.ts';
 import { KEY, NEIGHBOUR, PLAYER, STAFF, walkFrames, type CharacterArt } from './sprites.ts';
 
 export type Interactable =
   | { kind: 'door'; place: DoorPlace }
   | { kind: 'npc'; id: 'tanaka' }
-  | { kind: 'staff'; place: DoorPlace }
+  | { kind: 'staff'; place: Scene }
   | { kind: 'bed' }
-  | { kind: 'thing'; id: ThingId };
+  | { kind: 'thing'; id: ThingId }
+  /** Walking back onto the platform on a trip: the train home. */
+  | { kind: 'train' };
 
 export interface SignInfo {
   text: string;
@@ -97,9 +100,9 @@ export class Town {
   private plates = new Map<string, { img: HTMLCanvasElement; w: number; h: number }>();
   private plateRects: { word: string; x: number; y: number; w: number; h: number }[] = [];
   private sprites = new Map<string, HTMLCanvasElement>();
-  private rooms = new Map<DoorPlace, { base: HTMLCanvasElement; front: HTMLCanvasElement; signs: SignSpot[] }>();
-  /** The place you're inside, or null on the street. */
-  scene: DoorPlace | null = null;
+  private rooms = new Map<Scene, { base: HTMLCanvasElement; front: HTMLCanvasElement; signs: SignSpot[] }>();
+  /** The place you're inside (or on a trip), or null on the street. */
+  scene: Scene | null = null;
   private fade = 0;
   private shadowImg: HTMLCanvasElement | null = null;
   /** Whole-number zoom from world pixels to canvas pixels. */
@@ -164,18 +167,18 @@ export class Town {
     this.rooms.delete('home');
   }
 
-  private def(place: DoorPlace): RoomDef {
-    return place === 'home' ? this.home : ROOMS[place];
+  private def(place: Scene): RoomDef {
+    return place === 'home' ? this.home : roomFor(place);
   }
 
   private get room(): RoomDef | null {
     return this.scene ? this.def(this.scene) : null;
   }
 
-  /** Go inside a place, just inside its door. */
-  enter(place: DoorPlace): void {
+  /** Go inside a place, just inside its door (or somewhere else in it). */
+  enter(place: Scene, at?: TilePos, dir: Facing = 'up'): void {
     this.scene = place;
-    Object.assign(this.player, actorAt(roomEntrance(this.def(place)), 'up'));
+    Object.assign(this.player, actorAt(at ?? roomEntrance(this.def(place)), dir));
     this.path = [];
     this.then = null;
     this.fade = FADE;
@@ -185,21 +188,35 @@ export class Town {
   leave(): void {
     const place = this.scene;
     if (!place) return;
+    const exit = this.def(place).exit;
+    if (exit === 'train') {
+      // Back to the platform: the game takes you home by train.
+      this.path = [];
+      this.then = null;
+      this.hooks.onInteract({ kind: 'train' });
+      return;
+    }
+    if (exit) {
+      // Out of a trip place, onto the path in front of its door.
+      const d = doorCell(this.def(exit), place as Exclude<Scene, DoorPlace>);
+      this.enter(exit, d ? { tx: d.tx, ty: d.ty + 1 } : undefined, 'down');
+      return;
+    }
     this.scene = null;
-    Object.assign(this.player, actorAt(doorSpot(buildingFor(place))!, 'down'));
+    Object.assign(this.player, actorAt(doorSpot(buildingFor(place as DoorPlace))!, 'down'));
     this.path = [];
     this.then = null;
     this.fade = FADE;
   }
 
   /** Stand at the counter inside a place (by the bed at home), or next to the neighbour (play-test helper). */
-  debugGoTo(place: DoorPlace | 'tanaka'): void {
+  debugGoTo(place: Scene | 'tanaka'): void {
     this.path = [];
     this.then = null;
     if (place !== 'tanaka') {
       this.enter(place);
       const room = this.def(place);
-      Object.assign(this.player, actorAt(talkSpot(room) ?? bedSpot(room)!, 'up'));
+      Object.assign(this.player, actorAt(talkSpot(room) ?? bedSpot(room) ?? roomEntrance(room), 'up'));
       this.fade = 0;
       return;
     }
@@ -384,6 +401,19 @@ export class Town {
       if (spot) this.walkTo(spot, { kind: 'thing', id: thing });
       return;
     }
+    // On a trip, tapping a building walks to its door, which goes in.
+    if (room.doors && at === '#') {
+      const ty0 = Math.floor(p.y / TILE);
+      let best: TilePos | null = null;
+      for (const d of room.doors) {
+        const c = doorCell(room, d.to);
+        if (c && c.ty >= ty0 && (!best || Math.abs(c.tx - tx) < Math.abs(best.tx - tx))) best = c;
+      }
+      if (best) {
+        this.walkTo(best);
+        return;
+      }
+    }
     // The door, or the wall either side of it, walks out.
     const door = roomDoor(room);
     if (Math.floor(p.y / TILE) >= door.ty && Math.abs(tx - door.tx) <= 1) {
@@ -490,6 +520,11 @@ export class Town {
         this.justStepped = true;
         if (this.room && same(this.tileOf(p), roomDoor(this.room))) {
           this.leave();
+          return { walked };
+        }
+        const into = this.room ? doorTo(this.room, p.tx, p.ty) : null;
+        if (into) {
+          this.enter(into);
           return { walked };
         }
         continue;
@@ -648,10 +683,11 @@ export class Town {
     return p;
   }
 
-  private roomArt(place: DoorPlace): { base: HTMLCanvasElement; front: HTMLCanvasElement; signs: SignSpot[] } {
+  private roomArt(place: Scene): { base: HTMLCanvasElement; front: HTMLCanvasElement; signs: SignSpot[] } {
     let r = this.rooms.get(place);
     if (!r) {
-      const art = drawRoom(this.def(place), (t) => this.measure(t));
+      const def = this.def(place);
+      const art = (def.outdoor ? drawArea : drawRoom)(def, (t) => this.measure(t));
       r = { base: toCanvas(art.base), front: toCanvas(art.front), signs: art.signs };
       this.rooms.set(place, r);
     }
@@ -731,19 +767,22 @@ export class Town {
       c.fillText(pl.text, (pl.x + pl.w / 2 - cam) * k, (pl.y + pl.h / 2 + 0.5) * k);
     }
 
-    // Time of day.
+    this.tint();
+    this.hint(cam);
+    this.drawFade();
+  }
+
+  /** Evening and night outdoors. */
+  private tint(): void {
     const hour = this.minutes / 60;
     let tint: string | null = null;
     if (hour >= 20) tint = 'rgba(28,32,92,0.36)';
     else if (hour >= 18) tint = 'rgba(56,48,128,0.22)';
     else if (hour >= 16.5) tint = 'rgba(240,128,48,0.14)';
-    if (tint) {
-      c.fillStyle = tint;
-      c.fillRect(0, 0, VIEW_W * k, VIEW_H * k);
-    }
-
-    this.hint(cam);
-    this.drawFade();
+    if (!tint) return;
+    const c = this.ctx;
+    c.fillStyle = tint;
+    c.fillRect(0, 0, VIEW_W * this.k, VIEW_H * this.k);
   }
 
   /** What Space would do here, in a bubble over your head. */
@@ -755,9 +794,10 @@ export class Town {
     let label: string;
     if (near.kind === 'npc') label = '田中さん';
     else if (near.kind === 'bed') label = 'Sleep';
-    else if (near.kind === 'staff') label = this.hooks.staffName(ROOMS[near.place].staff ?? '');
+    else if (near.kind === 'staff') label = this.hooks.staffName(this.def(near.place).staff ?? '');
     else if (near.kind === 'thing') label = this.hooks.thingName(near.id);
-    else label = this.hooks.sign(buildingFor(near.place).sign).text;
+    else if (near.kind === 'door') label = this.hooks.sign(buildingFor(near.place).sign).text;
+    else return;
     this.bubble(`Space ▶ ${label}`, Math.round(p.px) - cam + TILE / 2, Math.round(p.py) - SPRITE_LIFT - 3);
   }
 
@@ -823,6 +863,7 @@ export class Town {
     c.imageSmoothingEnabled = false;
     c.drawImage(this.low, 0, 0, VIEW_W * k, VIEW_H * k);
     this.letterSigns(art.signs, 0);
+    if (room.outdoor) this.tint();
     this.hint(0);
     this.drawFade();
   }

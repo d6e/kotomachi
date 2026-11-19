@@ -5,5 +5,7 @@
   { "id": "server", "name": "山田 さん", "role": "Server at the restaurant" },
   { "id": "ekiin", "name": "駅員", "role": "Station staff at the ticket window" },
   { "id": "kobayashi", "name": "小林 さん", "role": "Post office clerk" },
-  { "id": "tanaka", "name": "田中 さん", "role": "Your neighbor" }
+  { "id": "tanaka", "name": "田中 さん", "role": "Your neighbor" },
+  { "id": "takahashi", "name": "高橋 さん", "role": "Works at the shrine's charm counter in 鎌倉" },
+  { "id": "sato", "name": "佐藤 さん", "role": "Runs the souvenir shop in 鎌倉" }
 ]

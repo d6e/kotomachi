@@ -13,6 +13,8 @@ import restaurant from '../../data/scenarios/restaurant.json' with { type: 'json
 import station from '../../data/scenarios/station.json' with { type: 'json' };
 import post from '../../data/scenarios/post.json' with { type: 'json' };
 import catalog from '../../data/scenarios/catalog.json' with { type: 'json' };
+import shrine from '../../data/scenarios/shrine.json' with { type: 'json' };
+import omiyage from '../../data/scenarios/omiyage.json' with { type: 'json' };
 import requestsJson from '../../data/requests.json' with { type: 'json' };
 import consequencesJson from '../../data/consequences.json' with { type: 'json' };
 import type { RequestData } from './errands.ts';
@@ -28,7 +30,7 @@ export const grammar: Record<string, GrammarNote> = Object.fromEntries(
 export const npcs: Record<NpcId, NpcDef> = Object.fromEntries(
   (npcsJson as NpcDef[]).map((n) => [n.id, n]),
 ) as Record<NpcId, NpcDef>;
-export const scenarios: ScenarioDef[] = [cafe, konbini, pharmacy, restaurant, station, post, neighbor, catalog] as unknown as ScenarioDef[];
+export const scenarios: ScenarioDef[] = [cafe, konbini, pharmacy, restaurant, station, post, neighbor, catalog, shrine, omiyage] as unknown as ScenarioDef[];
 export const scenarioById: Record<string, ScenarioDef> = Object.fromEntries(scenarios.map((s) => [s.id, s]));
 /** The regulars' stories and everyday requests. */
 export const requests = requestsJson as unknown as RequestData;
