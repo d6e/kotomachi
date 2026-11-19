@@ -17,6 +17,10 @@ export interface DayLog {
   lookups: number;
   greeted: boolean;
   friendshipStart: Partial<Record<NpcId, number>>;
+  /** For the night's results: clean visits, words that went up a level, the longest run of right answers. */
+  clean?: number;
+  levelUps?: number;
+  bestCombo?: number;
 }
 
 export interface GameData {
@@ -38,7 +42,7 @@ export interface GameData {
 }
 
 export function newDayLog(friendship: GameData['friendship']): DayLog {
-  return { newWords: [], corrections: [], promotions: [], lookups: 0, greeted: false, friendshipStart: { ...friendship } };
+  return { newWords: [], corrections: [], promotions: [], lookups: 0, greeted: false, friendshipStart: { ...friendship }, clean: 0, levelUps: 0, bestCombo: 0 };
 }
 
 export function newGame(): GameData {

@@ -5,13 +5,14 @@ import { Input } from '../engine/input.ts';
 import { startLoop } from '../engine/loop.ts';
 import { UnavailableJudge, type FreeformJudge } from '../judge/freeform.ts';
 import { lemmasOf, parseLine, plainText, type Token } from '../lang/markup.ts';
-import { Learner } from '../learner/model.ts';
+import { Learner, type WordStatus } from '../learner/model.ts';
 import { finishRun, friendshipLevel, FRIENDSHIP_NAMES, greetSlots, MODE_NAMES, periodOf, ScenarioRun } from '../scenario/engine.ts';
 import type { Mode, PlaceId, ScenarioDef } from '../scenario/types.ts';
 import { Town, type Interactable } from '../town/town.ts';
 import type { DoorPlace } from '../town/map.ts';
 import { DialogueView } from '../ui/dialogue.ts';
 import { clear, h } from '../ui/dom.ts';
+import { coins, confetti, countUp, floatText, play, wait } from '../ui/fx.ts';
 import { correctionItem, Notebook, type NotebookContext } from '../ui/notebook.ts';
 import { Popup } from '../ui/popup.ts';
 import { ALWAYS, renderTokens } from '../ui/text.ts';
@@ -46,14 +47,21 @@ export class Game {
   private phase: Phase = 'title';
   private activeRun: ScenarioRun | null = null;
   private hudKey = '';
+  /** Right answers in a row today (any wrong answer resets it). */
+  private combo = 0;
+  /** Errands already shown ticked in the HUD, so a new tick can pop. */
+  private shownDone = new Set<string>();
+  private readonly levelUps: HTMLElement;
+  private metBefore = new Set<string>();
 
   constructor(root: HTMLElement) {
     const canvas = h('canvas', { id: 'town', 'aria-label': 'The town. Walk with the arrow keys or WASD, or tap where to go.' });
     this.hud = h('div', { class: 'hud' });
     this.screen = h('div', { class: 'screen', hidden: true });
     this.toastEl = h('div', { class: 'toast', hidden: true, role: 'status' });
+    this.levelUps = h('div', { class: 'levelups', 'aria-live': 'polite' });
     const stage = h('div', { class: 'stage-wrap' }, canvas, this.hud);
-    root.append(stage, this.screen, this.toastEl);
+    root.append(stage, this.screen, this.toastEl, this.levelUps);
     this.town = new Town(canvas, {
       isOpen: (place) => place === 'home' || isOpen(place, this.g.minutes),
       sign: (word) => ({ text: word, furigana: /[㐀-鿿]/.test(word) && this.learner.showFurigana(word, 2) ? (vocab.get(word)?.reading ?? null) : null }),
@@ -166,9 +174,12 @@ export class Game {
     this.hudKey = key;
     clear(this.hud);
     if (this.phase === 'title') return;
-    const errands = h('ul', { class: 'errands' }, this.g.errands.map((e) =>
-      h('li', { class: e.done ? 'done' : '' }, h('span', { class: 'box' }, e.done ? '✓' : ''), this.tokens(e.text)),
-    ));
+    const errands = h('ul', { class: 'errands' }, this.g.errands.map((e) => {
+      const key = `${e.scenario}/${e.variant}`;
+      const fresh = e.done && !this.shownDone.has(key);
+      if (e.done && this.phase === 'town') this.shownDone.add(key);
+      return h('li', { class: (e.done ? 'done' : '') + (fresh && this.phase === 'town' ? ' just-done' : '') }, h('span', { class: 'box' }, e.done ? '✓' : ''), this.tokens(e.text));
+    }));
     this.hud.append(
       h('div', { class: 'hud-top' },
         h('div', { class: 'clock' }, `Day ${this.g.day} · ${formatClock(this.g.minutes)} · ¥${this.g.money.toLocaleString('en-US')}`),
@@ -208,6 +219,8 @@ export class Game {
 
   private begin(g: GameData): void {
     this.g = g;
+    this.combo = 0;
+    this.shownDone = new Set(g.errands.filter((e) => e.done).map((e) => `${e.scenario}/${e.variant}`));
     this.learner = new Learner(this.g.learner, vocab);
     this.town.invalidate();
     this.town.resetPlayer();
@@ -266,6 +279,8 @@ export class Game {
   }
 
   private startScenario(def: ScenarioDef): void {
+    // Words already met before this conversation: only these can "level up" at its end.
+    this.metBefore = new Set(vocab.all().filter((e) => this.learner.status(e.id) !== 'unseen').map((e) => e.id));
     const errand = this.g.errands.find((e) => e.scenario === def.id && !e.done);
     const variant = def.variants.find((v) => v.id === errand?.variant) ?? pickVariant(def, this.learner, vocab, this.g.day + this.g.minutes);
     if (variant.price && variant.price > this.g.money) {
@@ -294,6 +309,12 @@ export class Game {
       glossOn: () => this.g.settings.gloss,
       setGloss: (on) => (this.g.settings.gloss = on),
       done: (r) => this.finishScenario(r),
+      answered: (ok) => {
+        this.combo = ok ? this.combo + 1 : 0;
+        this.g.today.bestCombo = Math.max(this.g.today.bestCombo ?? 0, this.combo);
+        return this.combo;
+      },
+      combo: () => this.combo,
     });
   }
 
@@ -307,9 +328,17 @@ export class Game {
       for (const w of [...ev.targets, ...ev.answerWords]) if (this.learner.showFurigana(w, ev.mode)) set.add(w);
       shownBefore.set(ev.nodeId, set);
     }
+    // Which words go up a level in this conversation, to show as cards afterwards.
+    const words = new Set(run.evidence.flatMap((ev) => [...ev.targets, ...ev.answerWords]));
+    const before = new Map([...words].map((w) => [w, this.learner.status(w)]));
     for (const ev of run.evidence) {
       this.learner.applyEvidence(ev, { day: this.g.day + this.g.minutes / 1440, furiganaShown: (id) => shownBefore.get(ev.nodeId)!.has(id) });
     }
+    const RANK: Record<WordStatus, number> = { unseen: 0, seen: 1, recognized: 2, produced: 3 };
+    // Only words you'd met before count: a brand-new word is counted as new instead.
+    const ups = [...words].filter((w) => this.metBefore.has(w) && RANK[this.learner.status(w)] > RANK[before.get(w)!] && RANK[this.learner.status(w)] >= 2);
+    this.g.today.levelUps = (this.g.today.levelUps ?? 0) + ups.length;
+    if (run.clean) this.g.today.clean = (this.g.today.clean ?? 0) + 1;
     for (const node of Object.values(def.nodes)) {
       for (const gid of node.grammar ?? []) if (!this.g.grammarSeen.includes(gid)) this.g.grammarSeen.push(gid);
     }
@@ -321,6 +350,14 @@ export class Game {
     if (this.g.corrections.length > 300) this.g.corrections.splice(0, this.g.corrections.length - 300);
 
     this.g.money -= run.moneySpent;
+    if (run.moneySpent > 0) {
+      const clock = this.hud.querySelector('.clock');
+      if (clock) {
+        const r = clock.getBoundingClientRect();
+        coins(r.right - 24, r.bottom, 6);
+        floatText({ x: r.right - 30, y: r.bottom + 14 }, `-¥${run.moneySpent.toLocaleString('en-US')}`, 'money');
+      }
+    }
     if (def.npc === 'yuki') {
       const before = friendshipLevel(this.g.friendship.yuki ?? 0);
       this.g.friendship.yuki = Math.max(0, (this.g.friendship.yuki ?? 0) + run.friendshipDelta);
@@ -336,6 +373,7 @@ export class Game {
       const msg = `${def.title}: now stage ${next.stage}, ${MODE_NAMES[next.stage as Mode].toLowerCase()}.`;
       this.g.today.promotions.push(msg);
       this.toast(msg);
+      this.celebrate(2.5, 50);
     } else if (run.clean) {
       this.toast(next.stage >= def.maxStage ? 'Clean visit.' : `Clean visit (${next.cleanRuns}/3 to the next stage).`);
     } else {
@@ -343,12 +381,101 @@ export class Game {
     }
 
     const errand = this.g.errands.find((e) => e.scenario === def.id && e.variant === run.variant.id && !e.done);
-    if (errand) errand.done = true;
+    if (errand) {
+      errand.done = true;
+      if (this.g.errands.every((e) => e.done)) {
+        this.toast("That's every errand for today. Nice work!");
+        this.celebrate(3, 90);
+      }
+    }
+    this.showLevelUps(ups);
     this.g.minutes = Math.min(DAY_END - 1, this.g.minutes + MINUTES_PER_SCENARIO);
     this.town.invalidate();
     this.phase = 'town';
     this.input.clear();
     this.renderHud(true);
+  }
+
+  /** Confetti over the town, a flash and a little shake. */
+  private celebrate(shake: number, n: number): void {
+    const r = this.town.canvas.getBoundingClientRect();
+    this.town.flash(0.3);
+    this.town.shake(shake, 0.4);
+    confetti(r.left + r.width * 0.3, r.top + r.height * 0.75, n / 2);
+    confetti(r.left + r.width * 0.7, r.top + r.height * 0.75, n / 2);
+  }
+
+  /** A card flips in for each word that went up a level (two, then a count). */
+  private showLevelUps(words: string[]): void {
+    const NAMES: Partial<Record<WordStatus, string>> = { recognized: 'Recognized', produced: 'Can use it' };
+    words.slice(0, 2).forEach((w, i) => {
+      const status = this.learner.status(w);
+      const card = h('div', { class: `lvl-card lvl-${status}` },
+        h('div', { class: 'lvl-badge' }, status === 'produced' ? '★ Level up' : '▲ Level up'),
+        renderTokens(parseLine(w, vocab), { furigana: ALWAYS }),
+        h('div', { class: 'lvl-status' }, NAMES[status] ?? status),
+      );
+      card.style.animationDelay = `${i * 140}ms`;
+      this.levelUps.append(card);
+      setTimeout(() => card.classList.add('out'), 2600 + i * 140);
+      setTimeout(() => card.remove(), 3100 + i * 140);
+    });
+    if (words.length > 2) {
+      const more = h('div', { class: 'lvl-card lvl-more' }, `+${words.length - 2} more`);
+      more.style.animationDelay = '420ms';
+      this.levelUps.append(more);
+      setTimeout(() => more.remove(), 3500);
+    }
+  }
+
+  /** The night's results, counted up one line at a time, ending in a total. */
+  private results(): HTMLElement {
+    const t = this.g.today;
+    const done = this.g.errands.filter((e) => e.done).length;
+    const lines: [string, number, number][] = [
+      [`Errands done (of ${this.g.errands.length})`, done, 20],
+      ['Clean visits', t.clean ?? 0, 10],
+      ['New words', new Set(t.newWords).size, 5],
+      ['Words levelled up', t.levelUps ?? 0, 15],
+    ];
+    const points = lines.reduce((sum, [, n, each]) => sum + n * each, 0);
+    const best = t.bestCombo ?? 0;
+    const mult = Math.round((1 + best / 10) * 10) / 10;
+    const total = Math.round(points * mult);
+    const rows = lines.map(([label, n, each]) => {
+      const count = h('b', { class: 'res-n' }, '0');
+      const pts = h('span', { class: 'res-pts' }, '+0');
+      return { el: h('div', { class: 'res-row' }, h('span', { class: 'res-label' }, label), count, pts), count, pts, n, each };
+    });
+    const pointsEl = h('b', { class: 'chips' }, '0');
+    const multEl = h('b', { class: 'mult' }, `×${mult.toFixed(1)}`);
+    const totalEl = h('div', { class: 'res-total' }, '0');
+    const sum = h('div', { class: 'res-sum' },
+      h('div', { class: 'res-mults' }, pointsEl, h('span', { class: 'times' }, '×'), multEl),
+      h('div', { class: 'res-caption' }, `points × best combo (${best} in a row)`),
+    );
+    const box = h('div', { class: 'results' }, ...rows.map((r) => r.el), sum, totalEl);
+    void (async () => {
+      await wait(250);
+      for (const r of rows) {
+        r.el.classList.add('in');
+        await countUp(r.count, r.n, 380);
+        r.pts.textContent = `+${r.n * r.each}`;
+        play(r.pts, 'pop');
+        await wait(120);
+      }
+      sum.classList.add('in');
+      await countUp(pointsEl, points, 450);
+      play(multEl, 'pop');
+      await wait(200);
+      totalEl.classList.add('in');
+      await countUp(totalEl, total, 700, (n) => n.toLocaleString('en-US'));
+      play(totalEl, 'stamp');
+      if (!box.isConnected) return;
+      const r = totalEl.getBoundingClientRect();
+      if (total > 0) confetti(r.left + r.width / 2, r.top + r.height / 2, Math.min(70, 20 + total / 10));
+    })();
+    return box;
   }
 
   private goToNight(): void {
@@ -363,6 +490,7 @@ export class Game {
     this.showScreen(
       h('h2', {}, `Day ${this.g.day} · Night`),
       h('p', {}, `You finished ${done} of ${this.g.errands.length} errands and looked up ${t.lookups} word${t.lookups === 1 ? '' : 's'}. ¥${this.g.money.toLocaleString('en-US')} left.`),
+      this.results(),
       t.promotions.length ? h('ul', { class: 'promos' }, t.promotions.map((p) => h('li', {}, p))) : null,
       friendDelta !== 0 ? h('p', {}, `Friendship with `, this.tokens('ゆき', false), friendDelta > 0 ? ' went up.' : ' went down a little.') : null,
       h('h3', {}, `New words today (${newWords.length})`),
@@ -383,6 +511,8 @@ export class Game {
   }
 
   private sleep(): void {
+    this.combo = 0;
+    this.shownDone.clear();
     this.g.day += 1;
     this.g.minutes = DAY_START;
     this.g.today = newDayLog(this.g.friendship);

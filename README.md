@@ -95,6 +95,7 @@ All of these numbers are constants at the top of `src/scenario/engine.ts` and `s
 - A lookup popup with reading, meaning, part of speech, the conjugation you saw ("お願いします ← お願いする, polite ます form") and where you met the word.
 - The notebook: words by place, words by person, corrections, grammar notes and progress.
 - The day loop: morning errands, the day (the clock runs while you walk, and each conversation takes 20 minutes), the night summary and sleep. Sleeping saves to `localStorage`.
+- Effects that make answering feel good, drawn with CSS and one canvas, no libraries: a right answer pops with sparkles and a +N that rises from the speaker's name tag; a wrong one wobbles, and the right option glows (or, for tiles and typing, the right sentence appears under yours in green). A streak badge, ×N combo, heats from yellow to red and throws embers, with confetti every fifth right answer, and cracks off when the streak breaks. Tiles lift and tilt toward the pointer and snap into place. Paying sends coins and -¥N off the clock. Words you'd met before that go up a level flip in as cards. A promotion and finishing every errand flash and shake the town with confetti. At night a results card counts up errands, clean visits, new words and level-ups, multiplies by your best combo and stamps a total. With reduced motion turned on, the shakes, particles and bounces are off and only fades remain.
 
 **Not built yet**
 
@@ -107,7 +108,7 @@ All of the Japanese here was written without a native speaker: lines, readings, 
 
 ## Art
 
-All the art is original and drawn in code: the palette is in `src/town/palette.ts`, the characters are 16×16 character maps in `src/town/sprites.ts`, the street, shops and park are drawn by `src/town/art.ts`, and the insides by `src/town/roomart.ts` from the room maps in `src/town/rooms.ts`. The look ("style D": full-colour handheld, soft shading, a plum outline and a blue rounded window frame) was picked from four mockups kept in `mockups/`. No fonts or images are bundled; Japanese text uses the system's Japanese font.
+All the art is original and drawn in code: the palette is in `src/town/palette.ts`, the characters are 16×16 character maps in `src/town/sprites.ts`, the street, shops and park are drawn by `src/town/art.ts`, and the insides by `src/town/roomart.ts` from the room maps in `src/town/rooms.ts`. The effects are in `src/ui/fx.ts` and `www/style.css`, with colours from the same palette. The look ("style D": full-colour handheld, soft shading, a plum outline and a blue rounded window frame) was picked from four mockups kept in `mockups/`. No fonts or images are bundled; Japanese text uses the system's Japanese font.
 
 ## Notes
 

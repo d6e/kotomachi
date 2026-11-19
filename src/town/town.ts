@@ -646,6 +646,12 @@ export class Town {
   render(dt = 0): void {
     this.resize();
     this.fade = Math.max(0, this.fade - dt);
+    this.shakeT = Math.max(0, this.shakeT - dt);
+    this.flashT = Math.max(0, this.flashT - dt);
+    // The shake moves the whole canvas a few screen pixels, signs and all.
+    const [sx, sy] = this.shakeOffset();
+    const shook = sx || sy ? `translate(${sx * 2}px, ${sy * 2}px)` : '';
+    if (this.canvas.style.transform !== shook) this.canvas.style.transform = shook;
     if (this.room) {
       this.renderRoom(this.room);
       return;
@@ -726,10 +732,38 @@ export class Town {
   }
 
   private drawFade(): void {
-    if (this.fade <= 0) return;
     const c = this.ctx;
+    if (this.flashT > 0) {
+      c.fillStyle = `rgba(255,248,226,${(0.55 * this.flashT / this.flashLen).toFixed(3)})`;
+      c.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+    if (this.fade <= 0) return;
     c.fillStyle = `rgba(36,28,48,${(this.fade / FADE).toFixed(3)})`;
     c.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  private shakeT = 0;
+  private shakeLen = 1;
+  private shakePower = 0;
+  private flashT = 0;
+  private flashLen = 1;
+
+  /** Shake the camera for a moment (a promotion, a finished day). Skipped with reduced motion. */
+  shake(power = 2, secs = 0.35): void {
+    if (globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    this.shakePower = power;
+    this.shakeT = this.shakeLen = secs;
+  }
+
+  /** A soft flash of light over the scene that fades out. */
+  flash(secs = 0.35): void {
+    this.flashT = this.flashLen = secs;
+  }
+
+  private shakeOffset(): [number, number] {
+    if (this.shakeT <= 0) return [0, 0];
+    const p = this.shakePower * (this.shakeT / this.shakeLen);
+    return [Math.round((Math.random() * 2 - 1) * p), Math.round((Math.random() * 2 - 1) * p)];
   }
 
   private renderRoom(room: RoomDef): void {

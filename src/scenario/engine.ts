@@ -376,6 +376,12 @@ export class ScenarioRun {
     }
   }
 
+  /** Which of this node's choices would be right just now (to show the answer after a miss). */
+  rightChoices(): number[] {
+    const ctx = { period: this.opts.period, friendship: this.opts.friendship + this.friendshipDelta };
+    return (this.node.choices ?? []).flatMap((c, i) => (resolveChoice(c, ctx).result === 'success' ? [i] : []));
+  }
+
   /** Advance past a node that needs no input. */
   continue(): AnswerOutcome {
     const view = this.current();
