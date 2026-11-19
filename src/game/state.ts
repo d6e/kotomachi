@@ -4,11 +4,13 @@ import { emptyLearner, type LearnerData } from '../learner/model.ts';
 import { newProgress, type Correction, type ScenarioProgress } from '../scenario/engine.ts';
 import type { NpcId } from '../scenario/types.ts';
 import type { Errand } from './errands.ts';
+import { estimateXp } from './rewards.ts';
 
 export const SAVE_KEY = 'kotomachi.save.v1';
 export const DAY_START = 8 * 60;
 export const DAY_END = 23 * 60;
-export const START_MONEY = 30000;
+/** Yen at the start of a new game: enough for a few days of errands, not for a sofa. */
+export const START_MONEY = 5000;
 
 export interface DayLog {
   newWords: string[];
@@ -21,13 +23,21 @@ export interface DayLog {
   clean?: number;
   levelUps?: number;
   bestCombo?: number;
+  /** Experience and yen earned today, for the night's results. */
+  xp?: number;
+  yen?: number;
+  /** The night's combo bonus, once given. */
+  bonus?: number;
 }
 
 export interface GameData {
-  version: 1;
+  /** 1: before yen rewards and experience; 2: with them. Old saves are migrated on load. */
+  version: 2;
   day: number;
   minutes: number;
   money: number;
+  /** Total experience; the level comes from it. */
+  xp: number;
   learner: LearnerData;
   progress: Record<string, ScenarioProgress>;
   friendship: Partial<Record<NpcId, number>>;
@@ -42,15 +52,16 @@ export interface GameData {
 }
 
 export function newDayLog(friendship: GameData['friendship']): DayLog {
-  return { newWords: [], corrections: [], promotions: [], lookups: 0, greeted: false, friendshipStart: { ...friendship }, clean: 0, levelUps: 0, bestCombo: 0 };
+  return { newWords: [], corrections: [], promotions: [], lookups: 0, greeted: false, friendshipStart: { ...friendship }, clean: 0, levelUps: 0, bestCombo: 0, xp: 0, yen: 0 };
 }
 
 export function newGame(): GameData {
   return {
-    version: 1,
+    version: 2,
     day: 1,
     minutes: DAY_START,
     money: START_MONEY,
+    xp: 0,
     learner: emptyLearner(),
     progress: {},
     friendship: { yuki: 0 },
@@ -81,12 +92,24 @@ export function load(storage?: Storage): GameData | null {
     storage ??= globalThis.localStorage;
     const raw = storage?.getItem(SAVE_KEY);
     if (!raw) return null;
-    const g = JSON.parse(raw) as GameData;
-    if (g.version !== 1) return null;
-    return { ...newGame(), ...g };
+    return migrate(JSON.parse(raw));
   } catch {
     return null;
   }
+}
+
+/** Bring an older save up to date. Returns null for something that isn't a save. */
+export function migrate(raw: unknown): GameData | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const old = raw as Omit<Partial<GameData>, 'version'> & { version?: number };
+  const version = old.version;
+  if (version !== 1 && version !== 2) return null;
+  const g = { ...newGame(), ...old, version: 2 } as GameData;
+  g.today = { ...newDayLog(g.friendship), ...old.today };
+  // Experience didn't exist yet: start from what this player already knows.
+  if (version === 1) g.xp = estimateXp(g.learner, g.day);
+  g.xp ??= 0;
+  return g;
 }
 
 export function clearSave(storage?: Storage): void {

@@ -21,7 +21,9 @@ export interface DialogueHooks {
   setGloss: (on: boolean) => void;
   done: (run: ScenarioRun) => void;
   /** An answer was given (not just "next"): returns the run of right answers so far today. */
-  answered?: (correct: boolean) => number;
+  answered?: (correct: boolean, said: Token[]) => number;
+  /** Mark a word as new to you. */
+  isNew?: (t: Token) => boolean;
   /** The run of right answers so far today, when the conversation opens. */
   combo?: () => number;
 }
@@ -140,6 +142,7 @@ export class DialogueView {
     return renderTokens(tokens, {
       furigana: (t) => hooks.furigana(t, mode),
       onTap: (t, el) => hooks.lookup(t, el),
+      isNew: hooks.isNew,
       className: cls,
     });
   }
@@ -313,7 +316,7 @@ export class DialogueView {
     const nodeId = this.run!.current().nodeId;
     const said = out.said.length ? this.bubble('me', this.tokens(out.said, mode), undefined, out.correct ? '' : 'wrong') : null;
     if (mode >= 1) {
-      const combo = this.hooks!.answered?.(out.correct) ?? 0;
+      const combo = this.hooks!.answered?.(out.correct, out.said) ?? 0;
       if (out.correct && said) {
         play(said, 'pop');
         sparkle(said, 8 + Math.min(12, combo));
@@ -420,7 +423,7 @@ export class DialogueView {
           from = { id: t.id, rect: (e.currentTarget as HTMLElement).getBoundingClientRect() };
           chosen.push(t.id);
           draw();
-        } }, renderTokens(t.tokens, { furigana: (tok) => this.hooks!.furigana(tok, 3) }));
+        } }, renderTokens(t.tokens, { furigana: (tok) => this.hooks!.furigana(tok, 3), isNew: this.hooks!.isNew }));
         tilt(el);
         pool.append(el);
         if (!used) moved.push([t.id, el]);

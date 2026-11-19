@@ -110,6 +110,15 @@ ruby.no-furi rt { visibility: hidden; }
 /* Lines type out a character at a time. */
 .typing .ch-hide { visibility: hidden; }
 
+/* A word you haven't looked up or answered right yet: a dotted underline and a
+   little sparkle in the corner, both off to the side of the letters. */
+.tok.new { position: relative; text-decoration: underline dotted #f4a21b; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.tok.new::after {
+  content: "✦"; position: absolute; right: -0.28em; bottom: -0.1em; font-size: 0.42em; line-height: 1;
+  color: #f4a21b; pointer-events: none; font-family: var(--ui); animation: twinkle 1.6s ease-in-out infinite;
+}
+@keyframes twinkle { 50% { opacity: 0.35; transform: scale(0.8); } }
+
 /* ----------------------------------------------------------------- HUD */
 
 .hud { position: absolute; inset: 0; pointer-events: none; font-size: 13px; }
@@ -120,6 +129,12 @@ ruby.no-furi rt { visibility: hidden; }
   font-variant-numeric: tabular-nums; border: 2px solid #fff; box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.3);
 }
 .hud-btn { padding: 4px 10px; font-size: 13px; }
+/* Your level sits in the clock, with a thin bar along its bottom edge. */
+.clock { position: relative; overflow: hidden; }
+.clock .yen { color: #ffe08a; }
+.clock .lv { background: #ffd54a; color: var(--out); border-radius: 6px; padding: 0 5px; margin-left: 2px; }
+.clock .xpbar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255, 255, 255, 0.18); }
+.clock .xpbar i { display: block; height: 100%; background: #ffd54a; transition: width 0.4s ease-out; }
 /* Today's errands sit just under the game window. */
 .hud-errands {
   position: absolute; top: calc(100% + 14px); left: 0; right: 0;
@@ -307,6 +322,8 @@ input.blank:focus { outline: none; background: #fff8f2; }
 .fx-float.heat-3 { color: #ff8a3c; font-size: 25px; }
 .fx-float.heat-4 { color: #ff5a3a; font-size: 28px; }
 .fx-float.money { color: #fff; font-size: 16px; animation-name: float-down; }
+.fx-float.money.gain { color: #ffe08a; font-size: 18px; }
+.fx-float.xp { color: #9ff0b8; font-size: 15px; animation-name: float-down; }
 @keyframes float-down {
   0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
   18% { opacity: 1; transform: translate(-50%, -30%) scale(1.1); }
@@ -428,6 +445,15 @@ input.blank:focus { outline: none; background: #fff8f2; }
   -webkit-text-stroke: 1.5px var(--out); text-shadow: 3px 3px 0 var(--out); opacity: 0; font-variant-numeric: tabular-nums;
 }
 .res-total.in { opacity: 1; }
+.res-level, .res-yen { display: flex; align-items: center; gap: 8px; margin-top: 8px; opacity: 0; transition: opacity 0.3s; }
+.res-level.in, .res-yen.in { opacity: 1; }
+.res-lv { font: 800 14px/1.6 var(--ui); background: #ffd54a; border: 2px solid var(--out); border-radius: 8px; padding: 0 8px; display: inline-block; }
+.res-level.up .res-lv { background: #ff9b4a; color: #fff; text-shadow: 1px 1px 0 var(--out); }
+.res-bar { flex: 1; height: 10px; border: 2px solid var(--out); border-radius: 6px; background: #fff; overflow: hidden; }
+.res-bar i { display: block; height: 100%; background: linear-gradient(90deg, #ffd54a, #ff9b4a); transition: width 0.5s ease-out; }
+.res-next { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.res-yen b { font-size: 16px; color: var(--accent-dk); }
+.res-yen .res-label { flex: 1; }
 .res-total.stamp { animation: stamp 0.45s cubic-bezier(.2, 1.6, .4, 1); }
 @keyframes stamp { 0% { transform: scale(2.2) rotate(-8deg); opacity: 0.3; } 60% { transform: scale(0.92) rotate(2deg); opacity: 1; } 100% { transform: none; } }
 
@@ -453,5 +479,7 @@ input.blank:focus { outline: none; background: #fff8f2; }
   .choice:hover, .choice:active, .tile:not(:disabled):hover, .tile:not(:disabled):active, .tile { transform: none; }
   .res-row, .res-sum { transform: none; }
   .fx-float { display: none; }
+  .tok.new::after { animation: none; }
+  .res-level, .res-yen, .res-bar i, .clock .xpbar i { transition: none; }
 }
 @keyframes fade-out-still { to { opacity: 0; } }

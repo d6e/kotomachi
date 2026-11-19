@@ -33,6 +33,8 @@ export interface WordRecord {
   firstSeen: number;
   /** Day of the last lookup penalty outside a scenario (at most one per day). */
   penaltyDay?: number;
+  /** Answered right at least once (the word stops being marked as new). */
+  known?: boolean;
 }
 
 export interface LearnerData {
@@ -158,6 +160,20 @@ export class Learner {
       const r = this.record(id, ctx.day);
       if (r.meaning) this.rate('meaning', r, Rating.Again, ctx.day);
     }
+  }
+
+  /** You used the word in a right answer: it stops being marked as new. */
+  markKnown(id: string, day: number): void {
+    if (!this.vocab.has(id)) return;
+    this.record(id, day).known = true;
+  }
+
+  /** A new word: met (or about to be) but never looked up or answered right yet. */
+  isFresh(id: string | null): boolean {
+    if (!id || !this.vocab.has(id)) return false;
+    const r = this.data.words[id];
+    if (!r) return true;
+    return (r.status === 'unseen' || r.status === 'seen') && r.lookups === 0 && !r.known;
   }
 
   writtenKnown(id: string): boolean {

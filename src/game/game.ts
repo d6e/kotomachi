@@ -15,10 +15,13 @@ import { clear, h } from '../ui/dom.ts';
 import { coins, confetti, countUp, floatText, play, wait } from '../ui/fx.ts';
 import { correctionItem, Notebook, type NotebookContext } from '../ui/notebook.ts';
 import { Popup } from '../ui/popup.ts';
-import { ALWAYS, renderTokens } from '../ui/text.ts';
+import { ALWAYS, renderTokens, unmarkNew } from '../ui/text.ts';
+import { comboMultiplier, errandPay, levelFor, levelProgress, XP, xpForLevel } from './rewards.ts';
 import { forms, grammar, npcs, scenarioById, scenarios, vocab } from './content.ts';
 import { makeErrands, pickVariant } from './errands.ts';
 import { DAY_END, DAY_START, isOpen, load, newDayLog, newGame, progressFor, save, clearSave, formatClock, type GameData } from './state.ts';
+
+const yen = (n: number): string => `¥${n.toLocaleString('en-US')}`;
 
 const PLACE_NAMES: Record<string, string> = {
   cafe: 'Cafe', konbini: 'Konbini', pharmacy: 'Pharmacy', restaurant: 'Restaurant', station: 'Station', post: 'Post office', street: 'Street',
@@ -142,6 +145,7 @@ export class Game {
     if (!t.lemma || !vocab.has(t.lemma)) return;
     this.popup.show(t, anchor);
     this.g.today.lookups += 1;
+    unmarkNew(t.lemma);
     if (this.activeRun) {
       this.activeRun.noteLookup(t.lemma);
       this.learner.lookup(t.lemma, this.g.day, false);
@@ -152,7 +156,42 @@ export class Game {
     return renderTokens(parseLine(markup, vocab), {
       furigana: (t) => this.learner.showFurigana(t.lemma, 2),
       onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), penalize),
+      isNew: (t) => this.learner.isFresh(t.lemma),
     });
+  }
+
+  // ------------------------------------------------------------------ rewards
+
+  /** Experience, with a little "+N XP" off the level badge, and a fanfare on a new level. */
+  private addXp(n: number): void {
+    if (n <= 0) return;
+    const before = levelFor(this.g.xp);
+    this.g.xp += n;
+    this.g.today.xp = (this.g.today.xp ?? 0) + n;
+    const lv = this.hud.querySelector('.lv');
+    if (lv) floatText(lv, `+${n} XP`, 'xp');
+    const after = levelFor(this.g.xp);
+    if (after > before) this.levelUp(after);
+    this.renderHud(true);
+  }
+
+  private levelUp(level: number): void {
+    this.g.today.promotions.push(`You reached level ${level}.`);
+    this.toast(`Level ${level}! Keep it up.`);
+    this.celebrate(2, 40);
+  }
+
+  /** Yen in, with coins off the clock. */
+  private addYen(n: number, label = `+${yen(n)}`): void {
+    if (n === 0) return;
+    this.g.money += n;
+    if (n > 0) this.g.today.yen = (this.g.today.yen ?? 0) + n;
+    const clock = this.hud.querySelector('.clock');
+    if (clock) {
+      const r = clock.getBoundingClientRect();
+      if (n > 0) coins(r.left + r.width * 0.7, r.bottom, 8);
+      floatText({ x: r.left + r.width * 0.7, y: r.bottom + 14 }, label, n > 0 ? 'money gain' : 'money');
+    }
   }
 
   private showScreen(...children: (Node | null)[]): void {
@@ -169,7 +208,7 @@ export class Game {
   // ------------------------------------------------------------------ HUD
 
   private renderHud(force = false): void {
-    const key = `${this.phase}|${Math.floor(this.g.minutes / 10)}|${this.g.money}|${this.g.errands.map((e) => e.done).join()}|${this.g.day}`;
+    const key = `${this.phase}|${Math.floor(this.g.minutes / 10)}|${this.g.money}|${this.g.xp}|${this.g.errands.map((e) => e.done).join()}|${this.g.day}`;
     if (!force && key === this.hudKey) return;
     this.hudKey = key;
     clear(this.hud);
@@ -182,7 +221,11 @@ export class Game {
     }));
     this.hud.append(
       h('div', { class: 'hud-top' },
-        h('div', { class: 'clock' }, `Day ${this.g.day} · ${formatClock(this.g.minutes)} · ¥${this.g.money.toLocaleString('en-US')}`),
+        h('div', { class: 'clock' },
+          `Day ${this.g.day} · ${formatClock(this.g.minutes)} · `, h('span', { class: 'yen' }, yen(this.g.money)), ' ',
+          h('span', { class: 'lv', title: `${this.g.xp - xpForLevel(levelFor(this.g.xp))} / ${xpForLevel(levelFor(this.g.xp) + 1) - xpForLevel(levelFor(this.g.xp))} XP to the next level` }, `Lv ${levelFor(this.g.xp)}`),
+          h('span', { class: 'xpbar', 'aria-hidden': 'true' }, h('i', { style: `width:${Math.round(levelProgress(this.g.xp) * 100)}%` })),
+        ),
         h('button', { class: 'hud-btn', onclick: () => this.openNotebook(), title: 'Notebook (N)' }, 'Notebook'),
         h('button', { class: 'hud-btn', onclick: () => this.confirmSleep(), title: 'Go home and sleep' }, 'Go home'),
       ),
@@ -302,14 +345,24 @@ export class Game {
       furigana: (t, mode) => this.learner.showFurigana(t.lemma, mode),
       lookup: (t, el) => this.lookup(t, el.getBoundingClientRect(), false),
       seen: (tokens) => {
+        let fresh = 0;
         for (const l of lemmasOf(tokens)) {
-          if (this.learner.see(l, { day: this.g.day, place: def.place, npc: def.npc })) this.g.today.newWords.push(l);
+          if (this.learner.see(l, { day: this.g.day, place: def.place, npc: def.npc })) {
+            this.g.today.newWords.push(l);
+            fresh++;
+          }
         }
+        this.addXp(fresh * XP.newWord);
       },
+      isNew: (t) => this.learner.isFresh(t.lemma),
       glossOn: () => this.g.settings.gloss,
       setGloss: (on) => (this.g.settings.gloss = on),
       done: (r) => this.finishScenario(r),
-      answered: (ok) => {
+      answered: (ok, said) => {
+        if (ok) for (const l of lemmasOf(said)) {
+          this.learner.markKnown(l, this.g.day);
+          unmarkNew(l);
+        }
         this.combo = ok ? this.combo + 1 : 0;
         this.g.today.bestCombo = Math.max(this.g.today.bestCombo ?? 0, this.combo);
         return this.combo;
@@ -349,15 +402,14 @@ export class Game {
     }
     if (this.g.corrections.length > 300) this.g.corrections.splice(0, this.g.corrections.length - 300);
 
-    this.g.money -= run.moneySpent;
-    if (run.moneySpent > 0) {
-      const clock = this.hud.querySelector('.clock');
-      if (clock) {
-        const r = clock.getBoundingClientRect();
-        coins(r.right - 24, r.bottom, 6);
-        floatText({ x: r.right - 30, y: r.bottom + 14 }, `-¥${run.moneySpent.toLocaleString('en-US')}`, 'money');
-      }
-    }
+    // An errand is paid for by whoever asked: what you spent comes back, plus a reward.
+    const errand = this.g.errands.find((e) => e.scenario === def.id && e.variant === run.variant.id && !e.done);
+    if (errand) {
+      const pay = errandPay(run.stage, run.corrections.length, run.moneySpent);
+      this.g.money -= run.moneySpent;
+      this.addYen(pay.reward + pay.refund, `+${yen(pay.reward)}`);
+      this.g.today.yen = (this.g.today.yen ?? 0) - pay.refund;
+    } else if (run.moneySpent > 0) this.addYen(-run.moneySpent, `-${yen(run.moneySpent)}`);
     if (def.npc === 'yuki') {
       const before = friendshipLevel(this.g.friendship.yuki ?? 0);
       this.g.friendship.yuki = Math.max(0, (this.g.friendship.yuki ?? 0) + run.friendshipDelta);
@@ -380,7 +432,6 @@ export class Game {
       this.toast('Done. Notes for tonight are in your notebook.');
     }
 
-    const errand = this.g.errands.find((e) => e.scenario === def.id && e.variant === run.variant.id && !e.done);
     if (errand) {
       errand.done = true;
       if (this.g.errands.every((e) => e.done)) {
@@ -389,6 +440,7 @@ export class Game {
       }
     }
     this.showLevelUps(ups);
+    this.addXp(ups.length * XP.levelUp + (errand ? XP.errand : 0) + (run.clean ? XP.clean : 0));
     this.g.minutes = Math.min(DAY_END - 1, this.g.minutes + MINUTES_PER_SCENARIO);
     this.town.invalidate();
     this.phase = 'town';
@@ -428,20 +480,31 @@ export class Game {
     }
   }
 
-  /** The night's results, counted up one line at a time, ending in a total. */
+  /**
+   * The night's results: the day's experience counted up line by line, multiplied by
+   * the best combo, and the bonus added to your level bar. The bonus is given as soon
+   * as the screen opens, so skipping the animation loses nothing.
+   */
   private results(): HTMLElement {
     const t = this.g.today;
     const done = this.g.errands.filter((e) => e.done).length;
     const lines: [string, number, number][] = [
-      [`Errands done (of ${this.g.errands.length})`, done, 20],
-      ['Clean visits', t.clean ?? 0, 10],
-      ['New words', new Set(t.newWords).size, 5],
-      ['Words levelled up', t.levelUps ?? 0, 15],
+      [`Errands done (of ${this.g.errands.length})`, done, XP.errand],
+      ['Clean visits', t.clean ?? 0, XP.clean],
+      ['New words', new Set(t.newWords).size, XP.newWord],
+      ['Words levelled up', t.levelUps ?? 0, XP.levelUp],
     ];
     const points = lines.reduce((sum, [, n, each]) => sum + n * each, 0);
     const best = t.bestCombo ?? 0;
-    const mult = Math.round((1 + best / 10) * 10) / 10;
+    const mult = comboMultiplier(best);
     const total = Math.round(points * mult);
+    const xpBefore = this.g.xp;
+    if (t.bonus === undefined) {
+      t.bonus = total - points;
+      this.g.xp += t.bonus;
+      if (levelFor(this.g.xp) > levelFor(xpBefore)) t.promotions.push(`You reached level ${levelFor(this.g.xp)}.`);
+    }
+    const xpAfter = this.g.xp;
     const rows = lines.map(([label, n, each]) => {
       const count = h('b', { class: 'res-n' }, '0');
       const pts = h('span', { class: 'res-pts' }, '+0');
@@ -449,12 +512,18 @@ export class Game {
     });
     const pointsEl = h('b', { class: 'chips' }, '0');
     const multEl = h('b', { class: 'mult' }, `×${mult.toFixed(1)}`);
-    const totalEl = h('div', { class: 'res-total' }, '0');
+    const totalEl = h('div', { class: 'res-total' }, '0 XP');
     const sum = h('div', { class: 'res-sum' },
       h('div', { class: 'res-mults' }, pointsEl, h('span', { class: 'times' }, '×'), multEl),
-      h('div', { class: 'res-caption' }, `points × best combo (${best} in a row)`),
+      h('div', { class: 'res-caption' }, `XP × best combo (${best} in a row)`),
     );
-    const box = h('div', { class: 'results' }, ...rows.map((r) => r.el), sum, totalEl);
+    const levelNow = levelFor(xpBefore);
+    const lvLabel = h('span', { class: 'res-lv' }, `Lv ${levelNow}`);
+    const fill = h('i', { style: `width:${Math.round(levelProgress(xpBefore) * 100)}%` });
+    const bar = h('div', { class: 'res-level' }, lvLabel, h('span', { class: 'res-bar' }, fill),
+      h('span', { class: 'res-next' }, `${xpForLevel(levelNow + 1) - xpBefore} XP to Lv ${levelNow + 1}`));
+    const yenLine = h('div', { class: 'res-yen' }, h('span', { class: 'res-label' }, 'Yen earned from errands'), h('b', {}, yen(t.yen ?? 0)));
+    const box = h('div', { class: 'results' }, ...rows.map((r) => r.el), sum, totalEl, bar, yenLine);
     void (async () => {
       await wait(250);
       for (const r of rows) {
@@ -469,11 +538,25 @@ export class Game {
       play(multEl, 'pop');
       await wait(200);
       totalEl.classList.add('in');
-      await countUp(totalEl, total, 700, (n) => n.toLocaleString('en-US'));
+      await countUp(totalEl, total, 700, (n) => `${n.toLocaleString('en-US')} XP`);
       play(totalEl, 'stamp');
       if (!box.isConnected) return;
       const r = totalEl.getBoundingClientRect();
       if (total > 0) confetti(r.left + r.width / 2, r.top + r.height / 2, Math.min(70, 20 + total / 10));
+      // The combo bonus fills the level bar.
+      bar.classList.add('in');
+      await wait(300);
+      const lvAfter = levelFor(xpAfter);
+      if (lvAfter > levelNow) {
+        fill.style.width = '100%';
+        await wait(500);
+        lvLabel.textContent = `Lv ${lvAfter}`;
+        play(lvLabel, 'stamp');
+        bar.classList.add('up');
+      }
+      fill.style.width = `${Math.round(levelProgress(xpAfter) * 100)}%`;
+      bar.querySelector('.res-next')!.textContent = `${xpForLevel(lvAfter + 1) - xpAfter} XP to Lv ${lvAfter + 1}`;
+      yenLine.classList.add('in');
     })();
     return box;
   }
