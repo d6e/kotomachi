@@ -25,11 +25,12 @@ npm run dev        # http://127.0.0.1:8000, rebuilds on save
 ## Controls
 
 - **Walk:** arrow keys or WASD, one tile at a time. A quick tap of a new direction just turns you. Or click or tap where you want to go: clicking a shop walks to its door and goes in, and clicking 田中さん walks over to say hello.
-- **Interact:** walk up into a door, or press Space, E or Enter at a door or next to 田中さん.
+- **Go in and out:** walk up into a door, or press Space, E or Enter at it. Inside, walk down through the door at the bottom (or tap it) to go back out onto the street.
+- **Talk:** inside, walk up to the counter and press Space, or tap whoever works there. That starts the errand. Outside, press Space next to 田中さん or tap them.
 - **Look a word up:** click or tap it, in dialogue, on signs, in the errands list or in the notebook.
-- **Talk:** lines type out a letter at a time. Enter, Space or a click on the text shows the whole line at once.
+- **Read:** lines type out a letter at a time. Enter, Space or a click on the text shows the whole line at once.
 - **Answer:** move the ▶ with the arrow keys and press Enter, or click a row, or press its number. With tiles, tap them in order, then press "Say it". In a fill-in blank, type romaji and press Enter. Capital letters give katakana, so `HOTTO` gives ホット.
-- **Notebook:** N, or the Notebook button. **Go home:** the button, or walk into the アパート door.
+- **Notebook:** N, or the Notebook button. **Go home:** the button, or go into the アパート and press Space by the bed. Each day starts in your room.
 
 ## How it fits together
 
@@ -83,6 +84,7 @@ All of these numbers are constants at the top of `src/scenario/engine.ts` and `s
 **Playable now**
 
 - A walkable street with an apartment, cafe, konbini, pharmacy, restaurant, post office, station, park and a neighbour (田中さん) who walks back and forth. Shops keep opening hours: the pharmacy shows 準備中 before 9:00, the restaurant opens at 11:00 and the post office closes at 17:00.
+- An inside for every place, the same size as the screen: your tatami room with a bed, and each shop with its counter and the person who works there (ゆき at the cafe, the konbini clerk, 森さん at the pharmacy, 山田さん at the restaurant, the station attendant and 小林さん at the post office). Errands start by talking to them across the counter. 田中さん stays outdoors.
 - Cafe: the full ladder, stages 1 to 4, with four drinks, three sizes, hot or iced, for here or to go, a payment step and small talk that changes with friendship.
 - Konbini: the full ladder, with eight errands: an onigiri, tea, a bento to heat with chopsticks, water, ice cream with a spoon, an umbrella or batteries you have to ask where to find, and a 肉まん from the counter. Along the way: point cards, bags, the sticker instead of a bag, and paying.
 - Pharmacy: the full ladder, with six complaints (sore throat, headache, itchy eyes, stomach ache, cough, fever). You describe the symptom, say since when or whether you have allergies, ask how many times a day, and read back the dosage.
@@ -98,7 +100,6 @@ All of these numbers are constants at the top of `src/scenario/engine.ts` and `s
 
 - Voice, audio and music.
 - A morphological analyser (kuromoji or Sudachi) and a real dictionary (JMdict). Lines are segmented by hand and `vocab.json` has 297 entries.
-- Indoor maps. Going into a shop opens the conversation window over the street.
 
 ## Please get the Japanese reviewed
 
@@ -106,7 +107,7 @@ All of the Japanese here was written without a native speaker: lines, readings, 
 
 ## Art
 
-All the art is original and drawn in code: the palette is in `src/town/palette.ts`, the characters are 16×16 character maps in `src/town/sprites.ts`, and the street, shops and park are drawn by `src/town/art.ts`. The look ("style D": full-colour handheld, soft shading, a plum outline and a blue rounded window frame) was picked from four mockups kept in `mockups/`. No fonts or images are bundled; Japanese text uses the system's Japanese font.
+All the art is original and drawn in code: the palette is in `src/town/palette.ts`, the characters are 16×16 character maps in `src/town/sprites.ts`, the street, shops and park are drawn by `src/town/art.ts`, and the insides by `src/town/roomart.ts` from the room maps in `src/town/rooms.ts`. The look ("style D": full-colour handheld, soft shading, a plum outline and a blue rounded window frame) was picked from four mockups kept in `mockups/`. No fonts or images are bundled; Japanese text uses the system's Japanese font.
 
 ## Notes
 

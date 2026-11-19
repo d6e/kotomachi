@@ -181,3 +181,120 @@ export function walkFrames(art: CharacterArt, dir: Dir): { rows: string[]; flip:
     { rows: swing, flip, lift: 1 },
   ];
 }
+
+// ------------------------------------------------------------------ staff
+// The people who work in the shops. They stand behind a counter facing you, so only
+// their front is drawn. Each is a hair or hat, the shared face, and a uniform.
+
+const FACE = [
+  '.OHHSSHHHHSSHHO.',
+  '.OHSSSSSSSSSSHO.',
+  '.OHSSESSSSESSHO.',
+  '.OSSSESSSSESSSO.',
+  '..OSPSSSSSSPSO..',
+  '...OOSSssSSOO...',
+];
+const BODY = [
+  '..OkCCCCCCCCkO..',
+  '.OSOCCCcCCCCOSO.',
+  '..OOcCCCCCCcOO..',
+  '...OFFO..OFFO...',
+];
+const SHORT_HAIR = [
+  '......OOOO......',
+  '....OOHHHHOO....',
+  '...OHHhhHHHHO...',
+  '..OHHhHHHHHHHO..',
+  '.OHHHHHHHHHHHHO.',
+  '.OHHHHHHHHHHHHO.',
+];
+
+export interface StaffArt {
+  rows: string[];
+  key: Record<string, Role>;
+}
+
+const staffKey = (over: Record<string, Role>): Record<string, Role> => ({ ...KEY, ...over });
+
+export const STAFF: Record<string, StaffArt> = {
+  // ゆき at the cafe: long brown hair, a brown apron over a white shirt.
+  yuki: {
+    rows: [
+      ...SHORT_HAIR.slice(0, 4),
+      '.OHHHHHHHHhHHHO.',
+      '.OHHHHHHHHHHHHO.',
+      '.OHHSSHHHHSSHHO.',
+      '.OHSSSSSSSSSSHO.',
+      '.OHSSESSSSESSHO.',
+      '.OHSSESSSSESSHO.',
+      '.OHSPSSSSSSPSHO.',
+      '.OHOOSSssSSOOHO.',
+      '.OHkCCCCCCCCkHO.',
+      '.OSOCCCcCCCCOSO.',
+      '..OOcCCCCCCcOO..',
+      '...OFFO..OFFO...',
+    ],
+    key: staffKey({ C: 'frame', c: 'doorSh', k: 'white' }),
+  },
+  // The konbini clerk: short black hair, a blue striped uniform.
+  clerk: {
+    rows: [...SHORT_HAIR, ...FACE, '..OkCCCCCCCCkO..', '.OSOCkCCkCCCOSO.', '..OOcCCCCCCcOO..', BODY[3]!],
+    key: staffKey({ H: 'hairK', h: 'hairKHi', D: 'hairKSh', C: 'roofB', c: 'roofBSh', k: 'white' }),
+  },
+  // 森さん at the pharmacy: a black bob, glasses and a white coat.
+  mori: {
+    rows: [
+      ...SHORT_HAIR.slice(0, 6),
+      '.OHHSSHHHHSSHHO.',
+      '.OHSOOOSSOOOSHO.',
+      '.OHSOEOOOOEOSHO.',
+      '.OHSOEOSSOEOSHO.',
+      '.OHSOOOSSOOOSHO.',
+      '.OHOOSSssSSOOHO.',
+      '..OkCCkkkkCCkO..',
+      '.OSOCCCcCCCCOSO.',
+      '..OOcCCCCCCcOO..',
+      BODY[3]!,
+    ],
+    key: staffKey({ H: 'hairK', h: 'hairKHi', D: 'hairKSh', C: 'grey', c: 'greySh', k: 'cross' }),
+  },
+  // 山田さん at the restaurant: a white headscarf and a navy apron.
+  server: {
+    rows: [
+      '......OOOO......',
+      '....OOWWWWOO....',
+      '...OWWWWWWWWO...',
+      '..OWWWWWWWWWWO..',
+      '.OWWWWWWWWWWWWO.',
+      '.OggggggggggggO.',
+      ...FACE,
+      '..OkCCCCCCCCkO..',
+      '.OSOCCCcCCCCOSO.',
+      '..OOcCCCCCCcOO..',
+      BODY[3]!,
+    ],
+    key: staffKey({ H: 'hairK', h: 'hairKHi', g: 'greySh', C: 'noren', c: 'norenSh', k: 'white' }),
+  },
+  // The station attendant: a navy cap with a gold badge, and a navy jacket.
+  ekiin: {
+    rows: [
+      '....OOOOOOOO....',
+      '...OddddddddO...',
+      '..OdddddKKdddO..',
+      '..OddddddddddO..',
+      '.OOOOOOOOOOOOOO.',
+      '.OHHHHHHHHHHHHO.',
+      ...FACE,
+      '..OCkkCCCCkkCO..',
+      '.OSOCCCKCCCCOSO.',
+      '..OOcCCCCCCcOO..',
+      BODY[3]!,
+    ],
+    key: staffKey({ H: 'hairK', h: 'hairKHi', d: 'navy', K: 'gold', C: 'navy', c: 'navySh', k: 'white' }),
+  },
+  // 小林さん at the post office: short brown hair and a red vest.
+  kobayashi: {
+    rows: [...SHORT_HAIR, ...FACE, '..OkkCCCCCCkkO..', '.OSOCCCcCCCCOSO.', '..OOcCCCCCCcOO..', BODY[3]!],
+    key: staffKey({ C: 'postRed', c: 'postRedSh', k: 'white' }),
+  },
+};

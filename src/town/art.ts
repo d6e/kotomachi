@@ -43,7 +43,7 @@ function grass(b: Buf, x0: number, y0: number, w: number, h: number): void {
     }
 }
 
-function flower(b: Buf, x: number, y: number, petal: Role): void {
+export function flower(b: Buf, x: number, y: number, petal: Role): void {
   b.set(x, y - 1, petal);
   b.set(x - 1, y, petal);
   b.set(x + 1, y, petal);
@@ -162,7 +162,7 @@ function signpost(b: Buf, x0: number, y0: number): void {
 
 // ------------------------------------------------------------------ buildings
 
-function signBoard(b: Buf, signs: SignSpot[], measure: Measure, cx: number, y0: number, word: string): SignSpot {
+export function signBoard(b: Buf, signs: SignSpot[], measure: Measure, cx: number, y0: number, word: string): SignSpot {
   const w = Math.max(16, Math.ceil(measure(word)) + 10);
   const x0 = Math.round(cx - w / 2);
   b.box(x0 - 1, y0 - 1, w + 2, SIGN_H + 2, 'signSh');
@@ -216,7 +216,7 @@ function wall(b: Buf, x0: number, w: number, role: Role = 'wall'): void {
   b.rect(x0 + 1, GROUND - 1, w - 2, 1, 'stoneSh');
 }
 
-function windowPane(b: Buf, x0: number, y0: number, w: number, h: number, mullion = true): void {
+export function windowPane(b: Buf, x0: number, y0: number, w: number, h: number, mullion = true): void {
   b.box(x0, y0, w, h, 'glass');
   b.rect(x0 + 1, y0 + 1, w - 2, 2, 'glassSh');
   for (const o of [2, 5, 6])

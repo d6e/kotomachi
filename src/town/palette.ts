@@ -21,6 +21,9 @@ export const PALETTE = {
   water: '#5cb2e8', waterHi: '#cbedff', waterSh: '#3a80c0', fence: '#ffffff', fenceSh: '#c9c1d2', stone: '#d4cfca', stoneSh: '#a39a92',
   lamp: '#4a4458', lampLight: '#ffeaa2', bench: '#c67b48', benchSh: '#8a5030', planter: '#b2613f', poster: '#ffb43c',
   dark: '#4b4560', darkSh: '#36304a', closed: '#d8463a',
+  mint: '#cdeee1', mintSh: '#9fd2c0', cream: '#fbe9c8', creamSh: '#e3c99a', stationWall: '#e2e6ef', stationWallSh: '#b7bfd0',
+  wood: '#d0925a', woodSh: '#a9703f', woodHi: '#e8b07a', tileA: '#f6f4fa', tileB: '#e3e0ee', tatami: '#dcd590', tatamiSh: '#b8b064', tatamiEdge: '#4d6b4c',
+  rug: '#e98e8e', rugSh: '#c76a72', hairK: '#3d3552', hairKHi: '#6b6288', hairKSh: '#28223a', navy: '#33446f', navySh: '#222e50', gold: '#ffcf4a',
   noren: '#33507f', norenSh: '#22375c', lantern: '#ff6a4a', lanternSh: '#c8402f', chalk: '#3e5446', postRed: '#e2413b', postRedSh: '#a52a2a',
 } as const;
 

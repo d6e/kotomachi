@@ -1,8 +1,9 @@
-// The walkable town. The world is drawn as pixel art at 1x into a small canvas, scaled
-// up by a whole number onto the visible canvas, and then sign lettering, furigana and
-// the "Space ▶" hint are drawn crisply on top. You walk tile to tile with the arrow
-// keys or WASD, or click or tap to walk somewhere; doors and the neighbour are
-// interactable.
+// The walkable town, and the insides of its places. The world is drawn as pixel art at
+// 1x into a small canvas, scaled up by a whole number onto the visible canvas, and then
+// sign lettering, furigana and the "Space ▶" hint are drawn crisply on top. You walk
+// tile to tile with the arrow keys or WASD, or click or tap to walk somewhere. Walking
+// into a door takes you inside; inside, you talk to the staff across the counter and
+// walk back out through the door.
 
 import type { Input } from '../engine/input.ts';
 import { drawWorld, plate, SIGN_TEXT, type SignSpot } from './art.ts';
@@ -12,9 +13,15 @@ import {
 } from './map.ts';
 import { UI } from './palette.ts';
 import { Buf, toCanvas } from './pixels.ts';
-import { KEY, NEIGHBOUR, PLAYER, walkFrames, type CharacterArt } from './sprites.ts';
+import { drawRoom } from './roomart.ts';
+import { bedSpot, bedTiles, cellAt, roomDoor, roomEntrance, ROOMS, roomSolid, staffSpot, talkSpot, type RoomDef } from './rooms.ts';
+import { KEY, NEIGHBOUR, PLAYER, STAFF, walkFrames, type CharacterArt } from './sprites.ts';
 
-export type Interactable = { kind: 'door'; place: DoorPlace } | { kind: 'npc'; id: 'tanaka' };
+export type Interactable =
+  | { kind: 'door'; place: DoorPlace }
+  | { kind: 'npc'; id: 'tanaka' }
+  | { kind: 'staff'; place: DoorPlace }
+  | { kind: 'bed' };
 
 export interface SignInfo {
   text: string;
@@ -31,6 +38,8 @@ export interface TownHooks {
   neighborAvailable(): boolean;
   /** Something else has the player's attention (a conversation, the notebook, a popup). */
   busy(): boolean;
+  /** The name of whoever works at a place (an NPC id), for the hint over your head. */
+  staffName(npc: string): string;
 }
 
 export interface Actor {
@@ -56,6 +65,8 @@ const NEIGHBOUR_STEP = 0.34;
 const TURN_HOLD = 0.08;
 /** Sprites stand a little up into the tile above, so they look like they're on the ground. */
 const SPRITE_LIFT = 4;
+/** Seconds the screen takes to fade in after going through a door. */
+const FADE = 0.28;
 const FONT = '"Hiragino Maru Gothic ProN", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", "Noto Sans JP", "IPAPGothic", "Meiryo", sans-serif';
 
 const KEYS: [Facing, string[]][] = [
@@ -83,6 +94,10 @@ export class Town {
   private plates = new Map<string, { img: HTMLCanvasElement; w: number; h: number }>();
   private plateRects: { word: string; x: number; y: number; w: number; h: number }[] = [];
   private sprites = new Map<string, HTMLCanvasElement>();
+  private rooms = new Map<DoorPlace, { base: HTMLCanvasElement; front: HTMLCanvasElement; signs: SignSpot[] }>();
+  /** The place you're inside, or null on the street. */
+  scene: DoorPlace | null = null;
+  private fade = 0;
   private shadowImg: HTMLCanvasElement | null = null;
   /** Whole-number zoom from world pixels to canvas pixels. */
   private k = 3;
@@ -129,20 +144,51 @@ export class Town {
   /** Signs change as furigana fade; they're redrawn every frame, so nothing to rebuild. */
   invalidate(): void {}
 
+  /** A new day starts at home, by the bed. */
   resetPlayer(): void {
-    Object.assign(this.player, actorAt(START, 'down'));
+    this.scene = 'home';
+    Object.assign(this.player, actorAt(ROOMS.home.start ?? roomEntrance(ROOMS.home), 'down'));
     this.path = [];
     this.then = null;
+    this.fade = FADE;
   }
 
-  /** Stand in front of a door, or next to the neighbour (play-test helper). */
+  private get room(): RoomDef | null {
+    return this.scene ? ROOMS[this.scene] : null;
+  }
+
+  /** Go inside a place, just inside its door. */
+  enter(place: DoorPlace): void {
+    this.scene = place;
+    Object.assign(this.player, actorAt(roomEntrance(ROOMS[place]), 'up'));
+    this.path = [];
+    this.then = null;
+    this.fade = FADE;
+  }
+
+  /** Walk out onto the street, in front of the door. */
+  leave(): void {
+    const place = this.scene;
+    if (!place) return;
+    this.scene = null;
+    Object.assign(this.player, actorAt(doorSpot(buildingFor(place))!, 'down'));
+    this.path = [];
+    this.then = null;
+    this.fade = FADE;
+  }
+
+  /** Stand at the counter inside a place (by the bed at home), or next to the neighbour (play-test helper). */
   debugGoTo(place: DoorPlace | 'tanaka'): void {
     this.path = [];
     this.then = null;
     if (place !== 'tanaka') {
-      Object.assign(this.player, actorAt(doorSpot(buildingFor(place))!, 'up'));
+      this.enter(place);
+      const room = ROOMS[place];
+      Object.assign(this.player, actorAt(talkSpot(room) ?? bedSpot(room)!, 'up'));
+      this.fade = 0;
       return;
     }
+    this.scene = null;
     const n = this.neighbourTile();
     for (const d of Object.values(DIRS)) {
       const p = { tx: n.tx + d.dx, ty: n.ty + d.dy };
@@ -173,9 +219,23 @@ export class Town {
     return same(this.tileOf(this.player), p) || (this.player.dest !== null && same(this.player.dest, p));
   }
 
-  private blockedForPlayer = (tx: number, ty: number): boolean => isSolid(this.grid, tx, ty) || this.neighbourOn({ tx, ty });
+  private blockedForPlayer = (tx: number, ty: number): boolean => {
+    const room = this.room;
+    if (room) return roomSolid(room, tx, ty);
+    return isSolid(this.grid, tx, ty) || this.neighbourOn({ tx, ty });
+  };
+
+  /** Stand in front of a door on the street (play-test helper). */
+  debugTownDoor(place: DoorPlace): void {
+    this.scene = null;
+    this.path = [];
+    this.then = null;
+    this.fade = 0;
+    Object.assign(this.player, actorAt(doorSpot(buildingFor(place))!, 'up'));
+  }
 
   private doorAt(p: TilePos): DoorPlace | null {
+    if (this.scene) return null;
     for (const b of BUILDINGS) {
       const s = doorSpot(b);
       if (s && same(s, p)) return b.door!.place;
@@ -192,6 +252,13 @@ export class Town {
   nearby(): Interactable | null {
     if (this.player.dest) return null;
     const me = this.tileOf(this.player);
+    const room = this.room;
+    if (room) {
+      const talk = talkSpot(room);
+      if (talk && same(talk, me)) return { kind: 'staff', place: room.place };
+      if (bedTiles(room).some((b) => Math.abs(b.tx - me.tx) + Math.abs(b.ty - me.ty) === 1)) return { kind: 'bed' };
+      return null;
+    }
     if (this.neighbourOn(this.ahead(this.player))) return { kind: 'npc', id: 'tanaka' };
     const door = this.doorAt(me);
     if (door) return { kind: 'door', place: door };
@@ -209,6 +276,10 @@ export class Town {
       const n = this.tileOf(this.neighbor);
       this.player.dir = facingTo(this.tileOf(this.player), n);
       this.neighbor.dir = facingTo(n, this.tileOf(this.player));
+    } else if (target.kind === 'bed') {
+      const me = this.tileOf(this.player);
+      const b = bedTiles(this.room!).find((t) => Math.abs(t.tx - me.tx) + Math.abs(t.ty - me.ty) === 1);
+      if (b) this.player.dir = facingTo(me, b);
     } else this.player.dir = 'up';
     this.hooks.onInteract(target);
   }
@@ -225,6 +296,10 @@ export class Town {
     const p = this.toWorld(e);
     const hit = (s: { x: number; y: number; w: number; h: number }, above = 0) =>
       p.x >= s.x && p.x <= s.x + s.w && p.y >= s.y - above && p.y <= s.y + s.h;
+    if (this.room) {
+      this.onRoomPointer(p, e, hit);
+      return;
+    }
     for (const s of this.signs) {
       if (hit(s, 10)) {
         this.hooks.onSignClick(s.word, e.clientX, e.clientY);
@@ -255,6 +330,38 @@ export class Town {
       return;
     }
     this.walkTo({ tx: Math.floor(p.x / TILE), ty: Math.floor(p.y / TILE) });
+  }
+
+  private onRoomPointer(p: { x: number; y: number }, e: PointerEvent, hit: (s: { x: number; y: number; w: number; h: number }, above?: number) => boolean): void {
+    const room = this.room!;
+    for (const s of this.roomArt(room.place).signs) {
+      if (hit(s, 10)) {
+        this.hooks.onSignClick(s.word, e.clientX, e.clientY);
+        return;
+      }
+    }
+    // Staff sprites stand up into the tile above theirs, so count a tap a little higher.
+    const tx = Math.floor(p.x / TILE);
+    const ty = Math.floor((p.y + SPRITE_LIFT) / TILE);
+    const at = cellAt(room, tx, Math.floor(p.y / TILE));
+    const staff = staffSpot(room);
+    const onStaff = staff && Math.abs(tx - staff.tx) <= 1 && (ty === staff.ty || ty === staff.ty + 1) && (at === 'S' || at === '=' || at === 'm' || at === 'h');
+    if (staff && onStaff) {
+      this.walkTo(talkSpot(room)!, { kind: 'staff', place: room.place });
+      return;
+    }
+    if (at === 'b') {
+      const spot = bedSpot(room);
+      if (spot) this.walkTo(spot, { kind: 'bed' });
+      return;
+    }
+    // The door, or the wall either side of it, walks out.
+    const door = roomDoor(room);
+    if (Math.floor(p.y / TILE) >= door.ty && Math.abs(tx - door.tx) <= 1) {
+      this.walkTo(door);
+      return;
+    }
+    this.walkTo({ tx, ty: Math.floor(p.y / TILE) });
   }
 
   private walkTo(target: TilePos, then: Interactable | null = null): boolean {
@@ -352,6 +459,10 @@ export class Town {
         left -= (p.t - before) * PLAYER_STEP;
         if (p.dest) break;
         this.justStepped = true;
+        if (this.room && same(this.tileOf(p), roomDoor(this.room))) {
+          this.leave();
+          return { walked };
+        }
         continue;
       }
       if (keyDir) {
@@ -390,7 +501,7 @@ export class Town {
     if (!p.dest && !keyDir) this.justStepped = false;
     if (keyDir && !p.dest) this.justStepped = false;
 
-    this.updateNeighbour(dt);
+    if (!this.scene) this.updateNeighbour(dt);
     return { walked };
   }
 
@@ -398,6 +509,11 @@ export class Town {
     const then = this.then;
     if (!then) return;
     this.then = null;
+    if (then.kind === 'staff' || then.kind === 'bed') {
+      const near = this.nearby();
+      if (near?.kind === then.kind) this.interact(near);
+      return;
+    }
     if (then.kind === 'door') {
       if (this.doorAt(this.tileOf(this.player)) === then.place) this.interact(then);
       return;
@@ -503,8 +619,37 @@ export class Town {
     return p;
   }
 
-  render(): void {
+  private roomArt(place: DoorPlace): { base: HTMLCanvasElement; front: HTMLCanvasElement; signs: SignSpot[] } {
+    let r = this.rooms.get(place);
+    if (!r) {
+      const art = drawRoom(ROOMS[place], (t) => this.measure(t));
+      r = { base: toCanvas(art.base), front: toCanvas(art.front), signs: art.signs };
+      this.rooms.set(place, r);
+    }
+    return r;
+  }
+
+  private staffSprite(npc: string): HTMLCanvasElement | null {
+    const art = STAFF[npc];
+    if (!art) return null;
+    const key = `staff:${npc}`;
+    let img = this.sprites.get(key);
+    if (!img) {
+      const b = new Buf(16, 16);
+      b.sprite(art.rows, 0, 0, art.key);
+      img = toCanvas(b);
+      this.sprites.set(key, img);
+    }
+    return img;
+  }
+
+  render(dt = 0): void {
     this.resize();
+    this.fade = Math.max(0, this.fade - dt);
+    if (this.room) {
+      this.renderRoom(this.room);
+      return;
+    }
     if (!this.world) this.buildWorld();
     const g = this.lctx;
     const k = this.k;
@@ -544,23 +689,7 @@ export class Town {
     const c = this.ctx;
     c.imageSmoothingEnabled = false;
     c.drawImage(this.low, 0, 0, VIEW_W * k, VIEW_H * k);
-    c.textAlign = 'center';
-    c.textBaseline = 'middle';
-    for (const s of this.signs) {
-      if (s.x + s.w < cam || s.x > cam + VIEW_W) continue;
-      const info = this.hooks.sign(s.word);
-      const cx = (s.x + s.w / 2 - cam) * k;
-      c.font = this.font(SIGN_TEXT);
-      c.fillStyle = UI.ink;
-      c.fillText(info.text, cx, (s.y + s.h / 2) * k);
-      if (info.furigana) {
-        c.font = this.font(5.5);
-        const fw = c.measureText(info.furigana).width + 4 * k;
-        this.pill(cx - fw / 2, (s.y - 9) * k, fw, 8 * k, UI.box, UI.ink);
-        c.fillStyle = UI.ink;
-        c.fillText(info.furigana, cx, (s.y - 5) * k);
-      }
-    }
+    this.letterSigns(this.signs, cam);
     for (const pl of plates) {
       c.font = this.font(7);
       c.fillStyle = UI.closed;
@@ -578,12 +707,80 @@ export class Town {
       c.fillRect(0, 0, VIEW_W * k, VIEW_H * k);
     }
 
-    // What Space would do here.
-    if (!this.paused) {
-      const near = this.nearby();
-      if (near) {
-        const label = near.kind === 'npc' ? '田中さん' : this.hooks.sign(buildingFor(near.place).sign).text;
-        this.bubble(`Space ▶ ${label}`, Math.round(p.px) - cam + TILE / 2, Math.round(p.py) - SPRITE_LIFT - 3);
+    this.hint(cam);
+    this.drawFade();
+  }
+
+  /** What Space would do here, in a bubble over your head. */
+  private hint(cam: number): void {
+    if (this.paused) return;
+    const near = this.nearby();
+    if (!near) return;
+    const p = this.player;
+    let label: string;
+    if (near.kind === 'npc') label = '田中さん';
+    else if (near.kind === 'bed') label = 'Sleep';
+    else if (near.kind === 'staff') label = this.hooks.staffName(ROOMS[near.place].staff ?? '');
+    else label = this.hooks.sign(buildingFor(near.place).sign).text;
+    this.bubble(`Space ▶ ${label}`, Math.round(p.px) - cam + TILE / 2, Math.round(p.py) - SPRITE_LIFT - 3);
+  }
+
+  private drawFade(): void {
+    if (this.fade <= 0) return;
+    const c = this.ctx;
+    c.fillStyle = `rgba(36,28,48,${(this.fade / FADE).toFixed(3)})`;
+    c.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  private renderRoom(room: RoomDef): void {
+    const g = this.lctx;
+    const k = this.k;
+    const art = this.roomArt(room.place);
+    this.camX = 0;
+    g.imageSmoothingEnabled = false;
+    g.clearRect(0, 0, VIEW_W, VIEW_H);
+    g.drawImage(art.base, 0, 0);
+    const staff = staffSpot(room);
+    const img = staff && room.staff ? this.staffSprite(room.staff) : null;
+    if (staff && img) {
+      // A small breath every couple of seconds, so they look alive.
+      const bob = Math.sin(this.time * 2.4) > 0.92 ? 1 : 0;
+      g.drawImage(img, staff.tx * TILE, staff.ty * TILE - SPRITE_LIFT - bob);
+    }
+    g.drawImage(art.front, 0, 0);
+    const p = this.player;
+    const x = Math.round(p.px);
+    const y = Math.round(p.py);
+    g.drawImage(this.shadow(), x + 1, y + 10);
+    const s = this.sprite('player', PLAYER, p);
+    g.drawImage(s.img, x, y - SPRITE_LIFT - s.lift);
+
+    const c = this.ctx;
+    c.imageSmoothingEnabled = false;
+    c.drawImage(this.low, 0, 0, VIEW_W * k, VIEW_H * k);
+    this.letterSigns(art.signs, 0);
+    this.hint(0);
+    this.drawFade();
+  }
+
+  private letterSigns(signs: SignSpot[], cam: number): void {
+    const c = this.ctx;
+    const k = this.k;
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    for (const s of signs) {
+      if (s.x + s.w < cam || s.x > cam + VIEW_W) continue;
+      const info = this.hooks.sign(s.word);
+      const cx = (s.x + s.w / 2 - cam) * k;
+      c.font = this.font(SIGN_TEXT);
+      c.fillStyle = UI.ink;
+      c.fillText(info.text, cx, (s.y + s.h / 2) * k);
+      if (info.furigana) {
+        c.font = this.font(5.5);
+        const fw = c.measureText(info.furigana).width + 4 * k;
+        this.pill(cx - fw / 2, (s.y - 9) * k, fw, 8 * k, UI.box, UI.ink);
+        c.fillStyle = UI.ink;
+        c.fillText(info.furigana, cx, (s.y - 5) * k);
       }
     }
   }

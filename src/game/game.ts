@@ -61,6 +61,7 @@ export class Game {
       onSignClick: (word, x, y) => this.lookup({ surface: word, lemma: word, ruby: [] }, { left: x, top: y, bottom: y }, true),
       neighborAvailable: () => !this.g.today.greeted && this.g.minutes < 21 * 60,
       busy: () => this.phase !== 'town' || this.notebook.open || this.popup.open,
+      staffName: (npc) => (npcs[npc as keyof typeof npcs] ? plainText(parseLine(npcs[npc as keyof typeof npcs].name, vocab)) : ''),
     });
     const game = this;
     this.popup = new Popup(root, {
@@ -102,7 +103,7 @@ export class Game {
       }
     }
     this.town.setMinutes(this.g.minutes);
-    this.town.render();
+    this.town.render(dt);
     this.input.endFrame();
     this.renderHud();
   }
@@ -196,7 +197,7 @@ export class Game {
         } }, 'New game'),
       ),
       h('ul', { class: 'howto' },
-        h('li', {}, 'Walk with the arrow keys or WASD, or tap where you want to go. Space (or tapping a door) goes inside.'),
+        h('li', {}, 'Walk with the arrow keys or WASD, or tap where you want to go. Walk into a door (or tap a shop) to go inside, then talk to whoever works there.'),
         h('li', {}, 'Tap any Japanese word for its reading, meaning and where you met it. Looking a word up counts as not knowing it yet.'),
         h('li', {}, 'Conversations start as multiple choice. Three clean visits move a place up a stage: Japanese only, then word tiles, then typing.'),
         h('li', {}, 'Your notebook (N) keeps words by place and person, plus the corrections from each day. Sleeping saves the game.'),
@@ -253,11 +254,14 @@ export class Game {
   private interact(t: Interactable): void {
     if (this.phase !== 'town') return;
     if (t.kind === 'npc') return this.startScenario(scenarioById['neighbor_greet']!);
-    if (t.place === 'home') return this.confirmSleep();
+    if (t.kind === 'bed') return this.confirmSleep();
+    if (t.place === 'home') return this.town.enter('home');
     if (!isOpen(t.place, this.g.minutes)) {
       this.toast(`準備中: the ${PLACE_NAMES[t.place]!.toLowerCase()} is closed right now.`);
       return;
     }
+    // Walking into a door goes inside; talking to whoever works there starts the errand.
+    if (t.kind === 'door') return this.town.enter(t.place);
     this.startScenario(scenarioById[SCENARIO_FOR[t.place]]!);
   }
 
@@ -393,9 +397,10 @@ export class Game {
   // ------------------------------------------------------------------ testing hooks
 
   /** State snapshot for automated play-tests. */
-  debugState(): { phase: Phase; day: number; minutes: number; money: number; stage: Record<string, number>; friendship: number; words: number } {
+  debugState(): { phase: Phase; scene: DoorPlace | null; day: number; minutes: number; money: number; stage: Record<string, number>; friendship: number; words: number } {
     return {
       phase: this.phase,
+      scene: this.town.scene,
       day: this.g.day,
       minutes: this.g.minutes,
       money: this.g.money,
@@ -429,9 +434,14 @@ export class Game {
     return plainText(tokens);
   }
 
-  /** Teleport next to a door or the neighbor (play-test helper). */
+  /** Teleport to the counter inside a place, or next to the neighbor (play-test helper). */
   debugGoTo(place: DoorPlace | 'tanaka'): void {
     this.town.debugGoTo(place);
+  }
+
+  /** Teleport to a door on the street (play-test helper). */
+  debugTownDoor(place: DoorPlace): void {
+    this.town.debugTownDoor(place);
   }
 
   get place(): PlaceId | null {
