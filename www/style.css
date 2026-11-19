@@ -224,7 +224,7 @@ ruby.no-furi rt { visibility: hidden; }
 
 .blank-line { font-size: 22px; line-height: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
 input.blank {
-  font: 22px var(--jp); width: 9em; padding: 2px 8px; border: 2px solid var(--out); border-bottom-width: 4px;
+  font: 22px var(--jp); width: clamp(4.5em, 30vw, 9em); padding: 2px 8px; border: 2px solid var(--out); border-bottom-width: 4px;
   border-bottom-color: var(--accent); background: #fff; border-radius: 8px;
 }
 input.blank:focus { outline: none; background: #fff8f2; }

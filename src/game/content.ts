@@ -1,5 +1,6 @@
 // Loads the hand-written content in data/ and checks it.
 
+import { greetSlots } from '../scenario/engine.ts';
 import vocabJson from '../../data/vocab.json' with { type: 'json' };
 import formsJson from '../../data/forms.json' with { type: 'json' };
 import grammarJson from '../../data/grammar.json' with { type: 'json' };
@@ -43,7 +44,7 @@ export function validateContent(defs: ScenarioDef[] = scenarios): ContentIssue[]
   for (const s of defs) {
     if (!s.nodes[s.start]) out.push({ where: s.id, problem: `start node ${s.start} missing` });
     for (const v of s.variants) {
-      const slots: Record<string, string> = { ...v.slots, price: String(v.price ?? 0), greet: 'こんにちは' };
+      const slots: Record<string, string> = { ...v.slots, price: String(v.price ?? 0), ...greetSlots('day') };
       for (const [k, opts] of Object.entries(s.randomSlots ?? {})) slots[k] = opts[0]!;
       if (s.errand) check(`${s.id} errand (${v.id})`, s.errand, slots);
       for (const [id, n] of Object.entries(s.nodes)) {

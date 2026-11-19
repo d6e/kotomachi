@@ -106,5 +106,59 @@
   "title": "いってきます / いってらっしゃい",
   "note": "The one leaving says いってきます ('I'm off'). The one staying says いってらっしゃい ('see you').",
   "example": "いってきます 。"
+ },
+ {
+  "id": "doko",
+  "title": "～はどこですか: asking where",
+  "note": "To ask where something is, put the thing before は and end with どこですか. Start with すみません to get someone's attention.",
+  "example": "すみません 、 傘 は どこ です か ？"
+ },
+ {
+  "id": "omochi",
+  "title": "お～です / お～します: staff speech",
+  "note": "Staff put お in front of a verb's stem to talk politely about you (お持ちですか = do you have) or to offer something humbly (お付けしますか = shall I add). Never use these about yourself: answer with plain polite forms like 持っていません or お願いします.",
+  "example": "ポイントカード は お持ち=持つ です か ？"
+ },
+ {
+  "id": "yoroshii",
+  "title": "よろしいですか",
+  "note": "よろしい is the polite form of いい. ～でよろしいですか asks whether something is all right. Answer はい、大丈夫です, or say what you'd rather have.",
+  "example": "シール で よろしい です か ？"
+ },
+ {
+  "id": "hitotsu",
+  "title": "一つ, 二つ: counting things",
+  "note": "For most small things, count with 一つ, 二つ, 三つ. The number goes after を, right before the verb: 肉まんを一つください.",
+  "example": "肉まん を 一つ ください 。"
+ },
+ {
+  "id": "kara_made",
+  "title": "から (since) and まで (until)",
+  "note": "から marks a starting point: 昨日から = since yesterday. まで marks an end point or a limit: 一日二回まで = up to twice a day.",
+  "example": "昨日 から です 。"
+ },
+ {
+  "id": "arimasen",
+  "title": "ありません: there isn't",
+  "note": "ある means there is (for things). The polite negative is ありません. いいえ goes with a negative answer: アレルギーはありますか？ → いいえ、ありません.",
+  "example": "いいえ 、 ありません=ある 。"
+ },
+ {
+  "id": "i_adj",
+  "title": "い-adjectives don't take だ",
+  "note": "Words like かわいい, おいしい and 新しい end in い and work on their own. Add です to be polite (かわいいです), or use them bare with friends (かわいい！). かわいいだ is wrong.",
+  "example": "かわいい です ね 。"
+ },
+ {
+  "id": "de_place",
+  "title": "で: where you do something",
+  "note": "で marks the place where an action happens: 家でゆっくりします = I'll relax at home. (に marks where you go or where something is.)",
+  "example": "家 で ゆっくり します=する 。"
+ },
+ {
+  "id": "hontou",
+  "title": "本当ですか: reacting to news",
+  "note": "When someone tells you something new, 本当ですか (really?) or そうですか (I see) keeps the conversation going. With friends, just 本当？",
+  "example": "え 、 本当 です か ？"
  }
 ]

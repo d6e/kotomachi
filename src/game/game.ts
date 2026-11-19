@@ -4,9 +4,9 @@
 import { Input } from '../engine/input.ts';
 import { startLoop } from '../engine/loop.ts';
 import { UnavailableJudge, type FreeformJudge } from '../judge/freeform.ts';
-import { lemmasOf, parseLine, type Token } from '../lang/markup.ts';
+import { lemmasOf, parseLine, plainText, type Token } from '../lang/markup.ts';
 import { Learner } from '../learner/model.ts';
-import { finishRun, friendshipLevel, FRIENDSHIP_NAMES, MODE_NAMES, periodOf, ScenarioRun } from '../scenario/engine.ts';
+import { finishRun, friendshipLevel, FRIENDSHIP_NAMES, greetSlots, MODE_NAMES, periodOf, ScenarioRun } from '../scenario/engine.ts';
 import type { Mode, PlaceId, ScenarioDef } from '../scenario/types.ts';
 import { Town, type Interactable } from '../town/town.ts';
 import type { DoorPlace } from '../town/map.ts';
@@ -211,7 +211,9 @@ export class Game {
   }
 
   private planDay(): void {
-    this.g.errands = makeErrands(scenarios, this.learner, vocab, this.g.day);
+    const recent = (this.g.recentErrands ??= {});
+    this.g.errands = makeErrands(scenarios, this.learner, vocab, this.g.day, recent);
+    for (const e of this.g.errands) recent[`${e.scenario}/${e.variant}`] = this.g.day;
   }
 
   private showMorning(): void {
@@ -264,9 +266,8 @@ export class Game {
     }
     const progress = progressFor(this.g, def.id);
     const period = periodOf(this.g.minutes);
-    const greet = period === 'morning' ? 'おはようございます' : period === 'day' ? 'こんにちは' : 'こんばんは';
     const friendship = def.npc === 'yuki' ? (this.g.friendship.yuki ?? 0) : 0;
-    const run = new ScenarioRun({ def, variant, stage: progress.stage, friendship, period, vocab, judge: this.judge, extraSlots: { greet } });
+    const run = new ScenarioRun({ def, variant, stage: progress.stage, friendship, period, vocab, judge: this.judge, extraSlots: greetSlots(period) });
     this.activeRun = run;
     this.phase = 'talk';
     this.popup.hide();
@@ -398,6 +399,30 @@ export class Game {
       friendship: this.g.friendship.yuki ?? 0,
       words: Object.keys(this.g.learner.words).length,
     };
+  }
+
+  /** Play-test helpers: list variants, force a stage/variant/time, read text plainly. */
+  debugVariants(id: string): string[] {
+    return scenarioById[id]!.variants.map((v) => v.id);
+  }
+
+  debugSetup(id: string, stage: number, variant: string, minutes: number): void {
+    this.g.progress[id] = { stage: stage as Mode, cleanRuns: 0, runs: 0 };
+    this.g.errands = [{ scenario: id, variant, text: '', done: false }];
+    this.g.minutes = minutes;
+    this.g.today.greeted = false;
+  }
+
+  debugPeriod(): string {
+    return periodOf(this.g.minutes);
+  }
+
+  debugPlain(markup: string, slots: Record<string, string>): string {
+    return plainText(parseLine(markup, vocab, slots));
+  }
+
+  debugPlainTokens(tokens: Token[]): string {
+    return plainText(tokens);
   }
 
   /** Teleport next to a door or the neighbor (play-test helper). */

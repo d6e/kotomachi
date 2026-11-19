@@ -1,12 +1,20 @@
 {
   "id": "neighbor_greet",
-  "title": "Greeting your neighbor",
+  "title": "Chatting with Tanaka-san",
   "place": "street",
   "npc": "tanaka",
-  "maxStage": 2,
+  "maxStage": 4,
   "start": "greet",
-  "errand": "田中 さん に あいさつ する",
-  "variants": [{ "id": "default", "slots": {} }],
+  "errand": "田中 さん $chat",
+  "variants": [
+    { "id": "outing", "slots": { "chat": "に あいさつ する" } },
+    { "id": "sunny", "slots": { "chat": "と 天気 の 話 を する" } },
+    { "id": "rain", "slots": { "chat": "と 雨 の 話 を する" } },
+    { "id": "cat", "slots": { "chat": "と 猫 の 話 を する" } },
+    { "id": "bakery", "slots": { "chat": "と パン屋 の 話 を する" } },
+    { "id": "garbage", "slots": { "chat": "と ゴミ の 日 の 話 を する" } },
+    { "id": "weekend", "slots": { "chat": "と 週末 の 話 を する" } }
+  ],
   "nodes": {
     "greet": {
       "line": "あ 、 どうも 。",
@@ -18,9 +26,13 @@
         { "text": "こんにちは 。", "gloss": "Hello.", "result": "success", "correctWhen": "day", "reaction": "ふふ 、 $greet 。", "note": "Greetings follow the clock: おはようございます until late morning, こんにちは in the day, こんばんは in the evening.", "grammar": "greetings_time" },
         { "text": "こんばんは 。", "gloss": "Good evening.", "result": "success", "correctWhen": "evening", "reaction": "ふふ 、 $greet 。", "note": "Greetings follow the clock: おはようございます until late morning, こんにちは in the day, こんばんは in the evening.", "grammar": "greetings_time" }
       ],
+      "tiles": { "answers": [["$greet"]], "decoys": ["$greet_x", "$greet_y", "ただいま"] },
+      "blank": { "before": "", "after": "。", "answers": ["$greet"] },
+      "recast": "あ 、 どうも 。",
       "next": { "success": "chat" }
     },
     "chat": {
+      "onlyFor": ["outing"],
       "line": "お出かけ=出かける です か ？",
       "gloss": "Heading out?",
       "targets": ["出かける", "に", "行く"],
@@ -30,9 +42,13 @@
         { "text": "はい 、 ちょっと コンビニ に 。", "gloss": "Yes, just to the konbini.", "result": "success" },
         { "text": "はい 、 カフェ を 行きます=行く 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "あ 、 カフェ に 行く ん=の です ね 。", "note": "Mark where you're going with に (or へ): カフェに行きます.", "grammar": "ni_destination" }
       ],
-      "next": { "success": "bye" }
+      "tiles": { "answers": [["はい 、", "カフェ", "に", "行きます=行く"]], "decoys": ["を", "で", "が"] },
+      "blank": { "before": "はい 、 カフェ", "after": "行きます=行く 。", "answers": ["に", "へ"] },
+      "recast": "お出かけ=出かける です か ？",
+      "next": { "success": "bye_out" }
     },
-    "bye": {
+    "bye_out": {
+      "onlyFor": ["outing"],
       "line": "いってらっしゃい 。",
       "gloss": "See you later! (said to someone leaving)",
       "targets": ["いってらっしゃい", "いってきます"],
@@ -42,6 +58,169 @@
         { "text": "いってらっしゃい 。", "gloss": "See you later! (said to the one leaving)", "result": "npc_amused", "reaction": "ふふ 、 いってきます 、 です よ 。", "note": "The person leaving says いってきます. The one staying says いってらっしゃい.", "grammar": "ittekimasu" },
         { "text": "ただいま 。", "gloss": "I'm home!", "result": "npc_amused", "reaction": "ふふ 、 それ は 帰る 時 の 言葉 です よ 。", "note": "ただいま is what you say when you get home. When you head out, say いってきます.", "grammar": "ittekimasu" }
       ],
+      "tiles": { "answers": [["いってきます"]], "decoys": ["いってらっしゃい", "ただいま", "どうも"] },
+      "blank": { "before": "", "after": "。", "answers": ["いってきます"] },
+      "recast": "いってらっしゃい 。",
+      "effects": { "friendship": 1 },
+      "end": true,
+      "next": { "success": "sunny" }
+    },
+    "sunny": {
+      "onlyFor": ["sunny"],
+      "line": "今日 は 暖かい です ね 。",
+      "gloss": "It's warm today, isn't it?",
+      "targets": ["暖かい", "天気", "いい"],
+      "grammar": ["ne_yo"],
+      "choices": [
+        { "text": "はい 、 いい 天気 です ね 。", "gloss": "Yes, nice weather, isn't it.", "result": "success" },
+        { "text": "そう です ね 。", "gloss": "It is, isn't it.", "result": "success" },
+        { "text": "いいえ 、 元気 です 。", "gloss": "No, I'm well.", "result": "npc_amused", "reaction": "ふふ 、 天気 の 話 です よ 。", "note": "天気 is the weather; 元気 is being well. To agree, use ね: いい天気ですね.", "grammar": "ne_yo" }
+      ],
+      "tiles": { "answers": [["はい 、", "いい", "天気", "です", "ね"]], "decoys": ["元気", "よ", "か"] },
+      "blank": { "before": "はい 、 いい", "after": "です ね 。", "answers": ["てんき", "天気"] },
+      "recast": "今日 は 暖かい です ね 。",
+      "next": { "success": "rain" }
+    },
+    "rain": {
+      "onlyFor": ["rain"],
+      "line": "明日 は 雨 です よ 。",
+      "gloss": "It's going to rain tomorrow, you know.",
+      "targets": ["雨", "明日", "本当"],
+      "grammar": ["hontou"],
+      "choices": [
+        { "text": "本当 です か ？", "gloss": "Really?", "result": "success" },
+        { "text": "そう です か 。", "gloss": "Oh, is that so.", "result": "success" },
+        { "text": "本当 です 。", "gloss": "It's true.", "result": "npc_puzzled", "reaction": "えっ ？ … 明日 は 雨 です よ 。", "note": "本当ですか？ (really?) is a question. 本当です on its own means 'it's true'.", "grammar": "hontou" }
+      ],
+      "tiles": { "answers": [["本当", "です", "か"]], "decoys": ["よ", "ね", "を"] },
+      "blank": { "before": "", "after": "です か ？", "answers": ["ほんとう", "本当"] },
+      "recast": "明日 は 雨 です よ 。",
+      "next": { "success": "rain2" }
+    },
+    "rain2": {
+      "onlyFor": ["rain"],
+      "line": "明日 は 傘 を 持って=持つ 行って=行く ください ね 。",
+      "gloss": "Take an umbrella with you tomorrow.",
+      "targets": ["傘", "持つ", "行く"],
+      "grammar": ["tekudasai"],
+      "choices": [
+        { "text": "はい 、 わかりました=わかる 。", "gloss": "Okay, I will.", "result": "success" },
+        { "text": "ありがとうございます 。", "gloss": "Thank you.", "result": "success" },
+        { "text": "いってきます 。", "gloss": "I'm off!", "result": "npc_amused", "reaction": "ふふ 、 明日 の 話 です よ 。", "note": "いってきます is for when you leave. To take advice, say はい、わかりました or ありがとうございます.", "grammar": "ittekimasu" }
+      ],
+      "tiles": { "answers": [["はい 、", "わかりました=わかる"]], "decoys": ["いってきます", "か", "です"] },
+      "blank": { "before": "はい 、", "after": "。", "answers": ["わかりました"] },
+      "recast": "明日 は 傘 を 持って=持つ 行って=行く ください ね 。",
+      "next": { "success": "cat" }
+    },
+    "cat": {
+      "onlyFor": ["cat"],
+      "line": "あの 猫 、 毎日 あそこ の ベンチ に いる ん=の です よ 。",
+      "gloss": "That cat is on that bench over there every day.",
+      "targets": ["猫", "毎日", "ベンチ", "かわいい"],
+      "grammar": ["i_adj"],
+      "choices": [
+        { "text": "かわいい です ね 。", "gloss": "Cute, isn't it.", "result": "success" },
+        { "text": "かわいい な です ね 。", "gloss": "(な doesn't go here)", "result": "npc_puzzled", "reaction": "ふふ 、 かわいい です ね 。", "note": "かわいい is an い-adjective: just add です, with no な.", "grammar": "i_adj" },
+        { "text": "おいしい です ね 。", "gloss": "Tasty, isn't it.", "result": "npc_amused", "reaction": "えっ ！ 猫 です よ ！", "note": "おいしい means tasty. For a cute cat, say かわいいですね.", "grammar": "i_adj" }
+      ],
+      "tiles": { "answers": [["かわいい", "です", "ね"]], "decoys": ["な", "おいしい", "か"] },
+      "blank": { "before": "", "after": "です ね 。", "answers": ["かわいい"] },
+      "recast": "あの 猫 、 毎日 あそこ の ベンチ に いる ん=の です よ 。",
+      "next": { "success": "bakery" }
+    },
+    "bakery": {
+      "onlyFor": ["bakery"],
+      "line": "駅 の 近く に 新しい パン屋 が できました=できる よ 。",
+      "gloss": "A new bakery opened near the station.",
+      "targets": ["新しい", "パン屋", "できる", "近く"],
+      "grammar": ["i_adj"],
+      "choices": [
+        { "text": "駅 の 近く です か ？", "gloss": "Near the station?", "result": "success" },
+        { "text": "そう です か 。", "gloss": "Oh, is that so.", "result": "success" },
+        { "text": "古い パン屋 です か ？", "gloss": "An old bakery?", "result": "npc_puzzled", "reaction": "いいえ 、 新しい パン屋 です よ 。", "note": "新しい is new; 古い is old.", "grammar": "i_adj" }
+      ],
+      "tiles": { "answers": [["駅", "の", "近く", "です", "か"]], "decoys": ["に", "古い", "よ"] },
+      "blank": { "before": "駅 の", "after": "です か ？", "answers": ["ちかく", "近く"] },
+      "recast": "駅 の 近く に 新しい パン屋 が できました=できる よ 。",
+      "next": { "success": "bakery2" }
+    },
+    "bakery2": {
+      "onlyFor": ["bakery"],
+      "line": "パン が とても おいしい です よ 。 今度 ぜひ 。",
+      "gloss": "The bread is really good. Try it sometime.",
+      "targets": ["パン", "とても", "おいしい", "今度", "ぜひ"],
+      "grammar": ["ne_yo"],
+      "choices": [
+        { "text": "はい 、 今度 行きます=行く 。", "gloss": "Yes, I'll go next time.", "result": "success" },
+        { "text": "はい 、 昨日 行きます=行く 。", "gloss": "Yes, I'll go yesterday.", "result": "npc_puzzled", "reaction": "昨日 … ？ ふふ 、 今度 です ね 。", "note": "昨日 is yesterday; 今度 is next time: 今度行きます.", "grammar": "ne_yo" },
+        { "text": "ごちそうさまでした 。", "gloss": "Thanks for the meal.", "result": "npc_amused", "reaction": "ふふ 、 まだ 食べて=食べる いません=いる よ 。", "note": "ごちそうさまでした is said after eating. Here, say はい、今度行きます.", "grammar": "gochisousama" }
+      ],
+      "tiles": { "answers": [["はい 、", "今度", "行きます=行く"]], "decoys": ["昨日", "を", "が"] },
+      "blank": { "before": "はい 、", "after": "行きます=行く 。", "answers": ["こんど", "今度"] },
+      "recast": "パン が とても おいしい です よ 。 今度 ぜひ 。",
+      "next": { "success": "garbage" }
+    },
+    "garbage": {
+      "onlyFor": ["garbage"],
+      "line": "明日 は 燃える ゴミ の 日 です よ 。",
+      "gloss": "Tomorrow is burnable-trash day.",
+      "targets": ["燃える", "ゴミ", "日", "明日"],
+      "grammar": ["ne_yo"],
+      "choices": [
+        { "text": "あ 、 そう です か 。", "gloss": "Oh, is that so.", "result": "success" },
+        { "text": "ありがとうございます 。", "gloss": "Thank you.", "result": "success" },
+        { "text": "おめでとうございます 。", "gloss": "Congratulations!", "result": "npc_amused", "reaction": "ふふ 、 ゴミ の 日 です よ 。", "note": "おめでとうございます is congratulations. For useful news, say ありがとうございます or そうですか.", "grammar": "ne_yo" }
+      ],
+      "tiles": { "answers": [["あ 、", "そう", "です", "か"]], "decoys": ["を", "よ", "おめでとうございます"] },
+      "blank": { "before": "あ 、 そう です", "after": "。", "answers": ["か"] },
+      "recast": "明日 は 燃える ゴミ の 日 です よ 。",
+      "next": { "success": "garbage2" }
+    },
+    "garbage2": {
+      "onlyFor": ["garbage"],
+      "line": "朝 、 ここ に 出して=出す ください ね 。",
+      "gloss": "Put it out here in the morning.",
+      "targets": ["朝", "ここ", "出す"],
+      "grammar": ["tekudasai"],
+      "choices": [
+        { "text": "はい 、 朝 ここ に 出します=出す 。", "gloss": "Okay, I'll put it here in the morning.", "result": "success" },
+        { "text": "はい 、 夜 ここ に 出します=出す 。", "gloss": "Okay, I'll put it here at night.", "result": "npc_puzzled", "reaction": "いいえ 、 朝 です よ 。", "note": "朝 is morning; 夜 is night.", "grammar": "tekudasai" },
+        { "text": "はい 、 ここ を 出します=出す 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "ここ に 、 です よ 。", "note": "Where you put something takes に: ここに出します.", "grammar": "ni_destination" }
+      ],
+      "tiles": { "answers": [["はい 、", "朝", "ここ", "に", "出します=出す"]], "decoys": ["夜", "を", "で"] },
+      "blank": { "before": "はい 、 朝 ここ", "after": "出します=出す 。", "answers": ["に"] },
+      "recast": "朝 、 ここ に 出して=出す ください ね 。",
+      "next": { "success": "weekend" }
+    },
+    "weekend": {
+      "onlyFor": ["weekend"],
+      "line": "週末 は 何 を します=する か ？",
+      "gloss": "What are you doing this weekend?",
+      "targets": ["週末", "家", "ゆっくり", "友達"],
+      "grammar": ["de_place"],
+      "choices": [
+        { "text": "家 で ゆっくり します=する 。", "gloss": "I'll take it easy at home.", "result": "success" },
+        { "text": "友達 と カフェ に 行きます=行く 。", "gloss": "I'm going to the cafe with a friend.", "result": "success" },
+        { "text": "家 に ゆっくり します=する 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "あ 、 家 で ゆっくり です ね 。", "note": "Where you do something takes で: 家でゆっくりします.", "grammar": "de_place" }
+      ],
+      "tiles": { "answers": [["家", "で", "ゆっくり", "します=する"]], "decoys": ["に", "を", "友達"] },
+      "blank": { "before": "家", "after": "ゆっくり します=する 。", "answers": ["で"] },
+      "recast": "週末 は 何 を します=する か ？",
+      "next": { "success": "bye" }
+    },
+    "bye": {
+      "line": "じゃあ 、 また 。",
+      "gloss": "Well, see you.",
+      "targets": ["失礼する", "また"],
+      "grammar": ["plain_vs_polite"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "失礼します=失礼する 。", "gloss": "Excuse me, I'll be going.", "result": "success", "register": "polite" },
+        { "text": "また ね 。", "gloss": "See you! (casual)", "result": "success", "register": "plain", "grammar": "plain_vs_polite" },
+        { "text": "いらっしゃいませ 。", "gloss": "Welcome! (shop greeting)", "result": "npc_amused", "reaction": "ふふ 、 ここ は お店=店 じゃ ありません=ある よ 。", "note": "いらっしゃいませ is what shop staff say to customers. To say goodbye, use 失礼します.", "grammar": "irasshaimase" }
+      ],
+      "effects": { "friendship": 1 },
       "end": true
     }
   }

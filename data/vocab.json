@@ -778,5 +778,473 @@
   "reading": "えっ",
   "meaning": "huh? (surprise)",
   "pos": "interjection"
+ },
+ {
+  "id": "探す",
+  "reading": "さがす",
+  "meaning": "to look for, to search for",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "どこ",
+  "reading": "どこ",
+  "meaning": "where",
+  "pos": "question word"
+ },
+ {
+  "id": "棚",
+  "reading": "たな",
+  "meaning": "shelf",
+  "pos": "noun"
+ },
+ {
+  "id": "入口",
+  "reading": "いりぐち",
+  "meaning": "entrance",
+  "pos": "noun"
+ },
+ {
+  "id": "箸",
+  "reading": "はし",
+  "meaning": "chopsticks (お箸 is the polite way to say it)",
+  "pos": "noun"
+ },
+ {
+  "id": "付ける",
+  "reading": "つける",
+  "meaning": "to attach, to add (something extra)",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "ポイントカード",
+  "reading": "ポイントカード",
+  "meaning": "point card (a shop's loyalty card)",
+  "pos": "noun"
+ },
+ {
+  "id": "いる",
+  "reading": "いる",
+  "meaning": "to be, to be there (people and animals); after a て-form: is ～ing, or the state of having ～",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "シール",
+  "reading": "シール",
+  "meaning": "sticker (shops put one on an item instead of a bag)",
+  "pos": "noun"
+ },
+ {
+  "id": "テープ",
+  "reading": "テープ",
+  "meaning": "tape (shops tape an umbrella instead of bagging it)",
+  "pos": "noun"
+ },
+ {
+  "id": "よろしい",
+  "reading": "よろしい",
+  "meaning": "all right, fine (the polite form of いい)",
+  "pos": "adjective (i)"
+ },
+ {
+  "id": "スプーン",
+  "reading": "スプーン",
+  "meaning": "spoon",
+  "pos": "noun"
+ },
+ {
+  "id": "傘",
+  "reading": "かさ",
+  "meaning": "umbrella",
+  "pos": "noun"
+ },
+ {
+  "id": "電池",
+  "reading": "でんち",
+  "meaning": "battery",
+  "pos": "noun"
+ },
+ {
+  "id": "肉まん",
+  "reading": "にくまん",
+  "meaning": "steamed meat bun (kept warm by the register)",
+  "pos": "noun"
+ },
+ {
+  "id": "一つ",
+  "reading": "ひとつ",
+  "meaning": "one (thing)",
+  "pos": "counter"
+ },
+ {
+  "id": "二つ",
+  "reading": "ふたつ",
+  "meaning": "two (things)",
+  "pos": "counter"
+ },
+ {
+  "id": "入れる",
+  "reading": "いれる",
+  "meaning": "to put in",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "胃腸薬",
+  "reading": "いちょうやく",
+  "meaning": "stomach medicine",
+  "pos": "noun"
+ },
+ {
+  "id": "咳止め",
+  "reading": "せきどめ",
+  "meaning": "cough medicine",
+  "pos": "noun"
+ },
+ {
+  "id": "解熱剤",
+  "reading": "げねつざい",
+  "meaning": "fever medicine (lowers a fever)",
+  "pos": "noun"
+ },
+ {
+  "id": "咳",
+  "reading": "せき",
+  "meaning": "cough",
+  "pos": "noun"
+ },
+ {
+  "id": "出る",
+  "reading": "でる",
+  "meaning": "to come out; 咳が出る = to have a cough",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "熱",
+  "reading": "ねつ",
+  "meaning": "fever; heat",
+  "pos": "noun"
+ },
+ {
+  "id": "お腹",
+  "reading": "おなか",
+  "meaning": "stomach, belly",
+  "pos": "noun"
+ },
+ {
+  "id": "いつ",
+  "reading": "いつ",
+  "meaning": "when",
+  "pos": "question word"
+ },
+ {
+  "id": "から",
+  "reading": "から",
+  "meaning": "from, since",
+  "pos": "particle"
+ },
+ {
+  "id": "昨日",
+  "reading": "きのう",
+  "meaning": "yesterday",
+  "pos": "noun"
+ },
+ {
+  "id": "まで",
+  "reading": "まで",
+  "meaning": "until, up to",
+  "pos": "particle"
+ },
+ {
+  "id": "明日",
+  "reading": "あした",
+  "meaning": "tomorrow",
+  "pos": "noun"
+ },
+ {
+  "id": "アレルギー",
+  "reading": "アレルギー",
+  "meaning": "allergy",
+  "pos": "noun"
+ },
+ {
+  "id": "二回",
+  "reading": "にかい",
+  "meaning": "twice, two times",
+  "pos": "counter"
+ },
+ {
+  "id": "四回",
+  "reading": "よんかい",
+  "meaning": "four times",
+  "pos": "counter"
+ },
+ {
+  "id": "何回",
+  "reading": "なんかい",
+  "meaning": "how many times",
+  "pos": "question word"
+ },
+ {
+  "id": "食前",
+  "reading": "しょくぜん",
+  "meaning": "before a meal",
+  "pos": "noun"
+ },
+ {
+  "id": "朝",
+  "reading": "あさ",
+  "meaning": "morning",
+  "pos": "noun"
+ },
+ {
+  "id": "夜",
+  "reading": "よる",
+  "meaning": "night, evening",
+  "pos": "noun"
+ },
+ {
+  "id": "昼",
+  "reading": "ひる",
+  "meaning": "noon, midday",
+  "pos": "noun"
+ },
+ {
+  "id": "前",
+  "reading": "まえ",
+  "meaning": "before; in front of",
+  "pos": "noun"
+ },
+ {
+  "id": "質問",
+  "reading": "しつもん",
+  "meaning": "question",
+  "pos": "noun"
+ },
+ {
+  "id": "天気",
+  "reading": "てんき",
+  "meaning": "weather; いい天気 = nice weather",
+  "pos": "noun"
+ },
+ {
+  "id": "暖かい",
+  "reading": "あたたかい",
+  "meaning": "warm (weather)",
+  "pos": "adjective (i)"
+ },
+ {
+  "id": "本当",
+  "reading": "ほんとう",
+  "meaning": "true, real; 本当ですか = really?",
+  "pos": "noun"
+ },
+ {
+  "id": "午後",
+  "reading": "ごご",
+  "meaning": "afternoon, p.m.",
+  "pos": "noun"
+ },
+ {
+  "id": "雨",
+  "reading": "あめ",
+  "meaning": "rain",
+  "pos": "noun"
+ },
+ {
+  "id": "あの",
+  "reading": "あの",
+  "meaning": "that (over there)",
+  "pos": "pre-noun"
+ },
+ {
+  "id": "猫",
+  "reading": "ねこ",
+  "meaning": "cat",
+  "pos": "noun"
+ },
+ {
+  "id": "毎日",
+  "reading": "まいにち",
+  "meaning": "every day",
+  "pos": "noun"
+ },
+ {
+  "id": "あそこ",
+  "reading": "あそこ",
+  "meaning": "over there",
+  "pos": "pronoun"
+ },
+ {
+  "id": "ベンチ",
+  "reading": "ベンチ",
+  "meaning": "bench",
+  "pos": "noun"
+ },
+ {
+  "id": "かわいい",
+  "reading": "かわいい",
+  "meaning": "cute",
+  "pos": "adjective (i)"
+ },
+ {
+  "id": "おいしい",
+  "reading": "おいしい",
+  "meaning": "tasty, delicious",
+  "pos": "adjective (i)"
+ },
+ {
+  "id": "近く",
+  "reading": "ちかく",
+  "meaning": "near, nearby",
+  "pos": "noun"
+ },
+ {
+  "id": "新しい",
+  "reading": "あたらしい",
+  "meaning": "new",
+  "pos": "adjective (i)"
+ },
+ {
+  "id": "古い",
+  "reading": "ふるい",
+  "meaning": "old (things, not people)",
+  "pos": "adjective (i)"
+ },
+ {
+  "id": "パン屋",
+  "reading": "パンや",
+  "meaning": "bakery",
+  "pos": "noun"
+ },
+ {
+  "id": "できる",
+  "reading": "できる",
+  "meaning": "to be built, to open (a new shop); also: can do",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "パン",
+  "reading": "パン",
+  "meaning": "bread",
+  "pos": "noun"
+ },
+ {
+  "id": "とても",
+  "reading": "とても",
+  "meaning": "very",
+  "pos": "adverb"
+ },
+ {
+  "id": "今度",
+  "reading": "こんど",
+  "meaning": "sometime soon, next time",
+  "pos": "noun"
+ },
+ {
+  "id": "ぜひ",
+  "reading": "ぜひ",
+  "meaning": "by all means, do (try it)",
+  "pos": "adverb"
+ },
+ {
+  "id": "失礼する",
+  "reading": "しつれいする",
+  "meaning": "to be rude; 失礼します = excuse me, I'll be going",
+  "pos": "verb (irregular)"
+ },
+ {
+  "id": "店",
+  "reading": "みせ",
+  "meaning": "shop (お店 is the polite way to say it)",
+  "pos": "noun"
+ },
+ {
+  "id": "食べる",
+  "reading": "たべる",
+  "meaning": "to eat",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "話",
+  "reading": "はなし",
+  "meaning": "talk, chat",
+  "pos": "noun"
+ },
+ {
+  "id": "燃える",
+  "reading": "もえる",
+  "meaning": "to burn; 燃えるゴミ = burnable garbage",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "ゴミ",
+  "reading": "ゴミ",
+  "meaning": "garbage, trash",
+  "pos": "noun"
+ },
+ {
+  "id": "日",
+  "reading": "ひ",
+  "meaning": "day",
+  "pos": "noun"
+ },
+ {
+  "id": "おめでとうございます",
+  "reading": "おめでとうございます",
+  "meaning": "congratulations",
+  "pos": "set phrase"
+ },
+ {
+  "id": "出す",
+  "reading": "だす",
+  "meaning": "to put out, to take out",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "週末",
+  "reading": "しゅうまつ",
+  "meaning": "weekend",
+  "pos": "noun"
+ },
+ {
+  "id": "家",
+  "reading": "いえ",
+  "meaning": "house, home",
+  "pos": "noun"
+ },
+ {
+  "id": "ゆっくり",
+  "reading": "ゆっくり",
+  "meaning": "slowly; ゆっくりする = to take it easy",
+  "pos": "adverb"
+ },
+ {
+  "id": "友達",
+  "reading": "ともだち",
+  "meaning": "friend",
+  "pos": "noun"
+ },
+ {
+  "id": "ケーキ",
+  "reading": "ケーキ",
+  "meaning": "cake",
+  "pos": "noun"
+ },
+ {
+  "id": "一緒",
+  "reading": "いっしょ",
+  "meaning": "together; ご一緒に = along with (that)",
+  "pos": "noun"
+ },
+ {
+  "id": "な",
+  "reading": "な",
+  "meaning": "links a な-adjective to a noun (きれいな花); い-adjectives like かわいい never take it",
+  "pos": "particle"
+ },
+ {
+  "id": "え",
+  "reading": "え",
+  "meaning": "eh? huh? (surprise or doubt)",
+  "pos": "interjection"
  }
 ]

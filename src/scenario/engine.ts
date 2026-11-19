@@ -2,7 +2,7 @@
 // applies the in-world consequences, and records evidence for the learner model.
 
 import { normalizeAnswer } from '../lang/kana.ts';
-import { lemmasOf, parseLine, plainText, type Slots, type Token, type Vocab } from '../lang/markup.ts';
+import { fillSlots, lemmasOf, parseLine, plainText, type Slots, type Token, type Vocab } from '../lang/markup.ts';
 import type { FreeformJudge } from '../judge/freeform.ts';
 import type { ByLevel, ChoiceDef, Mode, NodeDef, Period, Result, ScenarioDef, VariantDef } from './types.ts';
 
@@ -34,6 +34,14 @@ export function periodOf(minutes: number): Period {
   if (h < 11) return 'morning';
   if (h < 18) return 'day';
   return 'evening';
+}
+
+const GREETINGS: Record<Period, string> = { morning: 'おはようございます', day: 'こんにちは', evening: 'こんばんは' };
+
+/** Today's greeting ($greet) and the two that would be wrong now ($greet_x, $greet_y). */
+export function greetSlots(period: Period): Slots {
+  const others = (Object.keys(GREETINGS) as Period[]).filter((p) => p !== period).map((p) => GREETINGS[p]);
+  return { greet: GREETINGS[period], greet_x: others[0]!, greet_y: others[1]! };
 }
 
 export function pickByLevel(text: ByLevel | undefined, level: number): string | undefined {
@@ -434,7 +442,8 @@ export class ScenarioRun {
     const node = this.node;
     if (!view.blank || !node.blank) throw new Error('not a blank prompt');
     const typed = normalizeAnswer(input);
-    const ok = node.blank.answers.some((a) => normalizeAnswer(a) === typed);
+    const answers = node.blank.answers.map((a) => fillSlots(a, this.slots));
+    const ok = answers.some((a) => normalizeAnswer(a) === typed);
     const said = [...view.blank.before, { surface: input, lemma: null, ruby: [{ text: input }] }, ...view.blank.after];
     const firstTry = this.fails === 0;
     if (ok) {
@@ -444,7 +453,7 @@ export class ScenarioRun {
       const ended = this.advance('success');
       return { correct: true, result: 'success', said, ended };
     }
-    const expected = node.blank.answers[0]!;
+    const expected = answers[0]!;
     const npcReply = this.parse(node.recast ?? GENERIC_RECAST);
     this.fail(
       'npc_puzzled',

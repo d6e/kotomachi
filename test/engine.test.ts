@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { scenarioById, vocab } from '../src/game/content.ts';
-import { effectiveMode, finishRun, newProgress, ScenarioRun, type RunOptions } from '../src/scenario/engine.ts';
-import { plainText } from '../src/lang/markup.ts';
+import { effectiveMode, finishRun, greetSlots, newProgress, ScenarioRun, type RunOptions } from '../src/scenario/engine.ts';
+import { fillSlots, parseLine, plainText } from '../src/lang/markup.ts';
 import type { Mode } from '../src/scenario/types.ts';
 
 const cafe = scenarioById['cafe_order']!;
@@ -132,7 +132,7 @@ test('variant-only nodes are skipped', () => {
   assert.equal(bento.nodeId, 'heat');
   const water = new ScenarioRun({ def: k, variant: k.variants.find((v) => v.id === 'water')!, stage: 1, friendship: 0, period: 'day', vocab });
   water.answerChoice(0);
-  assert.equal(water.nodeId, 'bag');
+  assert.equal(water.nodeId, 'sticker');
 });
 
 test('a wrong answer only removes that option on its own node', () => {
@@ -145,5 +145,48 @@ test('a wrong answer only removes that option on its own node', () => {
     const v = r.current();
     if (v.choices) assert.equal(v.choices.length, 3, `node ${v.nodeId} shows all three`);
     r.answerChoice(correctIndex(r));
+  }
+});
+
+test('every place, every variant, every stage plays through with correct answers', () => {
+  for (const def of Object.values(scenarioById)) {
+    for (const variant of def.variants) {
+      for (let stage = 1; stage <= (def.maxStage ?? 2); stage++) {
+        for (const period of ['morning', 'day', 'evening'] as const) {
+          const where = `${def.id}/${variant.id}/stage ${stage}/${period}`;
+          const r = new ScenarioRun({
+            def, variant, stage: stage as Mode, friendship: 0, period, vocab, rng: seeded(3), extraSlots: greetSlots(period),
+          });
+          let steps = 0;
+          while (!r.ended && steps++ < 40) {
+            const v = r.current();
+            const node = r.node;
+            let out;
+            if (v.mode === 0) out = r.continue();
+            else if (v.mode === 4) {
+              out = r.answerBlank(fillSlots(node.blank!.answers[0]!, r.slots));
+            } else if (v.mode === 3) {
+              const want = node.tiles!.answers[0]!.map((t) => plainText(parseLine(t, vocab, r.slots)));
+              const free = [...v.tiles!];
+              const ids = want.map((w) => {
+                const i = free.findIndex((t) => plainText(t.tokens) === w);
+                assert.ok(i >= 0, `${where} ${r.nodeId}: no tile for ${w}`);
+                return free.splice(i, 1)[0]!.id;
+              });
+              out = r.answerTiles(ids);
+            } else {
+              const i = node.choices!.findIndex((c) => c.result === 'success' && (!c.correctWhen || c.correctWhen === period));
+              assert.ok(v.choices!.some((c) => c.index === i), `${where} ${r.nodeId}: correct choice not shown`);
+              assert.equal(v.choices!.length, 3, `${where} ${r.nodeId}: not 3 options`);
+              out = r.answerChoice(i);
+            }
+            assert.ok(out.correct !== false, `${where} ${r.nodeId}: answer rejected`);
+            for (const t of [...v.line, ...out.said]) assert.ok(!t.surface.includes('$'), `${where}: unfilled slot ${t.surface}`);
+          }
+          assert.ok(r.ended, `${where}: did not end`);
+          assert.ok(r.clean, `${where}: not clean`);
+        }
+      }
+    }
   }
 });

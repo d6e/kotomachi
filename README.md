@@ -65,14 +65,14 @@ Each conversation (scenario) is a set of nodes. Each node can be played at any r
 2. Multiple choice in Japanese only. A wrong answer gets an in-character reaction, and you try again with that option gone.
 3. Word tiles with decoys.
 4. Fill in the blank: you type the missing part in romaji and it becomes kana.
-5. Freeform. The interface exists (`src/judge/freeform.ts`), but no judge is wired in.
-6. Voice is out of scope.
+
+The ladder stops at 4. A freeform rung was planned and dropped: the judge interface is still in `src/judge/freeform.ts`, but nothing offers it. Voice is out of scope.
 
 A scenario moves up a rung after **3 clean visits**. After **2 misses on one node** that node quietly drops back a rung for the rest of the visit. The NPC recasts your mistake the right way ("お願いします？ はい、ラテですね"), the conversation carries on, and the correction goes to the notebook.
 
 ### What you know
 
-Words are tracked by dictionary form, with two tracks: meaning (do you understand it) and written form (can you read the kanji). Each word moves through unseen, seen, recognized and produced. Both tracks are scheduled with FSRS, using in-game days as time. Looking a word up mid-conversation lowers the credit for that answer, and looking one up while walking around counts as a lapse. Furigana fade per word once the written track's stability reaches 6 days. Errands are picked from the scenario variants whose words are most due.
+Words are tracked by dictionary form, with two tracks: meaning (do you understand it) and written form (can you read the kanji). Each word moves through unseen, seen, recognized and produced. Both tracks are scheduled with FSRS, using in-game days as time. Looking a word up mid-conversation lowers the credit for that answer, and looking one up while walking around counts as a lapse. Furigana fade per word once the written track's stability reaches 6 days. Each morning every place gets one errand, chosen from its variants: due words come first, then words you haven't met, and a variant you were given in the last few days steps back so the week varies. Day 1 always gets each place's gentlest variant.
 
 Only the barista, ゆき, has a friendship meter, and it changes how she talks. At first she uses です/ます. At "acquaintance" (3 points) she adds casual asides, and at "friend" (7 points) she switches to plain form. Answering her in plain form before you're friends puzzles her and costs a point.
 
@@ -84,23 +84,22 @@ All of these numbers are constants at the top of `src/scenario/engine.ts` and `s
 
 - A walkable street with an apartment, cafe, konbini, pharmacy, station, park and a neighbour (田中さん) who walks back and forth. Shops keep opening hours: the pharmacy shows 準備中 before 9:00.
 - Cafe: the full ladder, stages 1 to 4, with four drinks, three sizes, hot or iced, for here or to go, a payment step and small talk that changes with friendship.
-- Konbini and pharmacy: stage 1 for now, with variants (bento heating, bags, cold medicine, headache tablets, eye drops).
-- A neighbour greeting where the right greeting depends on the time of day.
+- Konbini: the full ladder, with eight errands: an onigiri, tea, a bento to heat with chopsticks, water, ice cream with a spoon, an umbrella or batteries you have to ask where to find, and a 肉まん from the counter. Along the way: point cards, bags, the sticker instead of a bag, and paying.
+- Pharmacy: the full ladder, with six complaints (sore throat, headache, itchy eyes, stomach ache, cough, fever). You describe the symptom, say since when or whether you have allergies, ask how many times a day, and read back the dosage.
+- 田中さん: the full ladder. The right greeting depends on the time of day, then a short chat that changes daily: heading out, the warm weather, rain tomorrow, the cat on the bench, the new bakery, burnable-trash day, or your weekend.
 - A lookup popup with reading, meaning, part of speech, the conjugation you saw ("お願いします ← お願いする, polite ます form") and where you met the word.
 - The notebook: words by place, words by person, corrections, grammar notes and progress.
 - The day loop: morning errands, the day (the clock runs while you walk, and each conversation takes 20 minutes), the night summary and sleep. Sleeping saves to `localStorage`.
 
 **Not built yet**
 
-- The freeform judge (stage 5). The `FreeformJudge` interface and an `UnavailableJudge` are in place, so the engine never offers that stage.
 - Voice, audio and music.
-- Stages 2 to 4 at the konbini and pharmacy. The data format supports them, and their nodes just need tiles and blanks written.
-- A morphological analyser (kuromoji or Sudachi) and a real dictionary (JMdict). Lines are segmented by hand and `vocab.json` has 124 entries.
+- A morphological analyser (kuromoji or Sudachi) and a real dictionary (JMdict). Lines are segmented by hand and `vocab.json` has 208 entries.
 - Indoor maps. Going into a shop opens the conversation window over the street.
 
 ## Please get the Japanese reviewed
 
-All of the Japanese here, including lines, readings, glosses, grammar notes and which answers count as natural or rude, was written without a native speaker. Have a native speaker go through `data/` before anyone learns from it. The places most likely to need a second look are the casual lines at friendship level 2, the 敬語 at the pharmacy, and which wrong answers get a puzzled reaction and which get a recast.
+All of the Japanese here was written without a native speaker: lines, readings, glosses, grammar notes, and which answers count as natural or rude. That includes the konbini, pharmacy and 田中さん conversations added most recently, which are the newest and least checked. Have a native speaker go through `data/` before anyone learns from it. The places most likely to need a second look are the casual lines at friendship level 2, the shop staff's 敬語 (お探しですか, よろしいですか, お付けしますか), how the pharmacist reads out a dosage, 田中さん's small talk, and which wrong answers get a puzzled reaction and which get a recast.
 
 ## Art
 
@@ -109,5 +108,5 @@ All the art is original and drawn in code: the palette is in `src/town/palette.t
 ## Notes
 
 - The design first suggested Phaser and Vite. This version uses plain TypeScript instead, with as little framework as possible.
-- The game was tested in headless Chromium with Playwright, through a script kept outside this repo. It walked the town tile by tile, checked that walls and fences block, looked up a shop sign and the 準備中 plate, clicked a shop and the neighbour to walk over to them, played every scenario, pushed the cafe from stage 1 to stage 4 and played the fill-in stage, then checked that sleep, reload and Continue restore the save. If you want that as part of the repo, a `test/e2e` folder with Playwright as a dev dependency would be the next step.
+- The game was tested in headless Chromium with Playwright, through a script kept outside this repo. It walked the town tile by tile, checked that walls and fences block, looked up a shop sign and the 準備中 plate, clicked a shop and the neighbour to walk over to them, played every scenario, pushed the cafe from stage 1 to stage 4 and played the fill-in stage, then checked that sleep, reload and Continue restore the save. A second script played every variant of every place at every stage, 1 to 4, on a 390-pixel phone screen, using the real choice menu, tiles and typing, and checked for exactly 3 options, unfilled slots and sideways overflow. `npm test` does the same walk through the engine alone. Safari wasn't tested: WebKit couldn't be installed in the environment it was built in. If you want that as part of the repo, a `test/e2e` folder with Playwright as a dev dependency would be the next step.
 - `globalThis.__kotomachi` exposes the game object in the browser console for debugging, for example `__kotomachi.debugState()` or `__kotomachi.debugGoTo('cafe')`.

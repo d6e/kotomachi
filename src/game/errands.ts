@@ -1,6 +1,7 @@
 // The morning errand list. Due reviews choose the content: for each shop, the variant
 // (which drink, which medicine...) whose words are most due today becomes the errand.
 
+import { greetSlots } from '../scenario/engine.ts';
 import { lemmasOf, parseLine, type Vocab } from '../lang/markup.ts';
 import type { Learner } from '../learner/model.ts';
 import type { ScenarioDef, VariantDef } from '../scenario/types.ts';
@@ -15,7 +16,7 @@ export interface Errand {
 
 /** Words a variant would put in front of the player. */
 export function variantWords(def: ScenarioDef, variant: VariantDef, vocab: Vocab): string[] {
-  const slots: Record<string, string> = { ...variant.slots, price: String(variant.price ?? 0), greet: 'こんにちは' };
+  const slots: Record<string, string> = { ...variant.slots, price: String(variant.price ?? 0), ...greetSlots('day') };
   const words = new Set<string>();
   for (const v of Object.values(variant.slots)) for (const l of lemmasOf(parseLine(v, vocab))) words.add(l);
   for (const n of Object.values(def.nodes)) {
@@ -27,15 +28,22 @@ export function variantWords(def: ScenarioDef, variant: VariantDef, vocab: Vocab
   return [...words];
 }
 
+/**
+ * How much a variant is worth playing today. Due reviews come first; after that,
+ * variants with words the player hasn't met yet; variants just played score lowest.
+ * Averaged per word, so a long variant doesn't win just for having more words.
+ */
 export function variantScore(words: string[], learner: Learner, day: number): number {
-  let score = 0;
+  if (words.length === 0) return 0.5;
+  let sum = 0;
+  let due = false;
   for (const w of words) {
-    const status = learner.status(w);
-    if (learner.isDue(w, day)) score += 3;
-    else if (status === 'seen') score += 1;
-    else if (status === 'unseen') score += 0.5;
+    if (learner.isDue(w, day)) {
+      sum += 3;
+      due = true;
+    } else if (learner.status(w) === 'unseen') sum += 2.5;
   }
-  return score;
+  return sum / words.length + (due ? 0.5 : 0);
 }
 
 /** Deterministic per-day tie-breaking. */
@@ -45,15 +53,23 @@ function dayHash(day: number, salt: string): number {
   return (h >>> 0) / 4294967296;
 }
 
-export function pickVariant(def: ScenarioDef, learner: Learner, vocab: Vocab, day: number): VariantDef {
+export function pickVariant(def: ScenarioDef, learner: Learner, vocab: Vocab, day: number, recent: Record<string, number> = {}): VariantDef {
+  // The first variant is the gentle introduction, so it is always day 1's.
+  if (day < 2) return def.variants[0]!;
   let best = def.variants[0]!;
-  let bestScore = -1;
+  let bestScore = -Infinity;
+  // A variant is judged by its own words: those used by at most half the variants,
+  // so particles and the shared greeting don't drown out 傘 or 天気.
+  const wordsOf = new Map(def.variants.map((v) => [v, variantWords(def, v, vocab)]));
+  const count = new Map<string, number>();
+  for (const ws of wordsOf.values()) for (const w of new Set(ws)) count.set(w, (count.get(w) ?? 0) + 1);
+  const limit = Math.max(1, Math.floor(def.variants.length / 2));
   for (const v of def.variants) {
-    // Variant-specific words weigh in; a small daily jitter keeps the town varied.
-    const unique = variantWords(def, v, vocab).filter((w) =>
-      def.variants.some((o) => o !== v && !variantWords(def, o, vocab).includes(w)),
-    );
-    const score = variantScore(unique, learner, day) + dayHash(day, def.id + v.id);
+    const own = [...new Set(wordsOf.get(v)!)].filter((w) => count.get(w)! <= limit);
+    const last = recent[`${def.id}/${v.id}`];
+    // Given in the last few days: step back so the week feels different.
+    const repeat = last === undefined ? 0 : Math.max(0, 4 - (day - last)) * 0.5;
+    const score = variantScore(own, learner, day) - repeat + 0.5 * dayHash(Math.floor(day), def.id + v.id);
     if (score > bestScore) {
       best = v;
       bestScore = score;
@@ -62,11 +78,11 @@ export function pickVariant(def: ScenarioDef, learner: Learner, vocab: Vocab, da
   return best;
 }
 
-export function makeErrands(defs: ScenarioDef[], learner: Learner, vocab: Vocab, day: number): Errand[] {
+export function makeErrands(defs: ScenarioDef[], learner: Learner, vocab: Vocab, day: number, recent: Record<string, number> = {}): Errand[] {
   return defs
     .filter((d) => d.errand)
     .map((d) => {
-      const v = pickVariant(d, learner, vocab, day);
+      const v = pickVariant(d, learner, vocab, day, recent);
       const slots: Record<string, string> = { ...v.slots, price: String(v.price ?? 0) };
       return { scenario: d.id, variant: v.id, text: d.errand!.replace(/\$([a-z_]+)/g, (m, n: string) => slots[n] ?? m), done: false };
     });

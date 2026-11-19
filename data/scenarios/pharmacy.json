@@ -3,7 +3,7 @@
   "title": "At the pharmacy",
   "place": "pharmacy",
   "npc": "mori",
-  "maxStage": 2,
+  "maxStage": 4,
   "start": "greet",
   "errand": "薬局 で $med を 買う",
   "variants": [
@@ -11,24 +11,66 @@
       "id": "cold", "price": 980,
       "slots": {
         "med": "風邪薬", "med_en": "cold medicine",
-        "body": "喉", "body_en": "throat", "adj": "痛い", "adj_en": "hurts",
-        "dose": "一日 三回 、 食後 に 飲んで=飲む ください 。", "dose_en": "Take it three times a day, after meals."
+        "body": "喉", "pred": "痛い です", "plain": "痛い", "sym_en": "My throat hurts.",
+        "use": "飲みます=飲む", "use_en": "take",
+        "dose": "一日 三回 、 食後 に 飲んで=飲む ください 。", "dose_en": "Take it three times a day, after meals.",
+        "chk": "一日 三回", "chk_en": "Three times a day", "bad": "一日 一回", "bad_en": "Once a day",
+        "bb": "一日", "ba": "です ね 。", "ban": "さんかい"
       }
     },
     {
       "id": "headache", "price": 750,
       "slots": {
         "med": "頭痛薬", "med_en": "headache medicine",
-        "body": "頭", "body_en": "head", "adj": "痛い", "adj_en": "hurts",
-        "dose": "一日 三回 、 食後 に 飲んで=飲む ください 。", "dose_en": "Take it three times a day, after meals."
+        "body": "頭", "pred": "痛い です", "plain": "痛い", "sym_en": "I have a headache.",
+        "use": "飲みます=飲む", "use_en": "take",
+        "dose": "痛い 時 に 飲んで=飲む ください 。 一日 二回 まで です 。", "dose_en": "Take it when it hurts. Up to twice a day.",
+        "chk": "一日 二回 まで", "chk_en": "Up to twice a day", "bad": "一日 三回 まで", "bad_en": "Up to three times a day",
+        "bb": "一日", "ba": "まで です ね 。", "ban": "にかい"
       }
     },
     {
       "id": "eyes", "price": 600,
       "slots": {
         "med": "目薬", "med_en": "eye drops",
-        "body": "目", "body_en": "eyes", "adj": "かゆい", "adj_en": "itch",
-        "dose": "一日 三回 、 目 に さして=さす ください 。", "dose_en": "Put them in your eyes three times a day."
+        "body": "目", "pred": "かゆい です", "plain": "かゆい", "sym_en": "My eyes itch.",
+        "use": "さします=さす", "use_en": "put them in",
+        "dose": "一日 四回 、 目 に さして=さす ください 。", "dose_en": "Put them in your eyes four times a day.",
+        "chk": "一日 四回", "chk_en": "Four times a day", "bad": "一日 二回", "bad_en": "Twice a day",
+        "bb": "一日", "ba": "です ね 。", "ban": "よんかい"
+      }
+    },
+    {
+      "id": "stomach", "price": 880,
+      "slots": {
+        "med": "胃腸薬", "med_en": "stomach medicine",
+        "body": "お腹", "pred": "痛い です", "plain": "痛い", "sym_en": "My stomach hurts.",
+        "use": "飲みます=飲む", "use_en": "take",
+        "dose": "一日 三回 、 食前 に 飲んで=飲む ください 。", "dose_en": "Take it three times a day, before meals.",
+        "chk": "食前", "chk_en": "Before meals", "bad": "食後", "bad_en": "After meals",
+        "bb": "", "ba": "です ね 。", "ban": "しょくぜん"
+      }
+    },
+    {
+      "id": "cough", "price": 820,
+      "slots": {
+        "med": "咳止め", "med_en": "cough medicine",
+        "body": "咳", "pred": "出ます=出る", "plain": "出る", "sym_en": "I have a cough.",
+        "use": "飲みます=飲む", "use_en": "take",
+        "dose": "朝 と 夜 、 一日 二回 飲んで=飲む ください 。", "dose_en": "Take it twice a day, morning and night.",
+        "chk": "朝 と 夜", "chk_en": "Morning and night", "bad": "朝 と 昼", "bad_en": "Morning and noon",
+        "bb": "朝 と", "ba": "です ね 。", "ban": "よる"
+      }
+    },
+    {
+      "id": "fever", "price": 900,
+      "slots": {
+        "med": "解熱剤", "med_en": "fever medicine",
+        "body": "熱", "pred": "あります=ある", "plain": "ある", "sym_en": "I have a fever.",
+        "use": "飲みます=飲む", "use_en": "take",
+        "dose": "寝る 前 に 一回 飲んで=飲む ください 。", "dose_en": "Take one dose before bed.",
+        "chk": "寝る 前", "chk_en": "Before bed", "bad": "食後", "bad_en": "After meals",
+        "bb": "寝る", "ba": "です ね 。", "ban": "まえ"
       }
     }
   ],
@@ -39,11 +81,54 @@
       "targets": ["どう", "する", "が", "痛い"],
       "grammar": ["ga_itai"],
       "choices": [
-        { "text": "$body が $adj です 。", "gloss": "My $body_en $adj.", "result": "success" },
-        { "text": "$body を $adj です 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "あ 、 $body が $adj ん=の です ね 。", "note": "Use が with 痛い and かゆい: 喉が痛いです.", "grammar": "ga_itai" },
-        { "text": "元気 です 。", "gloss": "I'm fine!", "result": "npc_amused", "reaction": "それ は よかった=いい です 。 … で 、 今日 は ？", "note": "元気です means you're well. Say what hurts: 頭が痛いです.", "grammar": "ga_itai" }
+        { "text": "$body が $pred 。", "gloss": "$sym_en", "result": "success" },
+        { "text": "$body を $pred 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "あ 、 $body が $plain ん=の です ね 。", "note": "Symptoms take が: 喉が痛いです, 熱があります, 咳が出ます.", "grammar": "ga_itai" },
+        { "text": "元気 です 。", "gloss": "I'm fine!", "result": "npc_amused", "reaction": "それ は よかった=いい です 。 … で 、 今日 は ？", "note": "元気です means you're well. Say what's wrong, like 頭が痛いです.", "grammar": "ga_itai" }
       ],
-      "recast": "$body が $adj ん=の です ね 。",
+      "tiles": {
+        "answers": [["$body", "が", "$pred"]],
+        "decoys": ["を", "に", "元気"]
+      },
+      "blank": { "before": "$body", "after": "$pred 。", "answers": ["が"] },
+      "recast": "どう されました=する か ？",
+      "next": { "success": "since" }
+    },
+    "since": {
+      "onlyFor": ["cold", "cough", "fever"],
+      "line": "いつ から です か ？",
+      "gloss": "Since when?",
+      "targets": ["いつ", "から", "昨日"],
+      "grammar": ["kara_made"],
+      "choices": [
+        { "text": "昨日 から です 。", "gloss": "Since yesterday.", "result": "success" },
+        { "text": "明日 から です 。", "gloss": "From tomorrow.", "result": "npc_amused", "reaction": "ふふ 、 明日 は まだ です よ 。", "note": "明日 is tomorrow; 昨日 is yesterday. ～から means since: 昨日からです.", "grammar": "kara_made" },
+        { "text": "昨日 まで です 。", "gloss": "Until yesterday.", "result": "npc_puzzled", "reaction": "昨日 まで … ？ 今日 は 大丈夫 です か ？", "note": "まで means until; から means since. 昨日からです = since yesterday.", "grammar": "kara_made" }
+      ],
+      "tiles": {
+        "answers": [["昨日", "から", "です"]],
+        "decoys": ["まで", "に", "明日"]
+      },
+      "blank": { "before": "昨日", "after": "です 。", "answers": ["から"] },
+      "recast": "いつ から です か ？",
+      "next": { "success": "allergy" }
+    },
+    "allergy": {
+      "onlyFor": ["headache", "stomach", "eyes"],
+      "line": "アレルギー は あります=ある か ？",
+      "gloss": "Do you have any allergies?",
+      "targets": ["アレルギー", "ある"],
+      "grammar": ["arimasen"],
+      "choices": [
+        { "text": "いいえ 、 ありません=ある 。", "gloss": "No, I don't.", "result": "success" },
+        { "text": "いいえ 、 あります=ある 。", "gloss": "No, I do.", "result": "npc_confused", "reaction": "えっ ？ あります=ある か ？ ありません=ある か ？", "note": "いいえ goes with a negative: いいえ、ありません.", "grammar": "arimasen" },
+        { "text": "はい 、 元気 です 。", "gloss": "Yes, I'm well.", "result": "npc_amused", "reaction": "ふふ 、 アレルギー の 話 です よ 。", "note": "Answer the question: いいえ、ありません (no, I don't have any).", "grammar": "arimasen" }
+      ],
+      "tiles": {
+        "answers": [["いいえ 、", "ありません=ある"]],
+        "decoys": ["あります=ある", "はい 、", "です"]
+      },
+      "blank": { "before": "いいえ 、", "after": "。", "answers": ["ありません"] },
+      "recast": "アレルギー は あります=ある か ？",
       "next": { "success": "recommend" }
     },
     "recommend": {
@@ -55,18 +140,48 @@
         { "text": "はい 、 お願いします=お願いする 。", "gloss": "Yes, please.", "result": "success" },
         { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 食べ物 じゃ ありません=ある よ 。", "note": "いただきます is said before eating. To accept an item, say それにします or はい、お願いします.", "grammar": "itadakimasu" }
       ],
+      "tiles": {
+        "answers": [["じゃあ 、", "それ", "に", "します=する"]],
+        "decoys": ["を", "が", "いただきます"]
+      },
+      "blank": { "before": "じゃあ 、 それ", "after": "します=する 。", "answers": ["に"] },
+      "recast": "こちら の $med は いかが です か ？",
+      "next": { "success": "ask" }
+    },
+    "ask": {
+      "line": "何 か 質問 は あります=ある か ？",
+      "gloss": "Do you have any questions?",
+      "targets": ["質問", "何回", "一日"],
+      "grammar": ["counters_kai"],
+      "choices": [
+        { "text": "一日 何回 $use か ？", "gloss": "How many times a day do I $use_en?", "result": "success" },
+        { "text": "一日 何 円 です か ？", "gloss": "How many yen a day?", "result": "npc_confused", "reaction": "えっ ？ … 何回 、 です か ？", "note": "何回 asks how many times. 円 is yen.", "grammar": "counters_kai" },
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 まだ です よ 。", "note": "いただきます is said right before eating or drinking.", "grammar": "itadakimasu" }
+      ],
+      "tiles": {
+        "answers": [["一日", "何回", "$use", "か"]],
+        "decoys": ["何 円", "を", "です"]
+      },
+      "blank": { "before": "一日", "after": "$use か ？", "answers": ["なんかい"] },
+      "recast": "何 か 質問 は あります=ある か ？",
       "next": { "success": "dosage" }
     },
     "dosage": {
       "line": "$dose",
       "gloss": "$dose_en",
-      "targets": ["一日", "三回", "食後", "飲む"],
-      "grammar": ["tekudasai"],
+      "targets": ["一日", "飲む", "食後", "食前", "前"],
+      "grammar": ["tekudasai", "counters_kai"],
       "choices": [
-        { "text": "一日 三回 です ね 。", "gloss": "Three times a day, got it.", "result": "success" },
+        { "text": "$chk です ね 。", "gloss": "$chk_en, got it.", "result": "success" },
         { "text": "わかりました=わかる 。", "gloss": "Understood.", "result": "success" },
-        { "text": "一日 一回 です ね 。", "gloss": "Once a day, got it.", "result": "npc_puzzled", "reaction": "いいえ 、 一日 三回 です よ 。", "note": "三回 is three times. 一回 is once.", "grammar": "counters_kai" }
+        { "text": "$bad です ね 。", "gloss": "$bad_en, got it.", "result": "npc_puzzled", "reaction": "いいえ 、 $chk です よ 。", "note": "Listen for the details: 一回 once, 二回 twice, 三回 three times, 四回 four times; 食前 before meals, 食後 after meals, 寝る前 before bed.", "grammar": "counters_kai" }
       ],
+      "tiles": {
+        "answers": [["$chk", "です", "ね"]],
+        "decoys": ["$bad", "か", "よ"]
+      },
+      "blank": { "before": "$bb", "after": "$ba", "answers": ["$ban"] },
+      "recast": "$dose",
       "next": { "success": "pay" }
     },
     "pay": {
@@ -74,6 +189,7 @@
       "gloss": "That's ¥$price. Take care of yourself.",
       "targets": ["円", "お大事に"],
       "grammar": ["odaijini"],
+      "maxMode": 2,
       "choices": [
         { "text": "ありがとうございます 。", "gloss": "Thank you.", "result": "success" },
         { "text": "お大事に 。", "gloss": "Take care of yourself.", "result": "npc_amused", "reaction": "ふふ 、 それ は 私 が 言う 言葉 です よ 。", "note": "お大事に is said to someone who is unwell. As the patient, say ありがとうございます.", "grammar": "odaijini" },

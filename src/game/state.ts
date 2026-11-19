@@ -28,6 +28,8 @@ export interface GameData {
   progress: Record<string, ScenarioProgress>;
   friendship: Partial<Record<NpcId, number>>;
   errands: Errand[];
+  /** The day each scenario/variant was last given as an errand, so a week stays varied. */
+  recentErrands?: Record<string, number>;
   /** Every correction so far, newest last, with the day it happened. */
   corrections: (Correction & { day: number })[];
   grammarSeen: string[];
