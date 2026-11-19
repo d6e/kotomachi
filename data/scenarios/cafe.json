@@ -29,7 +29,6 @@
       "grammar": ["onegai", "wo_object"],
       "choices": [
         { "text": "$item を お願いします=お願いする 。", "gloss": "$item_en, please.", "result": "success" },
-        { "text": "$item を ください 。", "gloss": "Give me $item_en.", "result": "success", "note": "Fine, but をください is a little direct. をお願いします sounds softer when ordering.", "grammar": "onegai" },
         { "text": "ごちそうさまでした 。", "gloss": "Thank you for the meal.", "result": "npc_amused", "reaction": "ふふ 、 まだ です よ 。 ご注文=注文 は ？", "note": "ごちそうさまでした is said after eating or drinking, not when you order.", "grammar": "gochisousama" },
         { "text": "$item だ 。", "gloss": "It's $item_en. (blunt)", "result": "npc_confused", "reaction": "えっと 、 $item です ね ？", "note": "Plain だ sounds blunt to staff. Ask with をお願いします.", "grammar": "plain_vs_polite" }
       ],
@@ -52,7 +51,6 @@
       "grammar": ["de_choice", "nasaru"],
       "choices": [
         { "text": "$size サイズ で お願いします=お願いする 。", "gloss": "Size $size, please.", "result": "success" },
-        { "text": "$size サイズ を ください 。", "gloss": "Give me size $size.", "result": "success", "note": "Works, but で お願いします is the usual way to pick a size.", "grammar": "de_choice" },
         { "text": "$size サイズ に お願いします=お願いする 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "$size サイズ で 、 です ね ？", "note": "Use で to say what you'll go with: Mサイズでお願いします.", "grammar": "de_choice" },
         { "text": "$size サイズ だ 。", "gloss": "Size $size. (blunt)", "result": "npc_confused", "reaction": "あ 、 $size サイズ です ね 。", "note": "Plain だ sounds blunt to staff.", "grammar": "plain_vs_polite" }
       ],
@@ -96,8 +94,7 @@
       "choices": [
         { "text": "はい 、 店内 で 。", "gloss": "Yes, here.", "result": "success" },
         { "text": "いいえ 、 持ち帰り で お願いします=お願いする 。", "gloss": "No, to go, please.", "result": "success" },
-        { "text": "はい 、 ここ で 飲みます=飲む 。", "gloss": "Yes, I'll drink it here.", "result": "success" },
-        { "text": "はい 、 召し上がります=召し上がる 。", "gloss": "Yes, I will (honorifically) partake.", "result": "npc_amused", "reaction": "ふふ 。 はい 、 店内 で です ね 。", "note": "召し上がる is honorific: you use it for other people, never for yourself. Say 店内で or ここで飲みます.", "grammar": "meshiagaru" }
+        { "text": "はい 、 召し上がります=召し上がる 。", "gloss": "Yes, I will (honorifically) partake.", "result": "npc_amused", "reaction": "ふふ 。 はい 、 店内 で です ね 。", "note": "召し上がる is honorific: you use it for other people, never for yourself. Say 店内で.", "grammar": "meshiagaru" }
       ],
       "tiles": {
         "answers": [["店内", "で", "お願いします=お願いする"], ["持ち帰り", "で", "お願いします=お願いする"]],
@@ -166,7 +163,6 @@
       "maxMode": 2,
       "choices": [
         { "text": "ありがとうございます 。", "gloss": "Thank you.", "result": "success", "register": "polite" },
-        { "text": "どうも 。", "gloss": "Thanks.", "result": "success" },
         { "text": "また ね 。", "gloss": "See you! (casual)", "result": "success", "register": "plain" },
         { "text": "いらっしゃいませ 。", "gloss": "Welcome (to the shop)!", "result": "npc_amused", "reaction": "ふふ 、 それ は 私 の セリフ です よ 。", "note": "いらっしゃいませ is what staff say to customers.", "grammar": "irasshaimase" }
       ],

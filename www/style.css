@@ -144,13 +144,18 @@ ruby.no-furi rt { visibility: hidden; }
 .gloss { display: none; font-size: 13px; color: var(--muted); line-height: 1.4; font-family: system-ui, sans-serif; }
 .show-gloss .gloss { display: block; }
 .dlg-input { padding: 12px 16px 14px; border-top: 1px solid var(--line); }
-.choices { display: flex; flex-direction: column; gap: 6px; }
-.choice {
-  display: flex; gap: 12px; align-items: center; background: #fff; border: 1px solid #d8cab3;
-  border-radius: 10px; padding: 6px 12px; cursor: pointer; font-size: 19px; line-height: 1.9;
+.choices {
+  display: flex; flex-direction: column; gap: 2px; background: #fff; border: 4px double #3a302c;
+  border-radius: 6px; padding: 6px 8px;
 }
-.choice:hover { border-color: var(--accent); background: #fffaf3; }
-.choice .num { flex: none; width: 24px; height: 24px; border-radius: 50%; background: #efe4d2; display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+.choice {
+  display: flex; gap: 8px; align-items: center; border-radius: 4px; padding: 4px 8px;
+  cursor: pointer; font-size: 19px; line-height: 1.9;
+}
+.choice.sel { background: #fbf1e2; }
+.choice .cursor { flex: none; width: 1em; color: #3a302c; visibility: hidden; font-size: 15px; }
+.choice.sel .cursor { visibility: visible; animation: cursor-nudge 0.8s steps(2) infinite; }
+@keyframes cursor-nudge { 50% { transform: translateX(2px); } }
 .choice-text { display: flex; flex-direction: column; flex: 1; }
 .hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
 

@@ -30,6 +30,7 @@ export class DialogueView {
   private hooks: DialogueHooks | null = null;
   private lastLineNode: string | null = null;
   private keyHandler: ((e: KeyboardEvent) => void) | null = null;
+  private cursor = 0;
 
   constructor(root: HTMLElement) {
     this.header = h('div', { class: 'dlg-header' });
@@ -64,6 +65,22 @@ export class DialogueView {
   private onKey(e: KeyboardEvent): void {
     if (!this.run || (e.target instanceof HTMLInputElement)) return;
     if (document.querySelector('.popup:not([hidden])')) return;
+    const rows = [...this.input.querySelectorAll<HTMLElement>('.choice')];
+    if (rows.length) {
+      // A menu with a ▶ cursor: arrows or W/S move it, Enter, Space or E picks.
+      const up = e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.key === 'ArrowLeft';
+      const down = e.key === 'ArrowDown' || e.key === 's' || e.key === 'S' || e.key === 'ArrowRight';
+      if (up || down) {
+        e.preventDefault();
+        this.moveCursor(rows, (this.cursor + (down ? 1 : -1) + rows.length) % rows.length);
+        return;
+      }
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') {
+        e.preventDefault();
+        rows[this.cursor]?.click();
+        return;
+      }
+    }
     const n = Number(e.key);
     if (n >= 1 && n <= 9) {
       const row = this.input.querySelectorAll<HTMLElement>('.choice')[n - 1];
@@ -78,6 +95,14 @@ export class DialogueView {
         btn.click();
       }
     }
+  }
+
+  private moveCursor(rows: HTMLElement[], i: number): void {
+    this.cursor = i;
+    rows.forEach((r, k) => {
+      r.classList.toggle('sel', k === i);
+      r.setAttribute('aria-selected', String(k === i));
+    });
   }
 
   private tokens(tokens: Token[], mode: number, cls?: string): HTMLElement {
@@ -162,16 +187,24 @@ export class DialogueView {
   }
 
   private renderChoices(view: PromptView): void {
-    const list = h('div', { class: 'choices' });
+    const list = h('div', { class: 'choices', role: 'listbox', 'aria-label': 'What do you say?' });
+    const rows: HTMLElement[] = [];
     view.choices!.forEach((c, i) => {
-      const row = h('div', { class: 'choice', role: 'button', tabindex: '0' },
-        h('span', { class: 'num' }, String(i + 1)),
+      const row = h('div', { class: 'choice', role: 'option', tabindex: '-1' },
+        h('span', { class: 'cursor', 'aria-hidden': 'true' }, '▶'),
         h('span', { class: 'choice-text' }, this.tokens(c.tokens, view.mode), c.gloss ? h('span', { class: 'gloss' }, c.gloss) : null),
       );
       row.addEventListener('click', () => this.after(this.run!.answerChoice(c.index), view.mode));
+      // Follow the mouse only when it really moves: rows redrawn under a still pointer
+      // must not steal the cursor from the keyboard.
+      row.addEventListener('pointermove', (e) => {
+        if ((e.movementX || e.movementY) && this.cursor !== i) this.moveCursor(rows, i);
+      });
+      rows.push(row);
       list.append(row);
     });
-    this.input.append(list, h('div', { class: 'hint' }, 'Tap a word to look it up. Tap the row (or press its number) to answer.'));
+    this.moveCursor(rows, 0);
+    this.input.append(list, h('div', { class: 'hint' }, '↑↓ to move, Enter to say it. Tap a word to look it up.'));
   }
 
   private renderTiles(view: PromptView): void {

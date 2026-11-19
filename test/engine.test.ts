@@ -134,3 +134,16 @@ test('variant-only nodes are skipped', () => {
   water.answerChoice(0);
   assert.equal(water.nodeId, 'bag');
 });
+
+test('a wrong answer only removes that option on its own node', () => {
+  const r = run(1);
+  const wrong = r.node.choices!.findIndex((c) => c.result !== 'success');
+  r.answerChoice(wrong);
+  assert.equal(r.current().choices!.length, 2, 'the wrong option is gone for this node');
+  r.answerChoice(correctIndex(r));
+  while (!r.ended) {
+    const v = r.current();
+    if (v.choices) assert.equal(v.choices.length, 3, `node ${v.nodeId} shows all three`);
+    r.answerChoice(correctIndex(r));
+  }
+});

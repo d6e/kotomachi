@@ -76,7 +76,8 @@
       "grammar": ["odaijini"],
       "choices": [
         { "text": "ありがとうございます 。", "gloss": "Thank you.", "result": "success" },
-        { "text": "お大事に 。", "gloss": "Take care of yourself.", "result": "npc_amused", "reaction": "ふふ 、 それ は 私 が 言う 言葉 です よ 。", "note": "お大事に is said to someone who is unwell. As the patient, say ありがとうございます.", "grammar": "odaijini" }
+        { "text": "お大事に 。", "gloss": "Take care of yourself.", "result": "npc_amused", "reaction": "ふふ 、 それ は 私 が 言う 言葉 です よ 。", "note": "お大事に is said to someone who is unwell. As the patient, say ありがとうございます.", "grammar": "odaijini" },
+        { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "npc_puzzled", "reaction": "えっ ？ ふふ 、 お大事に 。", "note": "どういたしまして answers someone else's thank-you. Here, thank the pharmacist: ありがとうございます.", "grammar": "odaijini" }
       ],
       "effects": { "pay": true },
       "end": true

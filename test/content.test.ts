@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { scenarios, validateContent, vocab } from '../src/game/content.ts';
+import { CHOICES_PER_NODE, scenarios, validateContent, vocab } from '../src/game/content.ts';
 
 test('all content parses against the vocab, links resolve, slots fill', () => {
   const issues = validateContent();
@@ -19,4 +19,21 @@ test('the cafe has content for every ladder stage up to fill-in-the-blank', () =
 
 test('vocabulary size', () => {
   assert.ok(vocab.size >= 100, `have ${vocab.size} words`);
+});
+
+test('every multiple-choice moment offers exactly three answers', () => {
+  assert.equal(CHOICES_PER_NODE, 3);
+  for (const s of scenarios) {
+    for (const [id, n] of Object.entries(s.nodes)) {
+      if (n.choices) assert.equal(n.choices.length, 3, `${s.id}.${id}`);
+    }
+  }
+});
+
+test('validation flags a node with the wrong number of choices', () => {
+  const cafe = structuredClone(scenarios.find((s) => s.id === 'cafe_order')!);
+  const greet = cafe.nodes[cafe.start]!;
+  greet.choices = [...greet.choices!, greet.choices![0]!];
+  const issues = validateContent([cafe]);
+  assert.ok(issues.some((i) => i.problem.includes('needs exactly 3')), JSON.stringify(issues));
 });

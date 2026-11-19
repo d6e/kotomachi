@@ -16,8 +16,7 @@
       "choices": [
         { "text": "おはようございます 。", "gloss": "Good morning.", "result": "success", "correctWhen": "morning", "reaction": "ふふ 、 $greet 。", "note": "Greetings follow the clock: おはようございます until late morning, こんにちは in the day, こんばんは in the evening.", "grammar": "greetings_time" },
         { "text": "こんにちは 。", "gloss": "Hello.", "result": "success", "correctWhen": "day", "reaction": "ふふ 、 $greet 。", "note": "Greetings follow the clock: おはようございます until late morning, こんにちは in the day, こんばんは in the evening.", "grammar": "greetings_time" },
-        { "text": "こんばんは 。", "gloss": "Good evening.", "result": "success", "correctWhen": "evening", "reaction": "ふふ 、 $greet 。", "note": "Greetings follow the clock: おはようございます until late morning, こんにちは in the day, こんばんは in the evening.", "grammar": "greetings_time" },
-        { "text": "おやすみなさい 。", "gloss": "Good night.", "result": "npc_amused", "reaction": "ふふ 、 まだ 寝ません=寝る よ 。 $greet 。", "note": "おやすみなさい is for bedtime.", "grammar": "greetings_time" }
+        { "text": "こんばんは 。", "gloss": "Good evening.", "result": "success", "correctWhen": "evening", "reaction": "ふふ 、 $greet 。", "note": "Greetings follow the clock: おはようございます until late morning, こんにちは in the day, こんばんは in the evening.", "grammar": "greetings_time" }
       ],
       "next": { "success": "chat" }
     },
@@ -40,7 +39,8 @@
       "grammar": ["ittekimasu"],
       "choices": [
         { "text": "いってきます 。", "gloss": "I'm off! (said by the one leaving)", "result": "success" },
-        { "text": "いってらっしゃい 。", "gloss": "See you later! (said to the one leaving)", "result": "npc_amused", "reaction": "ふふ 、 いってきます 、 です よ 。", "note": "The person leaving says いってきます. The one staying says いってらっしゃい.", "grammar": "ittekimasu" }
+        { "text": "いってらっしゃい 。", "gloss": "See you later! (said to the one leaving)", "result": "npc_amused", "reaction": "ふふ 、 いってきます 、 です よ 。", "note": "The person leaving says いってきます. The one staying says いってらっしゃい.", "grammar": "ittekimasu" },
+        { "text": "ただいま 。", "gloss": "I'm home!", "result": "npc_amused", "reaction": "ふふ 、 それ は 帰る 時 の 言葉 です よ 。", "note": "ただいま is what you say when you get home. When you head out, say いってきます.", "grammar": "ittekimasu" }
       ],
       "end": true
     }

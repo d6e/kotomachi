@@ -742,5 +742,41 @@
   "reading": "えき",
   "meaning": "station",
   "pos": "noun"
+ },
+ {
+  "id": "ただいま",
+  "reading": "ただいま",
+  "meaning": "I'm home! (said when you get back)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "帰る",
+  "reading": "かえる",
+  "meaning": "to go home, to return",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "時",
+  "reading": "とき",
+  "meaning": "time; when (~時 = at the time of ~)",
+  "pos": "noun"
+ },
+ {
+  "id": "あちら",
+  "reading": "あちら",
+  "meaning": "over there (polite)",
+  "pos": "pronoun"
+ },
+ {
+  "id": "どういたしまして",
+  "reading": "どういたしまして",
+  "meaning": "you're welcome",
+  "pos": "set phrase"
+ },
+ {
+  "id": "えっ",
+  "reading": "えっ",
+  "meaning": "huh? (surprise)",
+  "pos": "interjection"
  }
 ]

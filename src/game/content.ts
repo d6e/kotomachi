@@ -27,8 +27,11 @@ export interface ContentIssue {
   problem: string;
 }
 
+/** Every multiple-choice moment offers exactly this many answers. */
+export const CHOICES_PER_NODE = 3;
+
 /** Every line must parse against the vocab, every node link must exist, every slot must be filled. */
-export function validateContent(): ContentIssue[] {
+export function validateContent(defs: ScenarioDef[] = scenarios): ContentIssue[] {
   const out: ContentIssue[] = [];
   const check = (where: string, markup: string, slots: Record<string, string>) => {
     const issues: ParseIssue[] = [];
@@ -37,7 +40,7 @@ export function validateContent(): ContentIssue[] {
   };
   for (const n of Object.values(npcs)) check(`npc ${n.id}`, n.name, {});
   for (const g of Object.values(grammar)) check(`grammar ${g.id}`, g.example, {});
-  for (const s of scenarios) {
+  for (const s of defs) {
     if (!s.nodes[s.start]) out.push({ where: s.id, problem: `start node ${s.start} missing` });
     for (const v of s.variants) {
       const slots: Record<string, string> = { ...v.slots, price: String(v.price ?? 0), greet: 'こんにちは' };
@@ -67,6 +70,7 @@ export function validateContent(): ContentIssue[] {
         }
         if (!n.end && !n.next?.success) out.push({ where, problem: 'node has no success exit and is not an end' });
         if (n.choices && !n.choices.some((c) => c.result === 'success')) out.push({ where, problem: 'no correct choice' });
+        if (n.choices && n.choices.length !== CHOICES_PER_NODE) out.push({ where, problem: `has ${n.choices.length} choices, needs exactly ${CHOICES_PER_NODE}` });
       }
     }
   }

@@ -20,7 +20,8 @@
       "grammar": ["irasshaimase"],
       "choices": [
         { "text": "（ $item を レジ に 持って=持つ 行く ）", "gloss": "(take the $item_en to the register)", "result": "success" },
-        { "text": "いらっしゃいませ ！", "gloss": "Welcome!", "result": "npc_amused", "reaction": "… ？ あ 、 レジ は こちら です 。", "note": "Staff say いらっしゃいませ. Customers don't answer it; a small nod is enough.", "grammar": "irasshaimase" }
+        { "text": "いらっしゃいませ ！", "gloss": "Welcome!", "result": "npc_amused", "reaction": "… ？ あ 、 レジ は こちら です 。", "note": "Staff say いらっしゃいませ. Customers don't answer it; a small nod is enough.", "grammar": "irasshaimase" },
+        { "text": "$item を ください 。", "gloss": "Give me $item_en.", "result": "npc_puzzled", "reaction": "えっと 、 $item は あちら です よ 。", "note": "At a konbini you pick things up yourself and bring them to the register."}
       ],
       "next": { "success": "heat" }
     },
