@@ -46,8 +46,12 @@ export interface GameData {
   recentErrands?: Record<string, number>;
   /** How far each regular's story has got: the next step's index. */
   arcs: Record<string, number>;
-  /** Things you've been given or brought home, by id. */
+  /** Keepsakes you've been given or brought home, by id: the collection, kept even if you put them away. */
   keepsakes: string[];
+  /** Everything you have (持ち物), by good id, with how many. */
+  bag: Record<string, number>;
+  /** What's on the shelf in your room, in order, at most SHELF_SIZE. */
+  shelf: string[];
   /** Catalog items you've bought for your room. */
   furniture: string[];
   /** Every correction so far, newest last, with the day it happened. */
@@ -74,6 +78,8 @@ export function newGame(): GameData {
     errands: [],
     arcs: {},
     keepsakes: [],
+    bag: {},
+    shelf: [],
     furniture: [],
     corrections: [],
     grammarSeen: [],
@@ -118,6 +124,12 @@ export function migrate(raw: unknown): GameData | null {
   // Experience didn't exist yet: start from what this player already knows.
   if (version === 1) g.xp = estimateXp(g.learner, g.day);
   g.xp ??= 0;
+  // Before you had things of your own, only keepsakes were kept, and all of them sat on the shelf.
+  if (!old.bag || typeof old.bag !== 'object') {
+    g.bag = Object.fromEntries(g.keepsakes.map((k) => [k, 1]));
+    g.shelf = g.keepsakes.slice(0, 9);
+  }
+  g.shelf = (Array.isArray(g.shelf) ? g.shelf : []).filter((id) => (g.bag[id] ?? 0) > 0).slice(0, 9);
   return g;
 }
 

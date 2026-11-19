@@ -18,12 +18,24 @@ export interface NotebookContext {
   scenarios: ScenarioDef[];
   placeName: (place: string) => string;
   lookup: (t: Token, el: HTMLElement) => void;
+  /** What you have (持ち物), for the Things tab. */
+  things?: () => Thing[];
 }
 
-type Tab = 'places' | 'people' | 'corrections' | 'grammar' | 'progress';
+export interface Thing {
+  id: string;
+  word: string;
+  meaning: string;
+  count: number;
+  onShelf: boolean;
+  icon: HTMLElement;
+}
+
+type Tab = 'places' | 'people' | 'things' | 'corrections' | 'grammar' | 'progress';
 const TABS: [Tab, string][] = [
   ['places', 'Words by place'],
   ['people', 'Words by person'],
+  ['things', 'Things'],
   ['corrections', 'Corrections'],
   ['grammar', 'Grammar'],
   ['progress', 'Progress'],
@@ -76,7 +88,7 @@ export class Notebook {
       this.tabs.append(h('button', { role: 'tab', class: id === this.tab ? 'active' : '', 'aria-selected': String(id === this.tab), onclick: () => { this.tab = id; this.draw(); } }, label));
     }
     clear(this.body);
-    const fn = { places: this.places, people: this.people, corrections: this.corrections, grammar: this.grammarTab, progress: this.progress }[this.tab];
+    const fn = { places: this.places, people: this.people, things: this.thingsTab, corrections: this.corrections, grammar: this.grammarTab, progress: this.progress }[this.tab];
     fn.call(this);
   }
 
@@ -131,6 +143,27 @@ export class Notebook {
       const title = h('span', {}, renderTokens(parseLine(n.name, vocab), { furigana: ALWAYS }), h('span', { class: 'role' }, ` ${n.role}`));
       this.body.append(this.group(title, ids));
     }
+  }
+
+  /** Everything you have, and what's on your shelf at home. */
+  private thingsTab(): void {
+    const { vocab } = this.ctx!;
+    const list = this.ctx!.things?.() ?? [];
+    const head = h('h3', {}, renderTokens(parseLine('持ち物', vocab), { furigana: ALWAYS, onTap: this.ctx!.lookup }));
+    if (!list.length) {
+      this.body.append(h('section', { class: 'nb-group' }, head, h('p', { class: 'empty' }, 'What you buy in town is yours to keep, errands for neighbours included, and so are gifts and souvenirs. It all collects here.')));
+      return;
+    }
+    const shelved = list.filter((t) => t.onShelf).length;
+    this.body.append(h('section', { class: 'nb-group' }, head,
+      h('ul', {}, list.map((t) => h('li', { class: 'nb-word nb-thing' },
+        t.icon,
+        renderTokens(parseLine(t.word, vocab), { furigana: ALWAYS, onTap: this.ctx!.lookup, className: 'nb-jp' }),
+        h('span', { class: 'nb-meaning' }, t.count > 1 ? `${t.meaning} ×${t.count}` : t.meaning),
+        t.onShelf ? h('span', { class: 'chip st-recognized' }, 'On the shelf') : null,
+      ))),
+      h('p', { class: 'muted' }, `${shelved} on the shelf in your room. Go home and tap the shelf to choose what goes on it.`),
+    ));
   }
 
   private corrections(): void {

@@ -2404,5 +2404,11 @@
   "reading": "よく",
   "meaning": "often; a lot; well",
   "pos": "adverb"
+ },
+ {
+  "id": "持ち物",
+  "reading": "もちもの",
+  "meaning": "your things, belongings",
+  "pos": "noun"
  }
 ]

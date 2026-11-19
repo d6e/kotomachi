@@ -58,8 +58,8 @@ export interface RoomDef {
   things?: { cell: RoomCell; id: ThingId }[];
   /** What you've bought for the room (home only). */
   decor?: DecorItem[];
-  /** Keepsake ids, shown on the shelf (home only). */
-  keepsakes?: string[];
+  /** What's on the shelf, by good id (home only). */
+  shelf?: string[];
   /** Drawn as an open-air area instead of a room (a trip's town). */
   outdoor?: boolean;
   /** Doors in this map to other places: walk onto the cell to go in. */
@@ -385,7 +385,7 @@ export function bedSpot(room: RoomDef): TilePos | null {
 const ADJ = [[1, 0], [0, 1], [-1, 0], [0, -1]] as const;
 
 /** Your room with what you've bought in it: floor pieces take their tile. */
-export function furnish(room: RoomDef, items: DecorItem[], keepsakes: string[]): RoomDef {
+export function furnish(room: RoomDef, items: DecorItem[], shelf: string[]): RoomDef {
   const rows = room.rows.map((r) => [...r]);
   const decor: DecorItem[] = [];
   for (const it of items) {
@@ -395,7 +395,7 @@ export function furnish(room: RoomDef, items: DecorItem[], keepsakes: string[]):
     }
     decor.push(it);
   }
-  return { ...room, rows: rows.map((r) => r.join('')), decor, keepsakes };
+  return { ...room, rows: rows.map((r) => r.join('')), decor, shelf };
 }
 
 /** Which usable thing stands on this tile, if any. */

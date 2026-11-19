@@ -14,12 +14,14 @@ export interface Trip {
   level: number;
   /** A return ticket, in yen. */
   fare: number;
-  /** Whether there's anything there yet; the others show as 工事中. */
+  /** Whether there's anything there yet. A town that isn't isn't sold, or shown, at all. */
   built: boolean;
   blurb: string;
 }
 
 export const TRIPS = tripsJson as Trip[];
+/** What the ticket machine sells: only the towns that are built. */
+export const ON_SALE = TRIPS.filter((t) => t.built);
 
 /** Minutes on the train each way. */
 export const TRIP_MINUTES = 50;
@@ -30,9 +32,9 @@ export const LAST_TRAIN_OUT = 17 * 60;
 export const ARRIVAL: Record<string, TripPlace> = { kamakura: 'kamakura' };
 
 /** Can you go now, and if not, why not. */
-export function canTravel(trip: Trip, level: number, money: number, minutes: number): 'ok' | 'level' | 'building' | 'money' | 'late' {
+export function canTravel(trip: Trip, level: number, money: number, minutes: number): 'ok' | 'level' | 'closed' | 'money' | 'late' {
+  if (!trip.built) return 'closed';
   if (level < trip.level) return 'level';
-  if (!trip.built) return 'building';
   if (minutes >= LAST_TRAIN_OUT) return 'late';
   if (money < trip.fare) return 'money';
   return 'ok';

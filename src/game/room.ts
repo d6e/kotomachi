@@ -25,8 +25,8 @@ export function canOrder(item: CatalogItem, owned: string[], level: number, mone
 }
 
 /** Your room with what you own in it. */
-export function homeRoom(owned: string[], keepsakes: string[]): RoomDef {
-  return furnish(ROOMS.home, owned.flatMap((id) => (catalogById[id] ? [catalogById[id]!] : [])), keepsakes);
+export function homeRoom(owned: string[], shelf: string[]): RoomDef {
+  return furnish(ROOMS.home, owned.flatMap((id) => (catalogById[id] ? [catalogById[id]!] : [])), shelf);
 }
 
 /** A keepsake's word and who or where it came from. */

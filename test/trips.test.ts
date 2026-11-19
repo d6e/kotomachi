@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { npcs, requests, scenarioById, scenarios, vocab } from '../src/game/content.ts';
 import { planRequests } from '../src/game/errands.ts';
-import { ARRIVAL, canTravel, LAST_TRAIN_OUT, SOUVENIRS, TRIPS } from '../src/game/trips.ts';
+import { ARRIVAL, canTravel, LAST_TRAIN_OUT, ON_SALE, SOUVENIRS, TRIPS } from '../src/game/trips.ts';
 import { emptyLearner, Learner } from '../src/learner/model.ts';
 import { itemIcon, KEEPSAKE_ART } from '../src/town/roomart.ts';
 import { doorCell, doorTo, roomDoor, roomEntrance, roomFor, ROOMS, roomSolid, talkSpot, thingSpot, TRIP_ROOMS, type RoomDef } from '../src/town/rooms.ts';
@@ -62,7 +62,7 @@ test('the ticket machines at the station can be reached', () => {
   assert.ok(reachable(ROOMS.station).has(`${spot.tx},${spot.ty}`));
 });
 
-test('trips: one place to go now, more locked behind levels, each named in Japanese', () => {
+test('trips: one place to go now, more planned, each named in Japanese; only built towns are sold', () => {
   assert.ok(TRIPS.length >= 3 && TRIPS.length <= 4);
   assert.equal(TRIPS.filter((t) => t.built).length, 1);
   const levels = TRIPS.map((t) => t.level);
@@ -73,7 +73,10 @@ test('trips: one place to go now, more locked behind levels, each named in Japan
   assert.equal(canTravel(k, k.level, k.fare - 1, 600), 'money');
   assert.equal(canTravel(k, k.level, k.fare, LAST_TRAIN_OUT), 'late');
   assert.equal(canTravel(k, k.level, k.fare, 600), 'ok');
-  assert.equal(canTravel(TRIPS[1]!, 99, 99999, 600), 'building');
+  // A town that isn't built can't be reached at any level, and the machine doesn't list it.
+  for (const t of TRIPS.filter((x) => !x.built)) assert.equal(canTravel(t, 99, 99999, 600), 'closed');
+  assert.deepEqual(ON_SALE.map((t) => t.id), ['kamakura']);
+  for (const t of ON_SALE) assert.ok(ARRIVAL[t.id], `${t.id} has somewhere to arrive`);
 });
 
 test('souvenirs come from the trip conversations, with a word and a picture', () => {

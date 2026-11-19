@@ -14,7 +14,8 @@ import { toCanvas } from '../town/pixels.ts';
 import { drawScene } from '../town/scenes.ts';
 import { itemIcon } from '../town/roomart.ts';
 import { allKeepsakes, canOrder, CATALOG, catalogById, homeRoom } from './room.ts';
-import { ARRIVAL, canTravel, LAST_TRAIN_OUT, SOUVENIRS, souvenirFor, TRIP_MINUTES, TRIPS, type Trip } from './trips.ts';
+import { ARRIVAL, canTravel, LAST_TRAIN_OUT, ON_SALE, SOUVENIRS, TRIP_MINUTES, type Trip } from './trips.ts';
+import { belongings, goodById, goodFor, receive, shelve, SHELF_SIZE, unshelve } from './inventory.ts';
 import { DialogueView } from '../ui/dialogue.ts';
 import { clear, h } from '../ui/dom.ts';
 import { coins, confetti, countUp, floatText, play, wait } from '../ui/fx.ts';
@@ -147,6 +148,9 @@ export class Game {
       vocab, learner: this.learner, npcs, grammar, scenarios,
       placeName: (p) => PLACE_NAMES[p] ?? p,
       lookup: (t, el) => this.lookup(t, el.getBoundingClientRect(), false),
+      things: () => belongings(this.g).map(({ good, count }) => ({
+        id: good.id, word: good.word, meaning: this.meaningOf(good.word), count, onShelf: this.g.shelf.includes(good.id), icon: this.icon(good.id, 'keepsake'),
+      })),
     };
   }
 
@@ -320,7 +324,7 @@ export class Game {
         h('div', { class: 'req-task' }, h('span', { class: 'box' }), this.tokens(e.text)),
       ))),
       h('p', { class: 'muted' }, 'Tap a word you don\'t know. Each errand pays back what you spend, plus a reward. Opening hours: cafe 8:00–18:00, pharmacy 9:00–19:00, post office 9:00–17:00, restaurant 11:00–22:00. The konbini and the station are always open.'
-        + (levelFor(this.g.xp) >= TRIPS[0]!.level ? ' Trains to 鎌倉 leave the station until 17:00.' : '')),
+        + (levelFor(this.g.xp) >= ON_SALE[0]!.level ? ' Trains to 鎌倉 leave the station until 17:00.' : '')),
       h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => this.goToTown() }, 'Head out ▶')),
     );
   }
@@ -538,12 +542,13 @@ export class Game {
       this.g.furniture.push(ordered.id);
       this.refreshHome();
     }
-    // Something bought on a trip for yourself goes on your shelf (bought for someone, it's theirs).
-    const souvenir = run.ended && !run.consequence && !errand ? souvenirFor(def.id, run.variant.id) : undefined;
-    const keptSouvenir = souvenir && !this.g.keepsakes.includes(souvenir.id) ? souvenir : undefined;
-    if (keptSouvenir) {
-      this.g.keepsakes.push(keptSouvenir.id);
-      this.g.today.promotions.push(`${keptSouvenir.id === 'kingyo' ? 'A keepsake' : 'A souvenir'} for your shelf: ${vocab.get(keptSouvenir.word)?.meaning ?? keptSouvenir.word}.`);
+    // Whatever you bought, for yourself or for someone, is yours to keep: it goes in your
+    // things, and a souvenir goes straight on the shelf.
+    const good = run.ended && !run.consequence ? goodFor(def.id, run.variant.id) : undefined;
+    const firstKeepsake = good?.keepsake && !this.g.keepsakes.includes(good.id) ? good : undefined;
+    const firstGood = good && receive(this.g, good.id) ? good : undefined;
+    if (firstKeepsake) {
+      this.g.today.promotions.push(`${firstKeepsake.id === 'kingyo' ? 'A keepsake' : 'A souvenir'} for your shelf: ${this.meaningOf(firstKeepsake.word)}.`);
       this.refreshHome();
     }
 
@@ -559,10 +564,13 @@ export class Game {
       // The scene says it all.
     } else if (ordered) {
       this.toast(`Ordered: ${vocab.get(ordered.word)?.meaning ?? ordered.word}. It'll be in your room when you get home.`);
-    } else if (keptSouvenir) {
-      this.toast(keptSouvenir.id === 'kingyo'
-        ? `You caught a goldfish: 金魚 (きんぎょ). It's in a bowl on the shelf in your room.`
-        : `A souvenir: ${keptSouvenir.word} (${vocab.get(keptSouvenir.word)?.reading ?? ''}). It's on the shelf in your room.`);
+    } else if (firstKeepsake) {
+      const onShelf = this.g.shelf.includes(firstKeepsake.id) ? "It's on the shelf in your room." : 'Your shelf is full, so it\'s with your things.';
+      this.toast(firstKeepsake.id === 'kingyo'
+        ? `You caught a goldfish: 金魚 (きんぎょ). ${onShelf.replace("It's", "It's in a bowl")}`
+        : `A souvenir: ${this.wordText(firstKeepsake.word)}. ${onShelf}`);
+    } else if (firstGood) {
+      this.toast(`${this.wordText(firstGood.word)} is yours to keep. It's with your things in the notebook, and you can put it on the shelf at home.`);
     } else if (run.clean) {
       this.toast(next.stage >= def.maxStage ? 'Clean visit.' : `Clean visit (${next.cleanRuns}/3 to the next stage).`);
     } else {
@@ -653,7 +661,7 @@ export class Game {
 
   /** Your room, redrawn with what you own. */
   private refreshHome(): void {
-    this.town.setHome(homeRoom(this.g.furniture, this.g.keepsakes));
+    this.town.setHome(homeRoom(this.g.furniture, this.g.shelf));
   }
 
   private icon(id: string, kind: 'floor' | 'wall' | 'rug' | 'keepsake'): HTMLCanvasElement {
@@ -694,41 +702,77 @@ export class Game {
     this.startScenario(scenarioById['post_catalog']!, id);
   }
 
-  /** Your shelf at home: every keepsake, and its word. */
+  /** A thing's word with its reading, for a toast: お茶 (おちゃ). */
+  private wordText(word: string): string {
+    const tokens = parseLine(word, vocab);
+    const text = plainText(tokens);
+    const reading = tokens.map((t) => t.ruby.map((r) => r.rt ?? r.text).join('')).join('');
+    return reading && reading !== text ? `${text} (${reading})` : text;
+  }
+
+  private meaningOf(word: string): string {
+    const lemma = parseLine(word, vocab)[0]?.lemma ?? word;
+    return vocab.get(lemma)?.meaning ?? word;
+  }
+
+  /** Your shelf at home: what's on it, and everything you have to put there. */
   private showShelf(): void {
     this.phase = 'shop';
-    const all = allKeepsakes(requests, SOUVENIRS);
-    const mine = all.filter((k) => this.g.keepsakes.includes(k.id));
-    const items = mine.map((k) => h('li', { class: 'shelf-item' },
-      this.icon(k.id, 'keepsake'),
-      h('div', { class: 'cat-word' },
-        renderTokens(parseLine(k.word, vocab), { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false), isNew: (t) => this.learner.isFresh(t.lemma) }),
-        h('div', { class: 'muted' }, `${vocab.get(k.word)?.meaning ?? ''} · from `, this.tokens(npcs[k.from as NpcId]?.name ?? k.from, false))),
-    ));
+    const mine = belongings(this.g);
+    const full = this.g.shelf.length >= SHELF_SIZE;
+    const row = (id: string, count: number) => {
+      const good = goodById[id];
+      if (!good) return null;
+      const on = this.g.shelf.includes(id);
+      const word = renderTokens(parseLine(good.word, vocab), { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false), isNew: (t) => this.learner.isFresh(t.lemma) });
+      const action = on
+        ? h('button', { class: 'small', onclick: () => { unshelve(this.g, id); this.refreshHome(); this.showShelf(); } }, 'Take down')
+        : full
+          ? h('span', { class: 'cat-state owned' }, 'Shelf is full')
+          : h('button', { class: 'primary small', onclick: () => { shelve(this.g, id); this.refreshHome(); this.showShelf(); } }, 'Put on shelf');
+      return h('li', { class: `shelf-item${on ? ' on' : ''}` },
+        this.icon(id, 'keepsake'),
+        h('div', { class: 'cat-word' }, word,
+          h('div', { class: 'muted' }, this.meaningOf(good.word), count > 1 ? ` · ×${count}` : '', this.fromLine(id))),
+        h('div', { class: 'cat-buy' }, action),
+      );
+    };
+    const onShelf = this.g.shelf.map((id) => row(id, this.g.bag[id] ?? 1));
+    const rest = mine.filter((m) => !this.g.shelf.includes(m.good.id)).map((m) => row(m.good.id, m.count));
+    const allKeeps = allKeepsakes(requests, SOUVENIRS);
     this.showScreen(
       h('h2', {}, '棚'),
-      mine.length
-        ? h('ul', { class: 'catalog shelf' }, items)
-        : h('p', {}, 'Nothing here yet. When a neighbour\'s story ends, they give you something to keep, and it goes on this shelf. So do souvenirs from trips and the festival.'),
-      h('p', { class: 'muted' }, `${mine.length} of ${all.length} keepsakes. Things for the rest of the room are in the catalog at the post office.`),
+      h('h3', { class: 'shelf-head' }, `On the shelf (${this.g.shelf.length} of ${SHELF_SIZE})`),
+      onShelf.length
+        ? h('ul', { class: 'catalog shelf' }, onShelf)
+        : h('p', { class: 'muted' }, 'Nothing on it yet. Anything you have can go here.'),
+      h('h3', { class: 'shelf-head' }, renderTokens(parseLine('持ち物', vocab), { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false), isNew: (t) => this.learner.isFresh(t.lemma) })),
+      rest.length
+        ? h('ul', { class: 'catalog shelf' }, rest)
+        : h('p', { class: 'muted' }, mine.length ? 'Everything you have is on the shelf.' : 'Nothing yet. What you buy in town is yours to keep, errands for neighbours included, and so are gifts and souvenirs.'),
+      h('p', { class: 'muted' }, `${this.g.keepsakes.length} of ${allKeeps.length} keepsakes collected. Things for the rest of the room are in the catalog at the post office.`),
       h('div', { class: 'row' }, h('button', { onclick: () => this.goToTown() }, 'Close')),
     );
+  }
+
+  /** Who gave you a keepsake, as a short line. */
+  private fromLine(id: string): (string | Node)[] {
+    const k = allKeepsakes(requests, SOUVENIRS).find((x) => x.id === id);
+    return k ? [' · from ', this.tokens(npcs[k.from as NpcId]?.name ?? k.from, false)] : [];
   }
 
   /** The ticket machines at the station: where the trains go, and what you need to go. */
   private showTrips(): void {
     this.phase = 'shop';
     const level = levelFor(this.g.xp);
-    const rows = TRIPS.map((trip) => {
+    const rows = ON_SALE.map((trip) => {
       const state = canTravel(trip, level, this.g.money, this.g.minutes);
       const tokens = parseLine(trip.name, vocab);
       this.seeAll(tokens, 'station', 'ekiin');
       const name = renderTokens(tokens, { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false), isNew: (t) => this.learner.isFresh(t.lemma) });
       const action = state === 'ok'
         ? h('button', { class: 'primary small', onclick: () => this.travel(trip) }, 'Buy and go')
-        : state === 'building'
-          ? h('span', { class: 'cat-state building' }, this.tokens('工事中', false))
-          : h('span', { class: `cat-state ${state}` }, state === 'level' ? `Needs Lv ${trip.level}` : state === 'late' ? 'No more trains today' : 'Not enough ¥');
+        : h('span', { class: `cat-state ${state}` }, state === 'level' ? `Needs Lv ${trip.level}` : state === 'late' ? 'No more trains today' : 'Not enough ¥');
       return h('li', { class: `cat-item trip ${state}` },
         h('div', { class: 'trip-name' }, name),
         h('div', { class: 'cat-word' }, h('div', { class: 'muted' }, trip.blurb)),
@@ -775,7 +819,7 @@ export class Game {
 
   /** The end of a regular's story: their thanks and a keepsake. */
   private showGift(arc: (typeof requests.arcs)[number]): void {
-    if (!this.g.keepsakes.includes(arc.gift.id)) this.g.keepsakes.push(arc.gift.id);
+    if (!this.g.keepsakes.includes(arc.gift.id)) receive(this.g, arc.gift.id);
     this.refreshHome();
     this.g.today.promotions.push(`A gift from ${plainText(parseLine(npcs[arc.from].name, vocab))}: ${vocab.get(arc.gift.word)?.meaning ?? arc.gift.word}.`);
     this.phase = 'gift';

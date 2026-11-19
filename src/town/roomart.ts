@@ -132,7 +132,7 @@ export function drawRoom(room: RoomDef, measure: Measure): RoomArt {
           doormat(b, x, y);
           break;
         case 'h':
-          if (room.keepsakes) keepsakeShelf(b, x, y, room.keepsakes);
+          if (room.shelf) shelfArt(b, x, y, room.shelf);
           else if (room.place === 'shrine') charmRack(b, x, y, tx);
           else wallShelf(b, x, y, tx);
           break;
@@ -552,7 +552,6 @@ function lowTable(b: Buf, x: number, y: number): void {
 
 // ------------------------------------------------------------------ your room
 
-/** Your shelf at home, with a little picture of each keepsake on it. */
 /** Rows of charms on red cloth, at the shrine's counter. */
 function charmRack(b: Buf, x: number, y: number, seed: number): void {
   b.box(x, y - 11, TILE, 26, 'woodSh');
@@ -567,7 +566,8 @@ function charmRack(b: Buf, x: number, y: number, seed: number): void {
     }
 }
 
-function keepsakeShelf(b: Buf, x: number, y: number, keepsakes: string[]): void {
+/** Your shelf at home, with a little picture of each thing you've put on it. */
+function shelfArt(b: Buf, x: number, y: number, shelf: string[]): void {
   b.box(x - 2, y - 11, TILE + 4, 26, 'woodSh');
   for (let s = 0; s < 3; s++) {
     const sy = y - 9 + s * 8;
@@ -575,7 +575,7 @@ function keepsakeShelf(b: Buf, x: number, y: number, keepsakes: string[]): void 
     b.rect(x - 1, sy + 6, TILE + 2, 1, 'out');
   }
   // Three to a shelf, top shelf first.
-  keepsakes.slice(0, 9).forEach((id, i) => {
+  shelf.slice(0, 9).forEach((id, i) => {
     const sx = x - 1 + (i % 3) * 6;
     const sy = y - 9 + Math.floor(i / 3) * 8;
     (KEEPSAKE_ART[id] ?? genericKeepsake)(b, sx, sy + 6);
@@ -585,7 +585,7 @@ function keepsakeShelf(b: Buf, x: number, y: number, keepsakes: string[]): void 
 
 type Mini = (b: Buf, x: number, base: number) => void;
 const genericKeepsake: Mini = (b, x, base) => b.box(x + 1, base - 5, 5, 5, 'gold');
-/** Keepsakes are 6px wide and stand on a shelf line at y = base. */
+/** Things for the shelf are 6px wide (7 at most) and stand on a shelf line at y = base. Keepsakes first, then everyday things. */
 export const KEEPSAKE_ART: Record<string, Mini> = {
   mug: (b, x, base) => {
     b.box(x + 1, base - 5, 4, 5, 'white');
@@ -629,7 +629,127 @@ export const KEEPSAKE_ART: Record<string, Mini> = {
     b.rect(x + 2, base - 3, 2, 1, 'top');
     b.set(x + 4, base - 3, 'topSh');
   },
+  // From the cafe: cups to go, each with its own sleeve.
+  coffee: cup('trunk'),
+  latte: cup('cream'),
+  koucha: cup('roofA'),
+  cocoa: cup('hairSh'),
+  // From the konbini.
+  onigiri: (b, x, base) => {
+    const half = [1, 2, 2, 3, 3, 3];
+    b.shape(x, base - 6, 7, 6, (i, j) => j >= 0 && j < 6 && Math.abs(i - 3) <= half[j]!, (i, j) => (j === 1 && i === 2 ? 'grey' : 'white'));
+    b.rect(x + 2, base - 2, 3, 1, 'dark');
+  },
+  ocha: bottle('top2', 'top2Sh'),
+  mizu: bottle('roofB', 'glassHi'),
+  gyunyu: (b, x, base) => {
+    b.box(x + 1, base - 5, 5, 5, 'white');
+    b.rect(x + 2, base - 3, 3, 1, 'roofB');
+    b.rect(x + 2, base - 6, 3, 1, 'out');
+  },
+  bento: (b, x, base) => {
+    b.box(x, base - 4, 7, 4, 'white');
+    b.rect(x + 1, base - 3, 2, 2, 'roofA');
+    b.rect(x + 4, base - 3, 2, 2, 'leaf');
+    b.rect(x, base - 5, 7, 1, 'out');
+  },
+  aisu: (b, x, base) => {
+    b.rect(x + 2, base - 3, 3, 1, 'roofF');
+    b.rect(x + 2, base - 2, 3, 1, 'roofFSh');
+    b.set(x + 3, base - 2, 'roofF');
+    b.set(x + 3, base - 1, 'roofFSh');
+    b.shape(x + 1, base - 7, 5, 4, (i, j) => (i - 2) ** 2 + (j - 2.5) ** 2 <= 5.5, (i, j) => (j < 1 || (j === 1 && i < 2) ? 'white' : 'flowerA'));
+  },
+  // An open umbrella, propped up.
+  kasa: (b, x, base) => {
+    b.rect(x + 2, base - 7, 3, 1, 'out');
+    b.set(x + 1, base - 6, 'out');
+    b.rect(x + 2, base - 6, 3, 1, 'roofB');
+    b.set(x + 2, base - 6, 'roofBHi');
+    b.set(x + 5, base - 6, 'out');
+    b.set(x, base - 5, 'out');
+    b.rect(x + 1, base - 5, 5, 1, 'roofB');
+    b.set(x + 1, base - 5, 'roofBHi');
+    b.set(x + 6, base - 5, 'out');
+    b.rect(x, base - 4, 7, 1, 'out');
+    b.rect(x + 3, base - 3, 1, 3, 'out');
+    b.set(x + 2, base - 1, 'out');
+  },
+  denchi: (b, x, base) => {
+    for (const dx of [1, 4]) {
+      b.box(x + dx, base - 5, 2, 5, 'dark');
+      b.set(x + dx, base - 6, 'gold');
+      b.rect(x + dx, base - 3, 2, 1, 'gold');
+    }
+  },
+  nikuman: (b, x, base) => {
+    b.shape(x, base - 5, 7, 5, (i, j) => (i - 3) ** 2 / 12 + (j - 5) ** 2 / 25 <= 1, (_i, j) => (j < 1 ? 'grey' : 'white'));
+    b.set(x + 3, base - 5, 'greySh');
+    b.rect(x + 1, base - 1, 5, 1, 'greySh');
+  },
+  // From the pharmacy: boxes in their own colours, and a little bottle of eye drops.
+  kazegusuri: medBox('roofB'),
+  zutsuyaku: medBox('roofD'),
+  ichoyaku: medBox('top2'),
+  sekidome: medBox('roofC'),
+  genetsuzai: medBox('roofA'),
+  megusuri: (b, x, base) => {
+    b.box(x + 2, base - 5, 3, 5, 'glass');
+    b.rect(x + 2, base - 6, 3, 1, 'roofB');
+    b.set(x + 3, base - 7, 'roofB');
+  },
+  // From the post office and the station.
+  kitte: (b, x, base) => {
+    b.box(x, base - 6, 7, 6, 'white');
+    const c: Role[] = ['postRed', 'roofB', 'top2', 'gold'];
+    c.forEach((r, i) => b.rect(x + 1 + (i % 2) * 3, base - 5 + Math.floor(i / 2) * 2, 2, 1, r));
+  },
+  nimotsu: (b, x, base) => {
+    b.box(x, base - 5, 7, 5, 'dirt');
+    b.rect(x + 3, base - 4, 1, 3, 'pathHi');
+    b.rect(x + 1, base - 2, 5, 1, 'dirtSh');
+  },
+  kippu: (b, x, base) => {
+    b.box(x, base - 4, 7, 4, 'stationWall');
+    b.rect(x + 1, base - 3, 5, 1, 'roofB');
+    b.set(x + 5, base - 2, 'ink');
+  },
+  // From the souvenir shop in 鎌倉: a box of sweets tied with a ribbon.
+  okashi: (b, x, base) => {
+    b.box(x, base - 4, 7, 4, 'roofG');
+    b.rect(x + 3, base - 4, 1, 4, 'gold');
+    b.rect(x + 2, base - 5, 3, 1, 'gold');
+  },
 };
+
+function cup(sleeve: Role): Mini {
+  return (b, x, base) => {
+    b.box(x + 1, base - 5, 5, 5, 'white');
+    b.rect(x + 2, base - 3, 3, 2, sleeve);
+    b.rect(x + 1, base - 6, 5, 1, 'out');
+    b.set(x + 3, base - 7, 'out');
+  };
+}
+
+function bottle(cap: Role, label: Role): Mini {
+  return (b, x, base) => {
+    b.box(x + 1, base - 5, 5, 5, 'glass');
+    b.set(x + 2, base - 4, 'glassHi');
+    b.rect(x + 2, base - 3, 3, 1, label);
+    b.rect(x + 2, base - 6, 3, 1, 'out');
+    b.rect(x + 2, base - 7, 3, 1, cap);
+  };
+}
+
+function medBox(colour: Role): Mini {
+  return (b, x, base) => {
+    b.box(x, base - 6, 7, 6, 'white');
+    b.rect(x + 1, base - 5, 5, 3, colour);
+    b.set(x + 3, base - 5, 'white');
+    b.rect(x + 2, base - 4, 3, 1, 'white');
+    b.set(x + 3, base - 3, 'white');
+  };
+}
 
 type Piece = (b: Buf, x: number, y: number) => void;
 /** Furniture that stands on the floor, on its own tile at (x, y). */
@@ -726,7 +846,7 @@ function crop(src: Buf, x0: number, y0: number, w: number, h: number): Buf {
   return out;
 }
 
-/** A small picture of a catalog item or a keepsake, for the catalog and the shelf. */
+/** A small picture of a catalog item, or of something you have, for the catalog, the shelf and your things. */
 export function itemIcon(id: string, kind: 'floor' | 'wall' | 'rug' | 'keepsake'): Buf {
   const big = new Buf(W, H);
   if (kind === 'floor') {
