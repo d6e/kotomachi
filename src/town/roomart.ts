@@ -130,7 +130,8 @@ export function drawRoom(room: RoomDef, measure: Measure): RoomArt {
           doormat(b, x, y);
           break;
         case 'h':
-          wallShelf(b, x, y, tx);
+          if (room.keepsakes) keepsakeShelf(b, x, y, room.keepsakes);
+          else wallShelf(b, x, y, tx);
           break;
         case 'H':
           if (left !== 'H') {
@@ -180,6 +181,12 @@ export function drawRoom(room: RoomDef, measure: Measure): RoomArt {
           break;
       }
     }
+
+  // What you've bought for your room.
+  for (const d of room.decor ?? []) {
+    if (d.kind === 'floor' && d.spot) FLOOR_DECOR[d.id]?.(b, d.spot.tx * TILE, d.spot.ty * TILE);
+    else if (d.kind === 'rug') RUG_DECOR[d.id]?.(b);
+  }
 
   // Counters, on their own layer over the staff.
   for (let ty = 0; ty < ROOM_ROWS; ty++)
@@ -295,6 +302,7 @@ function decorate(b: Buf, signs: SignSpot[], measure: Measure, room: RoomDef, th
       b.rect(cx, mid + 9, 3, 1, 'out');
       b.box(6 * TILE + 4, mid + 3, 10, 13, 'white');
       b.rect(6 * TILE + 5, mid + 4, 8, 3, 'roofA');
+      for (const d of room.decor ?? []) if (d.kind === 'wall') WALL_DECOR[d.id]?.(b, mid);
       break;
     }
   }
@@ -508,4 +516,172 @@ function lowTable(b: Buf, x: number, y: number): void {
   b.box(x + 13, y + 3, 6, 5, 'top2');
   b.box(x + 8, y + 5, 3, 3, 'white');
   b.box(x + 21, y + 5, 3, 3, 'white');
+}
+
+// ------------------------------------------------------------------ your room
+
+/** Your shelf at home, with a little picture of each keepsake on it. */
+function keepsakeShelf(b: Buf, x: number, y: number, keepsakes: string[]): void {
+  b.box(x - 2, y - 11, TILE + 4, 26, 'woodSh');
+  for (let s = 0; s < 3; s++) {
+    const sy = y - 9 + s * 8;
+    b.rect(x - 1, sy, TILE + 2, 7, 'wood');
+    b.rect(x - 1, sy + 6, TILE + 2, 1, 'out');
+  }
+  // Two to a shelf, top shelf first.
+  keepsakes.slice(0, 6).forEach((id, i) => {
+    const sx = x + (i % 2) * 8;
+    const sy = y - 9 + Math.floor(i / 2) * 8;
+    (KEEPSAKE_ART[id] ?? genericKeepsake)(b, sx, sy + 6);
+  });
+  for (let i = -1; i < TILE + 1; i++) b.shadow(x + i, y + 15);
+}
+
+type Mini = (b: Buf, x: number, base: number) => void;
+const genericKeepsake: Mini = (b, x, base) => b.box(x + 1, base - 5, 5, 5, 'gold');
+/** Keepsakes are 6px wide and stand on a shelf line at y = base. */
+export const KEEPSAKE_ART: Record<string, Mini> = {
+  mug: (b, x, base) => {
+    b.box(x + 1, base - 5, 4, 5, 'white');
+    b.rect(x + 5, base - 4, 1, 2, 'out');
+    b.rect(x + 2, base - 4, 2, 1, 'top');
+  },
+  plant: (b, x, base) => {
+    b.box(x + 1, base - 3, 5, 3, 'planter');
+    b.rect(x + 1, base - 6, 5, 3, 'leaf');
+    b.set(x + 2, base - 6, 'leafHi');
+  },
+  recipe: (b, x, base) => {
+    b.box(x, base - 6, 6, 6, 'sign');
+    b.rect(x + 1, base - 4, 4, 1, 'ink');
+    b.rect(x + 1, base - 2, 3, 1, 'ink');
+  },
+  stamp: (b, x, base) => {
+    b.box(x, base - 6, 6, 6, 'white');
+    b.rect(x + 1, base - 5, 4, 4, 'postRed');
+    b.set(x + 2, base - 4, 'gold');
+  },
+  daibutsu: (b, x, base) => {
+    b.box(x + 1, base - 3, 5, 3, 'roofC');
+    b.box(x + 2, base - 6, 3, 3, 'roofC');
+    b.set(x + 3, base - 5, 'roofCHi');
+  },
+  omamori: (b, x, base) => {
+    b.box(x + 1, base - 6, 4, 6, 'roofG');
+    b.rect(x + 2, base - 4, 2, 1, 'gold');
+  },
+};
+
+type Piece = (b: Buf, x: number, y: number) => void;
+/** Furniture that stands on the floor, on its own tile at (x, y). */
+export const FLOOR_DECOR: Record<string, Piece> = {
+  hondana: (b, x, y) => {
+    b.ellipseShadow(x + 8, y + 15, 7, 1.5);
+    b.box(x, y - 8, TILE, 23, 'woodSh');
+    const spines: Role[] = ['roofB', 'roofA', 'top2', 'stripe2', 'roofD', 'white', 'navy'];
+    for (let s = 0; s < 3; s++) {
+      const sy = y - 6 + s * 7;
+      b.rect(x + 1, sy, TILE - 2, 6, 'wood');
+      for (let i = 0; i < 6; i++) {
+        const h = 3 + Math.floor(hash(x + i, s, 9) * 3);
+        b.rect(x + 2 + i * 2, sy + 6 - h, 2, h, spines[(i + s * 3) % spines.length]!);
+      }
+      b.rect(x + 1, sy + 6, TILE - 2, 1, 'out');
+    }
+  },
+  kingyo: (b, x, y) => {
+    b.ellipseShadow(x + 8, y + 15, 6, 1.5);
+    b.box(x + 3, y + 7, 10, 8, 'wood');
+    b.rect(x + 4, y + 8, 8, 1, 'woodHi');
+    b.shape(x + 2, y - 5, 12, 12, (px, py) => (px - 5.5) ** 2 + (py - 6) ** 2 <= 30 && py > 1, (px, py) => (py < 4 ? 'glassHi' : px + py < 9 ? 'waterHi' : 'water'));
+    b.rect(x + 5, y + 1, 3, 2, 'lantern');
+    b.set(x + 8, y + 2, 'lantern');
+    b.set(x + 9, y - 1, 'waterHi');
+  },
+  lamp: (b, x, y) => {
+    b.ellipseShadow(x + 8, y + 15, 5, 1.5);
+    b.box(x + 4, y + 11, 8, 4, 'woodSh');
+    b.rect(x + 7, y - 2, 2, 13, 'lamp');
+    b.shape(x + 2, y - 10, 12, 9, (px, py) => px >= Math.max(0, 3 - py / 2) && px <= Math.min(11, 8 + py / 2) && py >= 0 && py < 9, (_px, py) => (py < 3 ? 'lampLight' : 'cream'));
+  },
+  guitar: (b, x, y) => {
+    b.ellipseShadow(x + 8, y + 15, 5, 1.5);
+    b.rect(x + 9, y - 10, 2, 14, 'trunkSh');
+    b.rect(x + 8, y - 12, 4, 3, 'out');
+    b.shape(x + 3, y + 1, 12, 14, (px, py) => ((px - 5.5) / 5.5) ** 2 + ((py - (py < 6 ? 4 : 8.5)) / (py < 6 ? 4 : 5)) ** 2 <= 1, (px) => (px < 4 ? 'roofFHi' : 'roofF'));
+    b.rect(x + 7, y + 7, 3, 3, 'out');
+    b.rect(x + 7, y + 12, 3, 1, 'trunkSh');
+  },
+  tv: (b, x, y) => {
+    b.ellipseShadow(x + 8, y + 15, 7, 1.5);
+    b.box(x + 1, y + 6, 14, 9, 'wood');
+    b.rect(x + 2, y + 7, 12, 1, 'woodHi');
+    b.box(x, y - 7, TILE, 13, 'dark');
+    b.rect(x + 2, y - 5, 12, 9, 'glassSh');
+    b.rect(x + 3, y - 4, 4, 2, 'glassHi');
+    b.rect(x + 7, y + 6, 2, 1, 'out');
+  },
+};
+
+/** Hung on the back wall; mid is the wall's upper band. */
+export const WALL_DECOR: Record<string, (b: Buf, mid: number) => void> = {
+  furin: (b, mid) => {
+    const x = 9 * TILE;
+    b.rect(x + 1, mid + 1, 1, 4, 'out');
+    b.shape(x - 2, mid + 4, 7, 5, (px, py) => py < 5 && Math.abs(px - 3) <= 1 + py, (px) => (px < 3 ? 'glassHi' : 'glass'));
+    b.rect(x + 1, mid + 9, 1, 2, 'out');
+    b.box(x, mid + 11, 3, 6, 'flowerA');
+  },
+  kakejiku: (b, mid) => {
+    const x = 11 * TILE + 3;
+    b.rect(x - 1, mid - 1, 12, 2, 'trunkSh');
+    b.box(x, mid + 1, 10, 22, 'sign');
+    b.rect(x + 4, mid + 4, 2, 9, 'ink');
+    b.rect(x + 3, mid + 7, 4, 1, 'ink');
+    b.rect(x + 3, mid + 15, 2, 2, 'postRed');
+    b.rect(x - 1, mid + 22, 12, 2, 'trunkSh');
+  },
+};
+
+/** Laid on the rug around the low table. */
+export const RUG_DECOR: Record<string, (b: Buf) => void> = {
+  zabuton: (b) => {
+    for (const [x, y] of [[9 * TILE + 3, 6 * TILE + 5], [10 * TILE + 3, 8 * TILE + 1]] as const) {
+      b.box(x, y, 11, 9, 'roofD');
+      b.rect(x + 1, y + 1, 9, 2, 'roofDHi');
+      b.set(x + 5, y + 4, 'gold');
+    }
+  },
+};
+
+function crop(src: Buf, x0: number, y0: number, w: number, h: number): Buf {
+  const out = new Buf(w, h);
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++) {
+      const sx = x0 + x;
+      const sy = y0 + y;
+      if (sx < 0 || sy < 0 || sx >= src.w || sy >= src.h) continue;
+      out.px[y * w + x] = src.px[sy * src.w + sx]!;
+      out.sh[y * w + x] = src.sh[sy * src.w + sx]!;
+    }
+  return out;
+}
+
+/** A small picture of a catalog item or a keepsake, for the catalog and the shelf. */
+export function itemIcon(id: string, kind: 'floor' | 'wall' | 'rug' | 'keepsake'): Buf {
+  const big = new Buf(W, H);
+  if (kind === 'floor') {
+    FLOOR_DECOR[id]?.(big, 4, 14);
+    return crop(big, 0, 0, 24, 32);
+  }
+  if (kind === 'wall') {
+    WALL_DECOR[id]?.(big, 6);
+    return id === 'furin' ? crop(big, 9 * TILE - 10, 0, 24, 32) : crop(big, 11 * TILE - 4, 0, 24, 32);
+  }
+  if (kind === 'rug') {
+    RUG_DECOR[id]?.(big);
+    return crop(big, 9 * TILE - 3, 6 * TILE - 6, 24, 32);
+  }
+  (KEEPSAKE_ART[id] ?? genericKeepsake)(big, 3, 10);
+  return crop(big, 0, 0, 12, 12);
 }

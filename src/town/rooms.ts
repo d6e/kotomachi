@@ -14,9 +14,21 @@ export const ROOM_ROWS = 13;
  * 'S' where the staff stand, '=' counter, 'h' shelf against the wall,
  * 'H' a shelf you can walk round, 'f' fridge, 'm' machine (coffee, register, ticket),
  * 't' table, 'c' chair, 'p' plant, 'n' bench, 'g' ticket gate, 'k' writing desk,
- * 'x' postbox, 'b' bed, 'r' rug (walkable), 'w' low table at home.
+ * 'x' postbox, 'b' bed, 'r' rug (walkable), 'w' low table at home, 'o' something you
+ * bought for your room (drawn from the room's decor list).
  */
-export type RoomCell = ' ' | '#' | '.' | 'D' | 'S' | '=' | 'h' | 'H' | 'f' | 'm' | 't' | 'c' | 'p' | 'n' | 'g' | 'k' | 'x' | 'b' | 'r' | 'w';
+export type RoomCell = ' ' | '#' | '.' | 'D' | 'S' | '=' | 'h' | 'H' | 'f' | 'm' | 't' | 'c' | 'p' | 'n' | 'g' | 'k' | 'x' | 'b' | 'r' | 'w' | 'o';
+
+/** Things in a room you can use: the catalog at the post office, your shelf at home. */
+export type ThingId = 'catalog' | 'shelf' | 'tickets';
+
+/** Something bought for your room, and where it goes. */
+export interface DecorItem {
+  id: string;
+  /** On the floor (blocks walking), hung on the back wall, or laid on the rug. */
+  kind: 'floor' | 'wall' | 'rug';
+  spot?: TilePos;
+}
 
 const WALKABLE: ReadonlySet<string> = new Set(['.', 'D', 'r']);
 
@@ -34,6 +46,12 @@ export interface RoomDef {
   staff?: string;
   /** Where a new day starts (at home). */
   start?: TilePos;
+  /** Furniture you can use, by the cell it stands on. */
+  things?: { cell: RoomCell; id: ThingId }[];
+  /** What you've bought for the room (home only). */
+  decor?: DecorItem[];
+  /** Keepsake ids, shown on the shelf (home only). */
+  keepsakes?: string[];
 }
 
 export const ROOMS: Record<DoorPlace, RoomDef> = {
@@ -153,6 +171,7 @@ export const ROOMS: Record<DoorPlace, RoomDef> = {
     wall: 'cream',
     sign: '切手',
     staff: 'kobayashi',
+    things: [{ cell: 'k', id: 'catalog' }],
     rows: [
       '                    ',
       '                    ',
@@ -173,6 +192,7 @@ export const ROOMS: Record<DoorPlace, RoomDef> = {
     place: 'home',
     floor: 'tatami',
     start: { tx: 10, ty: 5 },
+    things: [{ cell: 'h', id: 'shelf' }],
     wall: 'wall',
     rows: [
       '                    ',
@@ -251,5 +271,58 @@ export function bedSpot(room: RoomDef): TilePos | null {
       if (roomSolid(room, p.tx, p.ty)) continue;
       if (!best || p.ty > best.ty || (p.ty === best.ty && p.tx < best.tx)) best = p;
     }
+  return best;
+}
+
+const ADJ = [[1, 0], [0, 1], [-1, 0], [0, -1]] as const;
+
+/** Your room with what you've bought in it: floor pieces take their tile. */
+export function furnish(room: RoomDef, items: DecorItem[], keepsakes: string[]): RoomDef {
+  const rows = room.rows.map((r) => [...r]);
+  const decor: DecorItem[] = [];
+  for (const it of items) {
+    if (it.kind === 'floor') {
+      if (!it.spot || rows[it.spot.ty]?.[it.spot.tx] !== '.') continue;
+      rows[it.spot.ty]![it.spot.tx] = 'o';
+    }
+    decor.push(it);
+  }
+  return { ...room, rows: rows.map((r) => r.join('')), decor, keepsakes };
+}
+
+/** Which usable thing stands on this tile, if any. */
+export function thingAt(room: RoomDef, tx: number, ty: number): ThingId | null {
+  const c = cellAt(room, tx, ty);
+  return room.things?.find((t) => t.cell === c)?.id ?? null;
+}
+
+/** The usable thing right next to where you stand. */
+export function thingNear(room: RoomDef, at: TilePos): ThingId | null {
+  for (const [dx, dy] of ADJ) {
+    const id = thingAt(room, at.tx + dx, at.ty + dy);
+    if (id) return id;
+  }
+  return null;
+}
+
+/** Where to stand to use a thing: the free tile beside it nearest the door. */
+export function thingSpot(room: RoomDef, id: ThingId): TilePos | null {
+  const t = room.things?.find((x) => x.id === id);
+  if (!t) return null;
+  const door = roomDoor(room);
+  let best: TilePos | null = null;
+  let bestD = Infinity;
+  room.rows.forEach((row, ty) => [...row].forEach((ch, tx) => {
+    if (ch !== t.cell) return;
+    for (const [dx, dy] of ADJ) {
+      const p = { tx: tx + dx, ty: ty + dy };
+      if (roomSolid(room, p.tx, p.ty)) continue;
+      const d = Math.abs(p.tx - door.tx) + Math.abs(p.ty - door.ty);
+      if (d < bestD) {
+        bestD = d;
+        best = p;
+      }
+    }
+  }));
   return best;
 }

@@ -14,14 +14,15 @@ import {
 import { UI } from './palette.ts';
 import { Buf, toCanvas } from './pixels.ts';
 import { drawRoom } from './roomart.ts';
-import { bedSpot, bedTiles, cellAt, roomDoor, roomEntrance, ROOMS, roomSolid, staffSpot, talkSpot, type RoomDef } from './rooms.ts';
+import { bedSpot, bedTiles, cellAt, roomDoor, roomEntrance, ROOMS, roomSolid, staffSpot, talkSpot, thingAt, thingNear, thingSpot, type RoomDef, type ThingId } from './rooms.ts';
 import { KEY, NEIGHBOUR, PLAYER, STAFF, walkFrames, type CharacterArt } from './sprites.ts';
 
 export type Interactable =
   | { kind: 'door'; place: DoorPlace }
   | { kind: 'npc'; id: 'tanaka' }
   | { kind: 'staff'; place: DoorPlace }
-  | { kind: 'bed' };
+  | { kind: 'bed' }
+  | { kind: 'thing'; id: ThingId };
 
 export interface SignInfo {
   text: string;
@@ -40,6 +41,8 @@ export interface TownHooks {
   busy(): boolean;
   /** The name of whoever works at a place (an NPC id), for the hint over your head. */
   staffName(npc: string): string;
+  /** What to call a usable thing in the hint over your head. */
+  thingName(id: ThingId): string;
 }
 
 export interface Actor {
@@ -153,14 +156,26 @@ export class Town {
     this.fade = FADE;
   }
 
+  /** Your room, with whatever you've bought in it. */
+  private home: RoomDef = ROOMS.home;
+
+  setHome(room: RoomDef): void {
+    this.home = room;
+    this.rooms.delete('home');
+  }
+
+  private def(place: DoorPlace): RoomDef {
+    return place === 'home' ? this.home : ROOMS[place];
+  }
+
   private get room(): RoomDef | null {
-    return this.scene ? ROOMS[this.scene] : null;
+    return this.scene ? this.def(this.scene) : null;
   }
 
   /** Go inside a place, just inside its door. */
   enter(place: DoorPlace): void {
     this.scene = place;
-    Object.assign(this.player, actorAt(roomEntrance(ROOMS[place]), 'up'));
+    Object.assign(this.player, actorAt(roomEntrance(this.def(place)), 'up'));
     this.path = [];
     this.then = null;
     this.fade = FADE;
@@ -183,7 +198,7 @@ export class Town {
     this.then = null;
     if (place !== 'tanaka') {
       this.enter(place);
-      const room = ROOMS[place];
+      const room = this.def(place);
       Object.assign(this.player, actorAt(talkSpot(room) ?? bedSpot(room)!, 'up'));
       this.fade = 0;
       return;
@@ -257,6 +272,8 @@ export class Town {
       const talk = talkSpot(room);
       if (talk && same(talk, me)) return { kind: 'staff', place: room.place };
       if (bedTiles(room).some((b) => Math.abs(b.tx - me.tx) + Math.abs(b.ty - me.ty) === 1)) return { kind: 'bed' };
+      const thing = thingNear(room, me);
+      if (thing) return { kind: 'thing', id: thing };
       return null;
     }
     if (this.neighbourOn(this.ahead(this.player))) return { kind: 'npc', id: 'tanaka' };
@@ -280,6 +297,12 @@ export class Town {
       const me = this.tileOf(this.player);
       const b = bedTiles(this.room!).find((t) => Math.abs(t.tx - me.tx) + Math.abs(t.ty - me.ty) === 1);
       if (b) this.player.dir = facingTo(me, b);
+    } else if (target.kind === 'thing') {
+      const me = this.tileOf(this.player);
+      const room = this.room!;
+      for (const d of Object.values(DIRS)) {
+        if (thingAt(room, me.tx + d.dx, me.ty + d.dy) === target.id) this.player.dir = facingTo(me, { tx: me.tx + d.dx, ty: me.ty + d.dy });
+      }
     } else this.player.dir = 'up';
     this.hooks.onInteract(target);
   }
@@ -353,6 +376,12 @@ export class Town {
     if (at === 'b') {
       const spot = bedSpot(room);
       if (spot) this.walkTo(spot, { kind: 'bed' });
+      return;
+    }
+    const thing = thingAt(room, tx, Math.floor(p.y / TILE)) ?? thingAt(room, tx, ty);
+    if (thing) {
+      const spot = thingSpot(room, thing);
+      if (spot) this.walkTo(spot, { kind: 'thing', id: thing });
       return;
     }
     // The door, or the wall either side of it, walks out.
@@ -509,7 +538,7 @@ export class Town {
     const then = this.then;
     if (!then) return;
     this.then = null;
-    if (then.kind === 'staff' || then.kind === 'bed') {
+    if (then.kind === 'staff' || then.kind === 'bed' || then.kind === 'thing') {
       const near = this.nearby();
       if (near?.kind === then.kind) this.interact(near);
       return;
@@ -622,7 +651,7 @@ export class Town {
   private roomArt(place: DoorPlace): { base: HTMLCanvasElement; front: HTMLCanvasElement; signs: SignSpot[] } {
     let r = this.rooms.get(place);
     if (!r) {
-      const art = drawRoom(ROOMS[place], (t) => this.measure(t));
+      const art = drawRoom(this.def(place), (t) => this.measure(t));
       r = { base: toCanvas(art.base), front: toCanvas(art.front), signs: art.signs };
       this.rooms.set(place, r);
     }
@@ -727,6 +756,7 @@ export class Town {
     if (near.kind === 'npc') label = '田中さん';
     else if (near.kind === 'bed') label = 'Sleep';
     else if (near.kind === 'staff') label = this.hooks.staffName(ROOMS[near.place].staff ?? '');
+    else if (near.kind === 'thing') label = this.hooks.thingName(near.id);
     else label = this.hooks.sign(buildingFor(near.place).sign).text;
     this.bubble(`Space ▶ ${label}`, Math.round(p.px) - cam + TILE / 2, Math.round(p.py) - SPRITE_LIFT - 3);
   }

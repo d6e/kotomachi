@@ -12,6 +12,8 @@ import { Town, type Interactable } from '../town/town.ts';
 import type { DoorPlace } from '../town/map.ts';
 import { toCanvas } from '../town/pixels.ts';
 import { drawScene } from '../town/scenes.ts';
+import { itemIcon } from '../town/roomart.ts';
+import { allKeepsakes, canOrder, CATALOG, catalogById, homeRoom } from './room.ts';
 import { DialogueView } from '../ui/dialogue.ts';
 import { clear, h } from '../ui/dom.ts';
 import { coins, confetti, countUp, floatText, play, wait } from '../ui/fx.ts';
@@ -35,7 +37,7 @@ const SCENARIO_FOR: Record<Exclude<DoorPlace, 'home'>, string> = {
 const MINUTES_PER_SECOND = 1;
 const MINUTES_PER_SCENARIO = 20;
 
-type Phase = 'title' | 'morning' | 'town' | 'talk' | 'gift' | 'oops' | 'night';
+type Phase = 'title' | 'morning' | 'town' | 'talk' | 'gift' | 'oops' | 'shop' | 'night';
 
 export class Game {
   private readonly input = new Input();
@@ -77,6 +79,7 @@ export class Game {
       neighborAvailable: () => !this.g.today.greeted && this.g.minutes < 21 * 60,
       busy: () => this.phase !== 'town' || this.notebook.open || this.popup.open,
       staffName: (npc) => (npcs[npc as keyof typeof npcs] ? plainText(parseLine(npcs[npc as keyof typeof npcs].name, vocab)) : ''),
+      thingName: (id) => ({ catalog: 'カタログ', shelf: '棚', tickets: '切符' })[id],
     });
     const game = this;
     this.popup = new Popup(root, {
@@ -276,6 +279,7 @@ export class Game {
     this.combo = 0;
     this.shownDone = new Set(g.errands.filter((e) => e.done).map((e) => `${e.scenario}/${e.variant}`));
     this.learner = new Learner(this.g.learner, vocab);
+    this.refreshHome();
     this.town.invalidate();
     this.town.resetPlayer();
     if (this.g.errands.length === 0) this.planDay();
@@ -338,6 +342,11 @@ export class Game {
     if (this.phase !== 'town') return;
     if (t.kind === 'npc') return this.startScenario(scenarioById['neighbor_greet']!);
     if (t.kind === 'bed') return this.confirmSleep();
+    if (t.kind === 'thing') {
+      if (t.id === 'catalog') return this.showCatalog();
+      if (t.id === 'shelf') return this.showShelf();
+      return;
+    }
     if (t.place === 'home') return this.town.enter('home');
     if (!isOpen(t.place, this.g.minutes)) {
       this.toast(`準備中: the ${PLACE_NAMES[t.place]!.toLowerCase()} is closed right now.`);
@@ -348,11 +357,11 @@ export class Game {
     this.startScenario(scenarioById[SCENARIO_FOR[t.place]]!);
   }
 
-  private startScenario(def: ScenarioDef): void {
+  private startScenario(def: ScenarioDef, variantId?: string): void {
     // Words already met before this conversation: only these can "level up" at its end.
     this.metBefore = new Set(vocab.all().filter((e) => this.learner.status(e.id) !== 'unseen').map((e) => e.id));
     const errand = this.g.errands.find((e) => e.scenario === def.id && !e.done && !e.missed);
-    const variant = def.variants.find((v) => v.id === errand?.variant) ?? pickVariant(def, this.learner, vocab, this.g.day + this.g.minutes);
+    const variant = def.variants.find((v) => v.id === (variantId ?? errand?.variant)) ?? pickVariant(def, this.learner, vocab, this.g.day + this.g.minutes);
     if (variant.price && variant.price > this.g.money) {
       this.toast("You don't have enough money for that.");
       return;
@@ -449,6 +458,12 @@ export class Game {
       if (after > before) this.g.today.promotions.push(`ゆき now treats you as a${after === 1 ? 'n' : ''} ${FRIENDSHIP_NAMES[after]}.`);
     }
     if (def.id === 'neighbor_greet') this.g.today.greeted = true;
+    // A catalog order: it's in your room when you get home.
+    const ordered = def.id === 'post_catalog' && run.ended && !run.consequence ? catalogById[run.variant.id] : undefined;
+    if (ordered && !this.g.furniture.includes(ordered.id)) {
+      this.g.furniture.push(ordered.id);
+      this.refreshHome();
+    }
 
     const progress = progressFor(this.g, def.id);
     const { progress: next, promoted } = finishRun(progress, run.clean, def.maxStage);
@@ -460,6 +475,8 @@ export class Game {
       this.celebrate(2.5, 50);
     } else if (scene) {
       // The scene says it all.
+    } else if (ordered) {
+      this.toast(`Ordered: ${vocab.get(ordered.word)?.meaning ?? ordered.word}. It'll be in your room when you get home.`);
     } else if (run.clean) {
       this.toast(next.stage >= def.maxStage ? 'Clean visit.' : `Clean visit (${next.cleanRuns}/3 to the next stage).`);
     } else {
@@ -548,9 +565,74 @@ export class Game {
     if (fresh) this.addXp(fresh * XP.newWord);
   }
 
+  /** Your room, redrawn with what you own. */
+  private refreshHome(): void {
+    this.town.setHome(homeRoom(this.g.furniture, this.g.keepsakes));
+  }
+
+  private icon(id: string, kind: 'floor' | 'wall' | 'rug' | 'keepsake'): HTMLCanvasElement {
+    const c = toCanvas(itemIcon(id, kind));
+    c.className = `item-icon ${kind}`;
+    return c;
+  }
+
+  /** The catalog on the post office desk: things for your room, ordered at the counter. */
+  private showCatalog(): void {
+    this.phase = 'shop';
+    const level = levelFor(this.g.xp);
+    const rows = CATALOG.map((it) => {
+      const state = canOrder(it, this.g.furniture, level, this.g.money);
+      const tokens = parseLine(it.word, vocab);
+      this.seeAll(tokens, 'post', 'kobayashi');
+      const word = renderTokens(tokens, { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false), isNew: (t) => this.learner.isFresh(t.lemma) });
+      const action = state === 'ok'
+        ? h('button', { class: 'primary small', onclick: () => this.order(it.id) }, 'Order')
+        : h('span', { class: `cat-state ${state}` }, state === 'owned' ? 'In your room' : state === 'level' ? `Needs Lv ${it.level}` : 'Not enough ¥');
+      return h('li', { class: `cat-item ${state}` },
+        this.icon(it.id, it.kind),
+        h('div', { class: 'cat-word' }, word, h('div', { class: 'muted' }, vocab.get(it.word)?.meaning ?? '')),
+        h('div', { class: 'cat-buy' }, h('div', { class: 'cat-price' }, yen(it.price)), action),
+      );
+    });
+    this.showScreen(
+      h('h2', {}, 'カタログ'),
+      h('p', { class: 'muted' }, `Things for your room. Pick one and order it from 小林さん at the counter, in Japanese. You have ${yen(this.g.money)}.`),
+      h('ul', { class: 'catalog' }, rows),
+      h('div', { class: 'row' }, h('button', { onclick: () => this.goToTown() }, 'Close')),
+    );
+  }
+
+  private order(id: string): void {
+    this.hideScreen();
+    this.phase = 'town';
+    this.startScenario(scenarioById['post_catalog']!, id);
+  }
+
+  /** Your shelf at home: every keepsake, and its word. */
+  private showShelf(): void {
+    this.phase = 'shop';
+    const all = allKeepsakes(requests);
+    const mine = all.filter((k) => this.g.keepsakes.includes(k.id));
+    const items = mine.map((k) => h('li', { class: 'shelf-item' },
+      this.icon(k.id, 'keepsake'),
+      h('div', { class: 'cat-word' },
+        renderTokens(parseLine(k.word, vocab), { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false), isNew: (t) => this.learner.isFresh(t.lemma) }),
+        h('div', { class: 'muted' }, `${vocab.get(k.word)?.meaning ?? ''} · from `, this.tokens(npcs[k.from as NpcId]?.name ?? k.from, false))),
+    ));
+    this.showScreen(
+      h('h2', {}, '棚'),
+      mine.length
+        ? h('ul', { class: 'catalog shelf' }, items)
+        : h('p', {}, 'Nothing here yet. When a neighbour\'s story ends, they give you something to keep, and it goes on this shelf.'),
+      h('p', { class: 'muted' }, `${mine.length} of ${all.length} keepsakes. Things for the rest of the room are in the catalog at the post office.`),
+      h('div', { class: 'row' }, h('button', { onclick: () => this.goToTown() }, 'Close')),
+    );
+  }
+
   /** The end of a regular's story: their thanks and a keepsake. */
   private showGift(arc: (typeof requests.arcs)[number]): void {
     if (!this.g.keepsakes.includes(arc.gift.id)) this.g.keepsakes.push(arc.gift.id);
+    this.refreshHome();
     this.g.today.promotions.push(`A gift from ${plainText(parseLine(npcs[arc.from].name, vocab))}: ${vocab.get(arc.gift.word)?.meaning ?? arc.gift.word}.`);
     this.phase = 'gift';
     const word = renderTokens(parseLine(arc.gift.word, vocab), { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false), isNew: (t) => this.learner.isFresh(t.lemma) });

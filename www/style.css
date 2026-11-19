@@ -173,6 +173,25 @@ ruby.no-furi rt { visibility: hidden; }
 }
 .gift-word { font-size: 34px; line-height: 1.8; }
 
+/* The catalog at the post office, and your shelf at home. */
+.catalog { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 8px; }
+.cat-item, .shelf-item {
+  display: grid; grid-template-columns: 48px 1fr auto; gap: 10px; align-items: center;
+  background: #fffaf0; border: 2px solid var(--line); border-radius: 10px; padding: 6px 10px;
+}
+.shelf-item { grid-template-columns: 36px 1fr; }
+.cat-item.owned { background: #f2fbf4; border-color: #9fd8ae; }
+.cat-item.level { opacity: 0.6; }
+.item-icon { width: 48px; image-rendering: pixelated; }
+.item-icon.keepsake { width: 36px; }
+.cat-word { font-size: 21px; line-height: 1.9; }
+.cat-word .muted { font-size: 13px; line-height: 1.3; }
+.cat-buy { display: grid; justify-items: end; gap: 4px; }
+.cat-price { font-weight: 800; color: var(--frame); }
+.cat-state { font-size: 12px; font-weight: 800; color: var(--muted); }
+.cat-state.owned { color: var(--good); }
+button.small { padding: 4px 12px; font-size: 14px; }
+
 /* A wrong pick played out: a little picture, the lines, then what would have worked. */
 .errands li.missed .jp, .errands li.missed .asker { opacity: 0.55; }
 .errands li.missed .box { background: #ffe9a8; color: var(--out); }

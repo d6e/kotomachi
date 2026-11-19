@@ -1,0 +1,232 @@
+{
+  "id": "post_catalog",
+  "title": "Ordering from the catalog",
+  "place": "post",
+  "npc": "kobayashi",
+  "maxStage": 4,
+  "start": "order",
+  "variants": [
+    {
+      "id": "zabuton",
+      "price": 1200,
+      "slots": {
+        "item": "座布団",
+        "item_en": "floor cushion"
+      }
+    },
+    {
+      "id": "furin",
+      "price": 900,
+      "slots": {
+        "item": "風鈴",
+        "item_en": "wind chime"
+      }
+    },
+    {
+      "id": "kakejiku",
+      "price": 2500,
+      "slots": {
+        "item": "掛け軸",
+        "item_en": "hanging scroll"
+      }
+    },
+    {
+      "id": "hondana",
+      "price": 3000,
+      "slots": {
+        "item": "本棚",
+        "item_en": "bookcase"
+      }
+    },
+    {
+      "id": "kingyo",
+      "price": 1800,
+      "slots": {
+        "item": "金魚",
+        "item_en": "goldfish"
+      }
+    },
+    {
+      "id": "lamp",
+      "price": 2000,
+      "slots": {
+        "item": "ランプ",
+        "item_en": "lamp"
+      }
+    },
+    {
+      "id": "guitar",
+      "price": 6000,
+      "slots": {
+        "item": "ギター",
+        "item_en": "guitar"
+      }
+    },
+    {
+      "id": "tv",
+      "price": 8000,
+      "slots": {
+        "item": "テレビ",
+        "item_en": "television"
+      }
+    }
+  ],
+  "nodes": {
+    "order": {
+      "line": "カタログ の ご注文=注文 です か ？",
+      "gloss": "Is this a catalog order?",
+      "targets": [
+        "カタログ",
+        "注文",
+        "一つ"
+      ],
+      "grammar": [
+        "wo_object",
+        "hitotsu"
+      ],
+      "choices": [
+        {
+          "text": "はい 、 $item を 一つ お願いします=お願いする 。",
+          "gloss": "Yes, one $item_en, please.",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 $item が 一つ お願いします=お願いする 。",
+          "gloss": "(wrong particle)",
+          "result": "npc_puzzled",
+          "reaction": "$item を 一つ 、 です ね ？",
+          "note": "The thing you order takes を: 座布団を一つお願いします.",
+          "grammar": "wo_object"
+        },
+        {
+          "text": "はい 、 $item を 一つ 食べます=食べる 。",
+          "gloss": "Yes, I'll eat one $item_en.",
+          "result": "npc_amused",
+          "reaction": "ふふ 。 $item を 一つ 、 です ね ？",
+          "note": "食べます means eat. To order something, say をお願いします.",
+          "grammar": "onegai"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "$item",
+            "を",
+            "一つ",
+            "お願いします=お願いする"
+          ]
+        ],
+        "decoys": [
+          "が",
+          "二つ",
+          "食べます=食べる"
+        ]
+      },
+      "blank": {
+        "before": "$item を",
+        "after": "お願いします=お願いする 。",
+        "answers": [
+          "ひとつ"
+        ]
+      },
+      "recast": "ご注文=注文 は ？",
+      "next": {
+        "success": "price"
+      }
+    },
+    "price": {
+      "line": "$item は $price 円 です 。 よろしい です か ？",
+      "gloss": "The $item_en is ¥$price. Is that all right?",
+      "targets": [
+        "円",
+        "よろしい"
+      ],
+      "grammar": [
+        "yoroshii"
+      ],
+      "effects": {
+        "pay": true
+      },
+      "choices": [
+        {
+          "text": "はい 、 お願いします=お願いする 。",
+          "gloss": "Yes, please.",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 よろしい です 。",
+          "gloss": "Yes, it is acceptable.",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 はい 。",
+          "note": "よろしいですか is how staff ask politely. To say yes, answer はい、お願いします.",
+          "grammar": "yoroshii"
+        },
+        {
+          "text": "いいえ 、 お願いします=お願いする 。",
+          "gloss": "No, please.",
+          "result": "npc_confused",
+          "reaction": "えっと … はい 、 です か ？",
+          "note": "いいえ means no. To agree, say はい、お願いします.",
+          "grammar": "onegai"
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "はい 、",
+            "お願いします=お願いする"
+          ]
+        ],
+        "decoys": [
+          "いいえ 、",
+          "よろしい",
+          "です"
+        ]
+      },
+      "blank": {
+        "before": "はい 、",
+        "after": "。",
+        "answers": [
+          "おねがいします"
+        ]
+      },
+      "recast": "よろしい です か ？",
+      "next": {
+        "success": "deliver"
+      }
+    },
+    "deliver": {
+      "line": "ありがとうございます 。 部屋 に 届けます=届ける ね 。",
+      "gloss": "Thank you. I'll have it delivered to your room.",
+      "targets": [
+        "部屋",
+        "届ける"
+      ],
+      "maxMode": 2,
+      "choices": [
+        {
+          "text": "ありがとうございます 。",
+          "gloss": "Thank you.",
+          "result": "success"
+        },
+        {
+          "text": "いただきます 。",
+          "gloss": "(said before eating)",
+          "result": "npc_amused",
+          "reaction": "ふふ 。",
+          "note": "いただきます is for just before you eat. To thank someone, say ありがとうございます.",
+          "grammar": "itadakimasu"
+        },
+        {
+          "text": "おはようございます 。",
+          "gloss": "Good morning.",
+          "result": "npc_puzzled",
+          "reaction": "え ？ … はい 。",
+          "note": "おはようございます is a morning greeting. To thank someone, say ありがとうございます.",
+          "grammar": "greetings_time"
+        }
+      ],
+      "end": true
+    }
+  }
+}

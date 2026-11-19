@@ -48,6 +48,8 @@ export interface GameData {
   arcs: Record<string, number>;
   /** Things you've been given or brought home, by id. */
   keepsakes: string[];
+  /** Catalog items you've bought for your room. */
+  furniture: string[];
   /** Every correction so far, newest last, with the day it happened. */
   corrections: (Correction & { day: number })[];
   grammarSeen: string[];
@@ -72,6 +74,7 @@ export function newGame(): GameData {
     errands: [],
     arcs: {},
     keepsakes: [],
+    furniture: [],
     corrections: [],
     grammarSeen: [],
     today: newDayLog({ yuki: 0 }),

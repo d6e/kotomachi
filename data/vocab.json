@@ -1972,5 +1972,71 @@
   "reading": "からさ",
   "meaning": "spiciness, spice level",
   "pos": "noun"
+ },
+ {
+  "id": "座布団",
+  "reading": "ざぶとん",
+  "meaning": "floor cushion",
+  "pos": "noun"
+ },
+ {
+  "id": "風鈴",
+  "reading": "ふうりん",
+  "meaning": "wind chime",
+  "pos": "noun"
+ },
+ {
+  "id": "掛け軸",
+  "reading": "かけじく",
+  "meaning": "hanging scroll",
+  "pos": "noun"
+ },
+ {
+  "id": "本棚",
+  "reading": "ほんだな",
+  "meaning": "bookcase",
+  "pos": "noun"
+ },
+ {
+  "id": "金魚",
+  "reading": "きんぎょ",
+  "meaning": "goldfish",
+  "pos": "noun"
+ },
+ {
+  "id": "ランプ",
+  "reading": "ランプ",
+  "meaning": "lamp",
+  "pos": "noun"
+ },
+ {
+  "id": "ギター",
+  "reading": "ギター",
+  "meaning": "guitar",
+  "pos": "noun"
+ },
+ {
+  "id": "テレビ",
+  "reading": "テレビ",
+  "meaning": "television",
+  "pos": "noun"
+ },
+ {
+  "id": "カタログ",
+  "reading": "カタログ",
+  "meaning": "catalog",
+  "pos": "noun"
+ },
+ {
+  "id": "部屋",
+  "reading": "へや",
+  "meaning": "room",
+  "pos": "noun"
+ },
+ {
+  "id": "届ける",
+  "reading": "とどける",
+  "meaning": "to deliver; 届けます = we'll deliver it",
+  "pos": "verb (ru)"
  }
 ]
