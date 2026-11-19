@@ -95,10 +95,16 @@ button:disabled { opacity: 0.35; cursor: default; }
 /* ----------------------------------------------------------------- Japanese text */
 
 .jp { font-family: var(--jp); }
-ruby { ruby-position: over; ruby-align: center; }
+/* Furigana floats above its kanji and never widens it, so ご注文 stays flush
+   in every browser (Safari otherwise pads the base to the reading's width). */
+ruby { display: inline-block; position: relative; line-height: 1; text-indent: 0; }
 /* Keep each word on one line; lines break between words. */
 .tok { white-space: nowrap; }
-rt { font-size: 0.55em; color: #5f5878; font-weight: 400; }
+rt {
+  position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); margin-bottom: 0.08em;
+  display: block; font-size: 0.55em; line-height: 1; white-space: nowrap; text-align: center;
+  color: #5f5878; font-weight: 400; letter-spacing: 0;
+}
 ruby.no-furi rt { visibility: hidden; }
 .tok.word { cursor: pointer; border-radius: 3px; }
 .tok.word:hover { background: rgba(63, 111, 200, 0.12); box-shadow: 0 2px 0 rgba(63, 111, 200, 0.6); }
@@ -156,7 +162,7 @@ ruby.no-furi rt { visibility: hidden; }
 .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; }
 .promos { padding-left: 20px; color: var(--good); font-weight: 700; }
 .night-words { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 4px 12px; }
-.night-words li { display: flex; gap: 8px; align-items: baseline; font-size: 18px; }
+.night-words li { display: flex; gap: 8px; align-items: baseline; font-size: 18px; padding-top: 0.5em; }
 
 .toast {
   position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
@@ -178,7 +184,8 @@ ruby.no-furi rt { visibility: hidden; }
   border-radius: 8px; border: 2px solid var(--out); box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
 }
 .dlg-header .who > .jp rt { color: #fff; }
-.dlg-header .place { font-size: 11px; font-weight: 700; color: var(--frame); text-transform: uppercase; letter-spacing: 0.08em; }
+/* A name with furigana gets a taller tag so the reading sits inside it. */
+.dlg-header .who > .jp:has(rt) { line-height: 1.5; padding-top: 11px; padding-bottom: 2px; margin-top: -10px; }
 .dlg-header .stage { font-size: 12px; color: var(--muted); display: flex; gap: 10px; align-items: center; padding-top: 6px; }
 .dlg-header .stage.fallback::after { content: "·"; }
 .gloss-toggle { display: inline-flex; gap: 4px; align-items: center; cursor: pointer; color: var(--ink); font-weight: 700; }
@@ -189,10 +196,11 @@ ruby.no-furi rt { visibility: hidden; }
 .bubble.me { background: var(--me); align-self: flex-end; border: 2px solid #ffc4a0; border-bottom-right-radius: 3px; }
 .bubble.me.wrong { background: #fde8e6; border-color: #f2a7a0; }
 .bubble.reaction { background: #fff8e2; border-color: #f4d58a; }
-/* A small bouncing arrow on the line you're answering. */
-.bubble.npc.latest:not(.typing)::after {
-  content: "▼"; color: var(--accent); font-size: 12px; margin-left: 6px; display: inline-block;
-  animation: more 0.9s steps(2) infinite;
+/* A small bouncing ▼ in the window's corner, only when there's a next line to
+   advance to (nothing to pick) and the current line has finished typing. */
+.dialogue.advance:not(.typing-now)::after {
+  content: "▼"; position: absolute; right: 18px; bottom: 12px; color: var(--accent); font-size: 14px;
+  line-height: 1; pointer-events: none; animation: more 0.9s steps(2) infinite;
 }
 @keyframes more { 50% { transform: translateY(3px); } }
 .gloss { display: none; font-size: 13px; color: var(--muted); line-height: 1.4; font-family: var(--ui); }
@@ -230,7 +238,7 @@ input.blank:focus { outline: none; background: #fff8f2; }
 
 .popup { position: fixed; z-index: 50; width: min(320px, calc(100vw - 16px)); padding: 12px 14px; }
 .popup-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.popup-word { font-size: 28px; line-height: 1.7; white-space: nowrap; }
+.popup-word { font-size: 28px; line-height: 1.7; white-space: nowrap; padding-top: 0.3em; }
 .popup-reading { font-family: var(--jp); font-size: 16px; color: #4a4260; }
 .popup-meaning { font-size: 16px; font-weight: 700; margin-top: 2px; }
 .popup-pos { font-size: 12px; color: var(--muted); }
@@ -264,7 +272,7 @@ input.blank:focus { outline: none; background: #fff8f2; }
 .nb-group .role { font-weight: 400; color: var(--muted); font-size: 13px; }
 .nb-group ul { list-style: none; margin: 0; padding: 0; }
 .nb-word { display: grid; grid-template-columns: minmax(120px, auto) 1fr auto auto; gap: 10px; align-items: center; padding: 3px 0; border-bottom: 1px solid var(--line); }
-.nb-jp { font-size: 20px; line-height: 1.8; }
+.nb-jp { font-size: 20px; line-height: 1.8; padding-top: 0.45em; }
 .nb-meaning { color: #4a4260; font-size: 14px; }
 .nb-lookups { font-size: 11px; color: var(--muted); }
 .empty { color: var(--muted); }
@@ -298,5 +306,5 @@ input.blank:focus { outline: none; background: #fff8f2; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .choice.sel .cursor, .bubble.npc.latest::after { animation: none; }
+  .choice.sel .cursor, .dialogue.advance::after { animation: none; }
 }

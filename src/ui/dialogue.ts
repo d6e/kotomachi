@@ -63,6 +63,7 @@ export class DialogueView {
   close(): void {
     this.finishTyping();
     this.el.hidden = true;
+    this.el.classList.remove('advance', 'typing-now');
     if (this.keyHandler) window.removeEventListener('keydown', this.keyHandler);
     this.keyHandler = null;
     this.run = null;
@@ -168,6 +169,7 @@ export class DialogueView {
     }
     if (!units.length) return;
     b.classList.add('typing');
+    this.el.classList.add('typing-now');
     this.typing.push({ bubble: b, units });
     this.input.classList.add('pending');
     if (this.typeTimer === null) this.tick(0);
@@ -203,6 +205,7 @@ export class DialogueView {
     if (this.typeTimer !== null) window.clearTimeout(this.typeTimer);
     this.typeTimer = null;
     this.typing = [];
+    this.el.classList.remove('typing-now');
     this.input.classList.remove('pending');
     this.log.scrollTop = this.log.scrollHeight;
     this.input.querySelector<HTMLElement>('input.blank, button.primary')?.focus();
@@ -226,7 +229,7 @@ export class DialogueView {
             ' English')
         : null;
     this.header.append(
-      h('div', { class: 'who' }, name, h('span', { class: 'place' }, hooks.placeName)),
+      h('div', { class: 'who' }, name),
       h('div', { class: 'stage' + (view.fallback ? ' fallback' : '') }, MODE_NAMES[view.mode], glossToggle),
     );
     this.el.classList.toggle('show-gloss', hooks.glossOn());
@@ -236,6 +239,7 @@ export class DialogueView {
     const run = this.run!;
     const hooks = this.hooks!;
     if (run.ended) {
+      this.el.classList.remove('advance');
       clear(this.input);
       const leave = h('button', { class: 'primary', onclick: () => {
         const r = this.run!;
@@ -254,6 +258,8 @@ export class DialogueView {
       hooks.seen(view.line);
     }
     clear(this.input);
+    // ▼ only when the next step is just "advance": no menu, tiles or blank to fill.
+    this.el.classList.toggle('advance', view.mode === 0);
     if (view.mode === 0) this.renderContinue();
     else if (view.mode === 1 || view.mode === 2) this.renderChoices(view);
     else if (view.mode === 3) this.renderTiles(view);
