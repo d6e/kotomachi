@@ -293,11 +293,7 @@ export class Game {
       h('p', { class: 'lede' }, 'A small shopping street where every errand is a Japanese lesson.'),
       h('div', { class: 'row' },
         saved ? h('button', { class: 'primary', onclick: () => this.begin(saved) }, `Continue (day ${saved.day})`) : null,
-        h('button', { class: saved ? '' : 'primary', onclick: () => {
-          if (saved && !confirm('Start over? Your saved game will be replaced when you next sleep.')) return;
-          clearSave();
-          this.begin(newGame());
-        } }, 'New game'),
+        h('button', { class: saved ? '' : 'primary', onclick: () => (saved ? this.confirmNewGame(saved.day) : this.startNewGame()) }, 'New game'),
       ),
       h('ul', { class: 'howto' },
         h('li', {}, 'Walk with the arrow keys or WASD, or tap where you want to go. Walk into a door (or tap a shop) to go inside, then talk to whoever works there.'),
@@ -307,6 +303,29 @@ export class Game {
       ),
     ];
     this.showScreen(...card);
+  }
+
+  /**
+   * Asked on the page itself: the game runs in a sandboxed frame where the browser's
+   * confirm() is blocked and returns false at once, so it must never be used.
+   */
+  private ask(question: string, yes: string, no: string, onYes: () => void, onNo: () => void): void {
+    this.showScreen(
+      h('p', { class: 'ask' }, question),
+      h('div', { class: 'row' },
+        h('button', { onclick: onNo }, no),
+        h('button', { class: 'primary', onclick: onYes }, yes),
+      ),
+    );
+  }
+
+  private confirmNewGame(day: number): void {
+    this.ask(`Start over from day 1? Your saved game (day ${day}) will be deleted.`, 'Start over', 'Keep my game', () => this.startNewGame(), () => this.showTitle());
+  }
+
+  private startNewGame(): void {
+    clearSave();
+    this.begin(newGame());
   }
 
   private begin(g: GameData): void {
@@ -448,8 +467,9 @@ export class Game {
     if (this.phase !== 'town') return;
     const left = this.g.errands.filter((e) => !e.done && !e.missed).length;
     const where = stayPhase(this.g) === 'tonight' ? 'Go to bed at the ryokan' : 'Go home';
-    if (left > 0 && !confirm(`${left} errand${left === 1 ? '' : 's'} left. ${where} and end the day?`)) return;
-    this.goToNight();
+    if (left === 0) return this.goToNight();
+    this.phase = 'shop';
+    this.ask(`${left} errand${left === 1 ? '' : 's'} left. ${where} and end the day?`, where, 'Not yet', () => this.goToNight(), () => this.goToTown());
   }
 
   private interact(t: Interactable): void {

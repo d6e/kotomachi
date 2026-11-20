@@ -246,6 +246,7 @@ button.small { padding: 4px 12px; font-size: 14px; }
 }
 .card h3 { margin: 18px 0 6px; font-size: 15px; color: var(--frame); }
 .lede { font-size: 17px; margin-top: 0; }
+.ask { font-size: 17px; margin: 4px 0 0; }
 .muted { color: var(--muted); font-size: 13px; }
 .howto { color: #4a4260; padding-left: 0; list-style: none; }
 .howto li { margin: 6px 0; padding-left: 20px; position: relative; }
