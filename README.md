@@ -30,6 +30,7 @@ npm run dev        # http://127.0.0.1:8000, rebuilds on save
 - **Look a word up:** click or tap it, in dialogue, on signs, in the errands list or in the notebook.
 - **Read:** lines type out a letter at a time. Enter, Space or a click on the text shows the whole line at once.
 - **Answer:** move the ▶ with the arrow keys and press Enter, or click a row, or press its number. With tiles, tap them in order, then press "Say it". In a fill-in blank, type romaji and press Enter. Capital letters give katakana, so `HOTTO` gives ホット.
+- **On a phone held upright:** a d-pad and two buttons sit along the bottom while you walk about. Hold the d-pad and slide your thumb round to walk, A does what Space does (talk, go in, use), B opens the notebook. "Hide controls ▾" slides them away and "Controls ▴" brings them back; the phone remembers which. They step aside during conversations, cards and the notebook, where you tap instead. They press the same keys as a keyboard (src/ui/pad.ts).
 - **Notebook:** N, or the Notebook button. **Go home:** the button, or go into the アパート and press Space by the bed. Each day starts in your room.
 
 ## How it fits together

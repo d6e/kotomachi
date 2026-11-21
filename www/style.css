@@ -650,3 +650,66 @@ input.blank:focus { outline: none; background: #fff8f2; }
   .face.face-hop, .face.face-shake, .dialogue.miss-flash { animation: none; }
   .judge { animation: fade-out-still 1.1s ease-in forwards; transform: translate(-50%, -50%); }
 }
+
+/* ----------------------------------------------------------------- touch controls */
+
+/* A d-pad and two buttons along the bottom on a phone held upright, with a tab to
+   slide them away. The game shows them only while you're walking about. */
+:root { --pad-h: 186px; }
+.pad-layer {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; pointer-events: none;
+  padding: 0 14px max(12px, env(safe-area-inset-bottom));
+}
+.pad-layer > * { pointer-events: auto; }
+.pad, .pad-toggle { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+.pad { display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none; transition: transform 0.22s ease-out, opacity 0.22s; }
+.pad > * { pointer-events: auto; }
+.pad-layer.closed .pad { transform: translateY(calc(100% + 24px)); opacity: 0; pointer-events: none; visibility: hidden; }
+.pad-toggle {
+  display: block; margin: 0 auto 8px; padding: 4px 14px; font-size: 12px; border-radius: 999px;
+  touch-action: manipulation; box-shadow: 0 0 0 2px var(--out), 2px 3px 0 2px rgba(0, 0, 0, 0.3);
+  background: var(--panel); border: 2px solid var(--frame);
+}
+.pad-layer.closed .pad-toggle { position: absolute; right: 14px; bottom: max(12px, env(safe-area-inset-bottom)); margin: 0; padding: 8px 16px; font-size: 14px; }
+
+/* The d-pad: one round pad you press and slide your thumb across. */
+.pad-dpad {
+  position: relative; width: 138px; height: 138px; border-radius: 50%; touch-action: none;
+  background: rgba(255, 255, 255, 0.92); border: 3px solid var(--frame);
+  box-shadow: inset 0 0 0 2px var(--rim), 0 0 0 2px var(--out), 3px 4px 0 2px rgba(0, 0, 0, 0.3);
+}
+.pad-arm, .pad-hub { position: absolute; background: var(--out); pointer-events: none; }
+.pad-hub { left: 50%; top: 50%; width: 40px; height: 40px; transform: translate(-50%, -50%); }
+.pad-arm { width: 40px; height: 40px; border-radius: 7px; }
+.pad-arm::after { content: ""; position: absolute; left: 50%; top: 50%; border: 7px solid transparent; transform: translate(-50%, -50%); }
+.pad-up { left: 46px; top: 8px; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.pad-down { left: 46px; bottom: 8px; border-top-left-radius: 0; border-top-right-radius: 0; }
+.pad-left { top: 46px; left: 8px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.pad-right { top: 46px; right: 8px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.pad-up::after { border-bottom-color: #fff; margin-top: -4px; }
+.pad-down::after { border-top-color: #fff; margin-top: 4px; }
+.pad-left::after { border-right-color: #fff; margin-left: -4px; }
+.pad-right::after { border-left-color: #fff; margin-left: 4px; }
+.pad-dpad[data-dir="up"] .pad-up, .pad-dpad[data-dir="down"] .pad-down,
+.pad-dpad[data-dir="left"] .pad-left, .pad-dpad[data-dir="right"] .pad-right { background: var(--accent); }
+
+.pad-buttons { display: flex; gap: 12px; align-items: flex-end; padding-bottom: 6px; }
+.pad-btn {
+  width: 72px; height: 72px; border-radius: 50%; padding: 0; touch-action: none;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1;
+  border: 3px solid var(--out); box-shadow: inset 0 -4px 0 #d9e3f6, 3px 4px 0 rgba(0, 0, 0, 0.3);
+}
+.pad-btn b { font-size: 24px; }
+.pad-btn small { font-size: 11px; font-weight: 700; }
+.pad-a { width: 82px; height: 82px; margin-bottom: 26px; background: var(--accent); color: var(--accent-ink); box-shadow: inset 0 -4px 0 var(--accent-dk), 3px 4px 0 rgba(0, 0, 0, 0.3); }
+.pad-btn.on { transform: translateY(2px); box-shadow: inset 0 3px 0 rgba(0, 0, 0, 0.15); }
+.pad-btn:hover { background: #fff; }
+.pad-a.on, .pad-a:hover { background: #ff8550; }
+
+/* Room to scroll the errand list clear of the controls, and toasts and level-up
+   cards above them. */
+body.pad-open #app { padding-bottom: calc(var(--pad-h) + 40px); }
+body.pad-open .toast { bottom: calc(var(--pad-h) + 36px); }
+body.pad-open .levelups { bottom: calc(var(--pad-h) + 96px); }
+body.pad-tab .toast { bottom: 64px; }
+@media (prefers-reduced-motion: reduce) { .pad { transition: none; } }

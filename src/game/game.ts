@@ -32,6 +32,7 @@ import { chatter, consequences, forms, grammar, npcs, requests, scenarioById, sc
 import { boardNotes, isFestival, morningNote, pickChatter, weatherFor } from './weather.ts';
 import { pickVariant, planRequests, type Errand } from './errands.ts';
 import { DAY_END, DAY_START, isOpen, load, newDayLog, newGame, progressFor, save, clearSave, formatClock, type GameData } from './state.ts';
+import { TouchPad } from '../ui/pad.ts';
 
 const yen = (n: number): string => `¥${n.toLocaleString('en-US')}`;
 
@@ -69,6 +70,7 @@ export class Game {
   private g: GameData = newGame();
   private learner = new Learner(this.g.learner, vocab);
   private phase: Phase = 'title';
+  private pad: TouchPad;
   private activeRun: ScenarioRun | null = null;
   private hudKey = '';
   /** Right answers in a row today (any wrong answer resets it). */
@@ -121,6 +123,7 @@ export class Game {
     this.dialogue = new DialogueView(root);
     this.notebook = new Notebook(root);
     this.notebook.onClose = () => this.renderHud(true);
+    this.pad = new TouchPad(root);
     window.addEventListener('keydown', (e) => {
       if (e.target instanceof HTMLInputElement) return;
       if (e.code === 'KeyN' && (this.phase === 'town')) {
@@ -151,6 +154,8 @@ export class Game {
       // Dinner time can come round while you walk about your room.
       if (this.town.scene === 'washitsu') this.refreshStay();
     }
+    this.pad.setActive(this.phase === 'town' && !this.notebook.open && !this.popup.open);
+    this.town.hintKey = this.pad.shown ? 'A' : 'Space';
     this.town.setMinutes(this.g.minutes);
     this.town.render(dt);
     this.input.endFrame();

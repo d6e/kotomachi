@@ -174,6 +174,8 @@ export class Town {
   private retries = 0;
   private waitPath = 0;
   private turnHold = 0;
+  /** The key named in the hint bubble: 'A' while the on-screen controls are up. */
+  hintKey = 'Space';
   private justStepped = false;
   private minutes = 8 * 60;
   private time = 0;
@@ -1282,7 +1284,7 @@ export class Town {
     else if (near.kind === 'stall') label = this.hooks.sign(STALLS.find((x) => x.id === near.id)!.sign).text;
     else if (near.kind === 'cat') label = this.hooks.sign('猫').text;
     else return;
-    this.bubble(`Space ▶ ${label}`, Math.round(p.px) - cam + TILE / 2, Math.round(p.py) - SPRITE_LIFT - 3);
+    this.bubble(`${this.hintKey} ▶ ${label}`, Math.round(p.px) - cam + TILE / 2, Math.round(p.py) - SPRITE_LIFT - 3);
   }
 
   private drawFade(): void {
