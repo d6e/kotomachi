@@ -47,6 +47,13 @@
           "reaction": "え ！ 食べません=食べる よ ！",
           "note": "金魚すくい is a game: you scoop a goldfish to take home. Ask for a go: 一回お願いします.",
           "grammar": "tai"
+        },
+        {
+          "text": "一回 。",
+          "gloss": "One go. (curt)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but a bare 一回 is curt to a stall-keeper you don't know: 一回お願いします."
         }
       ],
       "tiles": {
@@ -108,6 +115,13 @@
           "reaction": "… ？ $price 円 です 。",
           "note": "ごちそうさまでした is for after a meal, not when you pay.",
           "grammar": "gochisousama"
+        },
+        {
+          "text": "はい 、 これ 。",
+          "gloss": "Here, this. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but はい、これ is how you'd hand something to a friend: to the stall-keeper, はい、どうぞ."
         }
       ],
       "tiles": {
@@ -165,6 +179,13 @@
           "reaction": "ふふ 。 食べません=食べる よ 。",
           "note": "いただきます is for just before you eat. Before you try something, say 頑張ります.",
           "grammar": "itadakimasu"
+        },
+        {
+          "text": "うん 、 頑張る ！",
+          "gloss": "Yeah, I'll try! (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but うん and plain 頑張る are for friends: to a stall-keeper, はい、頑張ります."
         }
       ],
       "tiles": {
@@ -225,6 +246,13 @@
           "reaction": "え ！ 食べません=食べる よ ！",
           "note": "ごちそうさまでした is for after a meal. To thank someone, say ありがとうございます.",
           "grammar": "gochisousama"
+        },
+        {
+          "text": "ありがとう 。 かわいい ね 。",
+          "gloss": "Thanks. It's cute. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but plain ありがとう and かわいいね are casual for a stranger: add ございます and です."
         }
       ],
       "end": true

@@ -89,7 +89,8 @@
       "choices": [
         { "text": "魚 を 買いたい=買う ！", "gloss": "I want to buy fish!", "result": "success" },
         { "text": "魚 で 買いたい=買う ！", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "魚 を 、 だ ね 。", "note": "What you want to buy takes を: 魚を買いたい.", "grammar": "wo_object" },
-        { "text": "魚 を 飲みたい=飲む ！", "gloss": "I want to drink fish!", "result": "npc_amused", "reaction": "ふふ 、 魚 は 飲めない=飲む よ ！", "note": "飲む is to drink. For shopping, 買う: 魚を買いたい.", "grammar": "tai" }
+        { "text": "魚 を 飲みたい=飲む ！", "gloss": "I want to drink fish!", "result": "npc_amused", "reaction": "ふふ 、 魚 は 飲めない=飲む よ ！", "note": "飲む is to drink. For shopping, 買う: 魚を買いたい.", "grammar": "tai" },
+        { "text": "魚 を 買いたい=買う です 。", "gloss": "I would like to buy fish. (too stiff)", "result": "success", "grade": "okay", "note": "Right meaning, but です sounds distant with a close friend: just 魚を買いたい!" }
       ],
       "tiles": { "answers": [["魚", "を", "買いたい=買う"]], "decoys": ["で", "に", "飲みたい=飲む"] },
       "blank": { "before": "魚 を", "after": "！", "answers": ["かいたい"] },

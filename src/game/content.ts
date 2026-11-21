@@ -174,7 +174,21 @@ export function validateContent(defs: ScenarioDef[] = scenarios): ContentIssue[]
         }
         if (!n.end && !n.next?.success) out.push({ where, problem: 'node has no success exit and is not an end' });
         if (n.choices && !n.choices.some((c) => c.result === 'success')) out.push({ where, problem: 'no correct choice' });
-        if (n.choices && n.choices.length !== CHOICES_PER_NODE) out.push({ where, problem: `has ${n.choices.length} choices, needs exactly ${CHOICES_PER_NODE}` });
+        if (n.choices) {
+          const okays = n.choices.filter((c) => c.grade === 'okay');
+          const wrongs = n.choices.filter((c) => c.result !== 'success');
+          for (const c of okays) {
+            if (c.result !== 'success') out.push({ where, problem: `okay answer ${c.text} must have result success` });
+            if (!c.note) out.push({ where, problem: `okay answer ${c.text} needs a note saying why` });
+            // register "plain" on an okay answer: too casual for now, fine once they talk casually.
+            if (c.register === 'polite' || c.correctWhen) out.push({ where, problem: `okay answer ${c.text} can't be marked polite or have a time` });
+          }
+          if (!n.choices.some((c) => c.result === 'success' && c.grade !== 'okay')) out.push({ where, problem: 'no perfect choice' });
+          // Three on the menu. A fourth is allowed only as an okay answer beside two wrong
+          // ones; one of the wrong ones is left off the menu each time.
+          const fourOk = n.choices.length === CHOICES_PER_NODE + 1 && okays.length === 1 && wrongs.length >= 2;
+          if (n.choices.length !== CHOICES_PER_NODE && !fourOk) out.push({ where, problem: `has ${n.choices.length} choices, needs exactly ${CHOICES_PER_NODE} (or 4 with one okay and two wrong)` });
+        }
       }
     }
   }

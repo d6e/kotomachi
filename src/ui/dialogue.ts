@@ -3,7 +3,8 @@
 
 import { hasLatin, toKana } from '../lang/kana.ts';
 import { parseLine, type Token, type Vocab } from '../lang/markup.ts';
-import { MODE_NAMES, type AnswerOutcome, type PromptView, type ScenarioRun } from '../scenario/engine.ts';
+import { MODE_NAMES, type AnswerOutcome, type Grade, type PromptView, type ScenarioRun } from '../scenario/engine.ts';
+import type { Expression } from '../town/faces.ts';
 import { clear, h } from './dom.ts';
 import { confettiFrom, embers, floatText, play, reducedMotion, sparkle } from './fx.ts';
 import { renderTokens } from './text.ts';
@@ -25,13 +26,22 @@ export interface DialogueHooks {
   hearts?: number;
   /** A second button at the end, like "Give something", unless it went wrong. */
   extra?: { id: string; label: string };
-  /** An answer was given (not just "next"): returns the run of right answers so far today. */
-  answered?: (correct: boolean, said: Token[]) => number;
+  /** An answer was given (not just "next"), graded: returns the streak so far today. */
+  answered?: (grade: Grade, said: Token[]) => number;
+  /** The face of whoever you're talking to, with an expression, if they have one. */
+  face?: (expr: Expression) => HTMLCanvasElement | null;
   /** Mark a word as new to you. */
   isNew?: (t: Token) => boolean;
   /** The run of right answers so far today, when the conversation opens. */
   combo?: () => number;
 }
+
+/** What the listener's face does, and the little mark beside it, for each grade. */
+export const REACTION: Record<Grade, { face: Expression; mark: string; label: string }> = {
+  perfect: { face: 'happy', mark: '♪', label: 'Perfect!' },
+  okay: { face: 'confused', mark: '?', label: 'Okay' },
+  miss: { face: 'frown', mark: '…', label: 'Miss' },
+};
 
 /** How hot a combo looks: 0 none, then 1 to 4. */
 export function heat(combo: number): number {
@@ -52,6 +62,9 @@ export class DialogueView {
   private typing: { bubble: HTMLElement; units: { el: HTMLElement; cost: number }[] }[] = [];
   private typeTimer: number | null = null;
   private comboEl: HTMLElement = h('span', { class: 'combo', hidden: true, 'aria-live': 'polite' });
+  /** Their face, beside their name; it reacts to each answer, then settles. */
+  private faceEl: HTMLElement = h('span', { class: 'face', 'aria-hidden': 'true' });
+  private faceTimer: number | null = null;
   /** After a wrong pick, the node it was on: its right answer gets highlighted. */
   private missedOn: string | null = null;
 
@@ -76,6 +89,7 @@ export class DialogueView {
     this.missedOn = null;
     clear(this.log);
     this.setCombo(hooks.combo?.() ?? 0, false);
+    this.setFace('neutral');
     this.el.hidden = false;
     this.keyHandler = (e) => this.onKey(e);
     window.addEventListener('keydown', this.keyHandler);
@@ -84,6 +98,9 @@ export class DialogueView {
 
   close(): void {
     this.finishTyping();
+    if (this.faceTimer !== null) window.clearTimeout(this.faceTimer);
+    this.faceTimer = null;
+    for (const j of this.el.querySelectorAll('.judge')) j.remove();
     this.el.hidden = true;
     this.el.classList.remove('advance', 'typing-now');
     if (this.keyHandler) window.removeEventListener('keydown', this.keyHandler);
@@ -194,6 +211,45 @@ export class DialogueView {
 
   private comboN = 0;
 
+  // ---------------------------------------------------------------- face and judgement
+
+  private setFace(expr: Expression, mark = ''): void {
+    const img = this.hooks?.face?.(expr) ?? null;
+    clear(this.faceEl);
+    this.faceEl.hidden = !img;
+    if (!img) return;
+    // The cached canvas is shared, so show a copy.
+    const c = document.createElement('canvas');
+    c.width = img.width;
+    c.height = img.height;
+    c.getContext('2d')?.drawImage(img, 0, 0);
+    this.faceEl.className = `face face-${expr}`;
+    this.faceEl.append(c);
+    if (mark) this.faceEl.append(h('span', { class: 'face-mark' }, mark));
+  }
+
+  /** The face reacts to an answer, then goes back to listening. */
+  private react(grade: Grade): void {
+    const r = REACTION[grade];
+    this.setFace(r.face, r.mark);
+    play(this.faceEl, grade === 'miss' ? 'face-shake' : 'face-hop');
+    if (this.faceTimer !== null) window.clearTimeout(this.faceTimer);
+    this.faceTimer = window.setTimeout(() => {
+      this.faceTimer = null;
+      if (this.run) this.setFace('neutral');
+    }, 2600);
+  }
+
+  /** A big "Perfect!", "Okay" or "Miss" over the conversation, like a rhythm game's judgement. */
+  private judge(grade: Grade): void {
+    for (const old of this.el.querySelectorAll('.judge')) old.remove();
+    const el = h('div', { class: `judge judge-${grade}`, role: 'status' }, REACTION[grade].label);
+    this.el.append(el);
+    const done = () => el.remove();
+    el.addEventListener('animationend', done, { once: true });
+    setTimeout(done, 1400);
+  }
+
   // ---------------------------------------------------------------- typing
 
   /** Type an NPC line out a character at a time, like a text box in an old handheld game. */
@@ -283,7 +339,7 @@ export class DialogueView {
       ? null
       : h('span', { class: 'hearts', title: `${hooks.hearts} of 5 hearts`, 'aria-label': `${hooks.hearts} of 5 hearts` }, '♥'.repeat(hooks.hearts), h('span', { class: 'hearts-empty' }, '♥'.repeat(5 - hooks.hearts)));
     this.header.append(
-      h('div', { class: 'who' }, name, hearts, this.comboEl),
+      h('div', { class: 'who' }, this.faceEl, name, hearts, this.comboEl),
       h('div', { class: 'stage' + (view.fallback ? ' fallback' : '') }, MODE_NAMES[view.mode], glossToggle),
     );
     this.el.classList.toggle('show-gloss', hooks.glossOn());
@@ -331,23 +387,38 @@ export class DialogueView {
     const nodeId = this.run!.current().nodeId;
     const said = out.said.length ? this.bubble('me', this.tokens(out.said, mode), undefined, out.correct ? '' : 'wrong') : null;
     if (mode >= 1) {
-      const combo = this.hooks!.answered?.(out.correct, out.said) ?? 0;
-      if (out.correct && said) {
+      const grade = out.grade;
+      const combo = this.hooks!.answered?.(grade, out.said) ?? 0;
+      if (said && grade === 'okay') said.classList.add('okay');
+      if (grade === 'perfect' && said) {
         play(said, 'pop');
         sparkle(said, 8 + Math.min(12, combo));
-        if (combo > 0 && combo % 5 === 0) confettiFrom(said, 28);
+        // Confetti for every perfect answer, a bigger burst every fifth in a row.
+        confettiFrom(said, combo > 0 && combo % 5 === 0 ? 34 : 14);
+      } else if (grade === 'okay' && said) {
+        play(said, 'pop');
+        // Why it was a bit off, and the better line.
+        said.append(h('div', { class: 'okay-why' },
+          h('div', { class: 'okay-note' }, out.why ?? ''),
+          out.better?.length ? h('div', { class: 'right-answer' }, h('span', { class: 'tick', 'aria-hidden': 'true' }, '✓'), this.tokens(out.better, mode)) : null,
+        ));
+        this.log.scrollTop = this.log.scrollHeight;
       } else if (said) {
         play(said, 'wobble');
+        play(this.el, 'miss-flash');
         // Show what would have been right: in the log for tiles and typing, and on the
         // menu itself when the same choice comes round again.
         const better = this.run!.corrections[this.run!.corrections.length - 1]?.betterTokens;
         if (mode >= 3 && better?.length) said.append(h('div', { class: 'right-answer' }, h('span', { class: 'tick', 'aria-hidden': 'true' }, '✓'), this.tokens(better, mode)));
       }
       this.missedOn = out.correct ? null : nodeId;
-      this.setCombo(combo, true);
+      // Okay holds the streak: the badge stays as it is, without a bump.
+      if (grade !== 'okay') this.setCombo(combo, true);
+      this.react(grade);
+      this.judge(grade);
       // The +N rises from the streak badge in the header, which never scrolls, so it
       // floats up over the town and never over a line you're reading.
-      if (out.correct) {
+      if (grade === 'perfect') {
         const badge = this.comboEl.hidden ? this.header.querySelector('.who > .jp') : this.comboEl;
         if (badge) floatText(badge, combo >= 2 ? `+${combo}` : '+1', `heat-${heat(combo)}`);
       }

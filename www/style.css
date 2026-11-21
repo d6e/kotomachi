@@ -593,3 +593,60 @@ input.blank:focus { outline: none; background: #fff8f2; }
 .nb-friend { border: 2px solid var(--line, #e3dcea); border-radius: 10px; padding: 6px 10px; }
 .nb-friend-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; font-size: 17px; }
 .dlg-input > button + button { margin-left: 8px; }
+
+/* ------------------------------------------------- graded answers: perfect, okay, miss */
+
+/* Their face beside their name: a little pixel portrait that reacts to your answer. */
+.dlg-header .who > .face {
+  position: relative; display: inline-block; width: 44px; height: 33px; padding: 0; flex: none;
+  background: #fff; border: 2px solid var(--out); border-radius: 10px; box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
+}
+.face canvas { width: 40px; height: 30px; display: block; margin: 0 auto; image-rendering: pixelated; image-rendering: crisp-edges; }
+.face-mark {
+  position: absolute; right: -10px; top: -12px; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 999px;
+  font: 800 13px/16px var(--ui); text-align: center; color: #fff; border: 2px solid var(--out);
+}
+.face-happy { background: #fff7d6; }
+.face-happy .face-mark { background: #f4a21b; }
+.face-confused { background: #eaf2ff; }
+.face-confused .face-mark { background: var(--frame); }
+.face-frown { background: #fde8e6; }
+.face-frown .face-mark { background: var(--bad); }
+.face.face-hop { animation: face-hop 0.42s cubic-bezier(.3, 1.6, .5, 1); }
+.face.face-shake { animation: shake 0.3s ease-in-out 2; }
+@keyframes face-hop { 35% { transform: translateY(-6px) scale(1.06); } 70% { transform: translateY(1px); } }
+
+/* The judgement word that flashes over the conversation. */
+.judge {
+  position: absolute; left: 50%; top: 34%; z-index: 3; pointer-events: none; white-space: nowrap;
+  font: 900 34px/1 var(--ui); letter-spacing: 1px; color: #fff;
+  -webkit-text-stroke: 2px var(--out); paint-order: stroke fill; text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
+  animation: judge-in 1.1s ease-out forwards;
+}
+.judge-perfect { color: #ffd54a; font-size: 38px; }
+.judge-okay { color: #9cc4ff; }
+.judge-miss { color: #ff7a6e; }
+@keyframes judge-in {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  18% { opacity: 1; transform: translate(-50%, -50%) scale(1.18); }
+  32% { transform: translate(-50%, -50%) scale(1); }
+  75% { opacity: 1; transform: translate(-50%, -60%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -85%) scale(0.96); }
+}
+/* An okay answer: understood, but not quite how you'd say it. */
+.bubble.me.okay { background: #eef4ff; border-color: #a9c6f5; }
+.okay-why { margin-top: 4px; font-size: 0.72em; line-height: 1.5; }
+.okay-note { font-family: var(--ui); color: var(--ink); padding: 2px 2px 4px; }
+.okay-why .right-answer { font-size: 1.25em; line-height: 1.8; }
+/* A miss: the frame flashes red. */
+.dialogue.miss-flash { animation: miss-flash 0.45s ease-out; }
+@keyframes miss-flash { 30% { box-shadow: 0 0 0 4px #ff6a5c, 0 0 22px 4px rgba(226, 65, 59, 0.55); } }
+.res-grades { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 6px 0 10px; font: 800 15px/1.4 var(--ui); }
+.res-grades b { font-size: 18px; margin-left: 2px; }
+.res-grades .g-perfect { color: #c98a00; }
+.res-grades .g-okay { color: var(--frame); }
+.res-grades .g-miss { color: var(--bad); }
+@media (prefers-reduced-motion: reduce) {
+  .face.face-hop, .face.face-shake, .dialogue.miss-flash { animation: none; }
+  .judge { animation: fade-out-still 1.1s ease-in forwards; transform: translate(-50%, -50%); }
+}

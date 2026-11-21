@@ -16,7 +16,7 @@ function run(stage: Mode, extra: Partial<RunOptions> = {}) {
 
 function correctIndex(r: ScenarioRun): number {
   const node = r.node;
-  return node.choices!.findIndex((c) => c.result === 'success' && c.register !== 'plain');
+  return node.choices!.findIndex((c) => c.result === 'success' && c.register !== 'plain' && c.grade !== 'okay');
 }
 
 test('stage 1: a clean run through the cafe', () => {
@@ -98,13 +98,19 @@ test('promotion after three clean runs, capped at the scenario max', () => {
   assert.equal(finishRun({ stage: 2, cleanRuns: 2, runs: 9 }, false, 4).progress.cleanRuns, 0);
 });
 
-test('friendship as politeness: going casual too early costs friendship', () => {
+test('friendship as politeness: going casual too early is only okay, and costs friendship', () => {
   const r = run(2);
   while (r.nodeId !== 'smalltalk') r.answerChoice(correctIndex(r));
   const plain = r.node.choices!.findIndex((c) => c.register === 'plain');
   const out = r.answerChoice(plain);
-  assert.equal(out.correct, false);
-  assert.equal(r.friendshipDelta, -1);
+  assert.equal(out.correct, true, 'understood');
+  assert.equal(out.grade, 'okay');
+  assert.match(out.why!, /too casual/);
+  assert.equal(plainText(out.better!), 'そうですね。');
+  const polite = run(2);
+  while (polite.nodeId !== 'smalltalk') polite.answerChoice(correctIndex(polite));
+  polite.answerChoice(correctIndex(polite));
+  assert.equal(r.friendshipDelta, polite.friendshipDelta - 1, 'a point less than answering politely');
 
   const friend = run(2, { friendship: 7 });
   assert.match(plainText(friend.current().line), /いらっしゃい！/);

@@ -39,7 +39,8 @@
           "note": "ください asks for something. To give something, hold it out and say これ、どうぞ.",
           "grammar": "douzo"
         },
-        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 それ は 食べる 前 です よ 。", "note": "いただきます is what you say when you receive food or are about to eat. Giving, say これ、どうぞ.", "grammar": "douzo" }
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 それ は 食べる 前 です よ 。", "note": "いただきます is what you say when you receive food or are about to eat. Giving, say これ、どうぞ.", "grammar": "douzo" },
+        { "text": "これ 、 あげます=あげる 。", "gloss": "I'll give you this. (awkward)", "result": "success", "grade": "okay", "note": "Right meaning, but あげます sounds like you're doing them a favor; hold it out with これ、どうぞ." }
       ],
       "tiles": { "answers": [["これ 、", "どうぞ"]], "decoys": ["ください", "いただきます", "を"] },
       "blank": { "before": "これ 、", "after": "。", "answers": ["どうぞ"] },
@@ -56,7 +57,8 @@
       "choices": [
         { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "success" },
         { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 それ は 私 の 言葉 です よ 。", "note": "いただきます is for whoever receives the food. When someone thanks you, say どういたしまして.", "grammar": "douzo" },
-        { "text": "ごめんなさい 。", "gloss": "I'm sorry.", "result": "npc_puzzled", "reaction": "え ？ どうして 謝る ん=の です か ？", "note": "ごめんなさい is an apology. When someone thanks you, say どういたしまして.", "grammar": "douzo" }
+        { "text": "ごめんなさい 。", "gloss": "I'm sorry.", "result": "npc_puzzled", "reaction": "え ？ どうして 謝る ん=の です か ？", "note": "ごめんなさい is an apology. When someone thanks you, say どういたしまして.", "grammar": "douzo" },
+        { "text": "うん 。", "gloss": "Yeah. (curt)", "result": "success", "grade": "okay", "note": "Right meaning, but a bare うん sounds curt, and too casual if you aren't close: say どういたしまして." }
       ],
       "end": true,
       "next": { "success": "like" }
@@ -71,7 +73,8 @@
       "choices": [
         { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "success" },
         { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 それ は 私 の 言葉 です よ 。", "note": "いただきます is for whoever receives the food. When someone thanks you, say どういたしまして.", "grammar": "douzo" },
-        { "text": "ごめんなさい 。", "gloss": "I'm sorry.", "result": "npc_puzzled", "reaction": "え ？ どうして 謝る ん=の です か ？", "note": "ごめんなさい is an apology. When someone thanks you, say どういたしまして.", "grammar": "douzo" }
+        { "text": "ごめんなさい 。", "gloss": "I'm sorry.", "result": "npc_puzzled", "reaction": "え ？ どうして 謝る ん=の です か ？", "note": "ごめんなさい is an apology. When someone thanks you, say どういたしまして.", "grammar": "douzo" },
+        { "text": "うん 。", "gloss": "Yeah. (curt)", "result": "success", "grade": "okay", "note": "Right meaning, but a bare うん sounds curt, and too casual if you aren't close: say どういたしまして." }
       ],
       "end": true,
       "next": { "success": "ok" }
@@ -86,7 +89,8 @@
       "choices": [
         { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "success" },
         { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 それ は 私 の 言葉 です よ 。", "note": "いただきます is for whoever receives the food. When someone thanks you, say どういたしまして.", "grammar": "douzo" },
-        { "text": "ごめんなさい 。", "gloss": "I'm sorry.", "result": "npc_puzzled", "reaction": "え ？ どうして 謝る ん=の です か ？", "note": "ごめんなさい is an apology. When someone thanks you, say どういたしまして.", "grammar": "douzo" }
+        { "text": "ごめんなさい 。", "gloss": "I'm sorry.", "result": "npc_puzzled", "reaction": "え ？ どうして 謝る ん=の です か ？", "note": "ごめんなさい is an apology. When someone thanks you, say どういたしまして.", "grammar": "douzo" },
+        { "text": "うん 。", "gloss": "Yeah. (curt)", "result": "success", "grade": "okay", "note": "Right meaning, but a bare うん sounds curt, and too casual if you aren't close: say どういたしまして." }
       ],
       "end": true,
       "next": { "success": "odd" }
@@ -101,7 +105,8 @@
       "choices": [
         { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "success" },
         { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 それ は 私 の 言葉 です よ 。", "note": "いただきます is for whoever receives the food. When someone thanks you, say どういたしまして.", "grammar": "douzo" },
-        { "text": "ごめんなさい 。", "gloss": "I'm sorry.", "result": "npc_puzzled", "reaction": "え ？ どうして 謝る ん=の です か ？", "note": "ごめんなさい is an apology. When someone thanks you, say どういたしまして.", "grammar": "douzo" }
+        { "text": "ごめんなさい 。", "gloss": "I'm sorry.", "result": "npc_puzzled", "reaction": "え ？ どうして 謝る ん=の です か ？", "note": "ごめんなさい is an apology. When someone thanks you, say どういたしまして.", "grammar": "douzo" },
+        { "text": "うん 。", "gloss": "Yeah. (curt)", "result": "success", "grade": "okay", "note": "Right meaning, but a bare うん sounds curt, and too casual if you aren't close: say どういたしまして." }
       ],
       "end": true
     }

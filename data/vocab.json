@@ -3256,5 +3256,29 @@
   "reading": "ええ",
   "meaning": "yes (soft)",
   "pos": "interjection"
+ },
+ {
+  "id": "さようなら",
+  "reading": "さようなら",
+  "meaning": "goodbye (formal, sounds final)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "かしこまりました",
+  "reading": "かしこまりました",
+  "meaning": "certainly, understood (staff speaking to customers)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "参る",
+  "reading": "まいる",
+  "meaning": "to go, to come (humble)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "ほしい",
+  "reading": "ほしい",
+  "meaning": "to want (a thing)",
+  "pos": "adj (i)"
  }
 ]

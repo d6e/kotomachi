@@ -96,7 +96,8 @@
           "note": "You're going to 小林さん's place, so it's 持って行く. 持って来る is bringing something to where you are now.",
           "grammar": "iku_kuru"
         },
-        { "text": "うん 、 野菜 に 持って=持つ 行く ね 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "野菜 を 、 だ ね 。", "note": "The thing you bring takes を: 野菜を持って行く.", "grammar": "wo_object" }
+        { "text": "うん 、 野菜 に 持って=持つ 行く ね 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "野菜 を 、 だ ね 。", "note": "The thing you bring takes を: 野菜を持って行く.", "grammar": "wo_object" },
+        { "text": "はい 、 野菜 を 持って=持つ 行きます=行く 。", "gloss": "Yes, I will bring vegetables. (too stiff)", "result": "success", "grade": "okay", "note": "Right meaning, but 持って行きます sounds stiff with a close friend: うん、野菜を持って行くね." }
       ],
       "tiles": { "answers": [["うん 、", "野菜", "を", "持って=持つ", "行く", "ね"]], "decoys": ["来る", "に", "で"] },
       "blank": { "before": "うん 、 野菜 を 持って=持つ", "after": "ね 。", "answers": ["いく"] },

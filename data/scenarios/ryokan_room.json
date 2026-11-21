@@ -54,6 +54,13 @@
           "reaction": "あ 、 お茶 です よ 。 どうぞ 。",
           "note": "失礼します is said as you come into or leave a room. Offered tea, say ありがとうございます、いただきます.",
           "grammar": "shitsurei"
+        },
+        {
+          "text": "ありがとう 。 いただきます 。",
+          "gloss": "Thanks. Time to eat! (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but plain ありがとう is casual for ryokan staff: ありがとうございます。いただきます."
         }
       ],
       "tiles": {
@@ -112,6 +119,13 @@
           "reaction": "はい 、 浴衣 です よ 。 着方 は … ？",
           "note": "分かりますか asks whether you know how. To ask to be shown, say 教えてください.",
           "grammar": "tekudasai"
+        },
+        {
+          "text": "いいえ 、 教えて=教える 。",
+          "gloss": "No, show me. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but a bare 教えて is casual for staff: いいえ、教えてください."
         }
       ],
       "tiles": {
@@ -174,6 +188,13 @@
           "reaction": "え ？ 帯 は 浴衣 と 一緒 に あります=ある よ 。",
           "note": "結んでください asks you to tie the sash, which comes with the yukata. Repeat the rule back: 左が上ですね.",
           "grammar": "hidari_ue"
+        },
+        {
+          "text": "左 が 上 ね 。 分かった=分かる 。",
+          "gloss": "Left on top. Got it. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but 上ね and 分かった are casual for staff: 左が上ですね。分かりました."
         }
       ],
       "tiles": {
@@ -237,6 +258,13 @@
           "reaction": "ふふ 、 私 は 元気 です よ 。",
           "note": "お大事に is for someone who is unwell. Here, thank her for telling you: ありがとうございます.",
           "grammar": "odaijini"
+        },
+        {
+          "text": "十二時 まで ね 。 ありがとう 。",
+          "gloss": "Until twelve. Thanks. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but plain までね and ありがとう are casual for staff: 十二時までですね。ありがとうございます."
         }
       ],
       "tiles": {
@@ -296,6 +324,13 @@
           "reaction": "… お茶 は もう どうぞ 。",
           "note": "いただきます is for just before you eat or drink. As she leaves, say ありがとうございます.",
           "grammar": "itadakimasu"
+        },
+        {
+          "text": "どうも 。",
+          "gloss": "Thanks. (curt)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but a lone どうも is curt for ryokan staff: say ありがとうございます."
         }
       ],
       "end": true

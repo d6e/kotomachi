@@ -38,7 +38,8 @@
       "choices": [
         { "text": "$dest まで 、 一枚 お願いします=お願いする 。", "gloss": "One to $dest_en, please.", "result": "success" },
         { "text": "$dest から 、 一枚 お願いします=お願いする 。", "gloss": "One from $dest_en, please.", "result": "npc_puzzled", "reaction": "$dest まで 、 です ね ？", "note": "まで marks where you're going to; から marks where you start. 東京まで一枚 = one (ticket) to Tokyo.", "grammar": "kara_made" },
-        { "text": "$dest まで 、 一人 お願いします=お願いする 。", "gloss": "One person to $dest_en, please.", "result": "npc_puzzled", "reaction": "$dest まで 、 一枚 です ね ？", "note": "Tickets are flat things, counted with 枚: 一枚 (いちまい). 一人 counts people.", "grammar": "mai" }
+        { "text": "$dest まで 、 一人 お願いします=お願いする 。", "gloss": "One person to $dest_en, please.", "result": "npc_puzzled", "reaction": "$dest まで 、 一枚 です ね ？", "note": "Tickets are flat things, counted with 枚: 一枚 (いちまい). 一人 counts people.", "grammar": "mai" },
+        { "text": "$dest まで 、 一枚 。", "gloss": "One to $dest_en. (blunt)", "result": "success", "grade": "okay", "note": "Right meaning, but a bare 一枚 sounds curt to station staff: add お願いします." }
       ],
       "tiles": {
         "answers": [["$dest", "まで", "一枚", "お願いします=お願いする"]],
@@ -57,7 +58,8 @@
       "choices": [
         { "text": "片道 で お願いします=お願いする 。", "gloss": "One way, please.", "result": "success" },
         { "text": "片道 に お願いします=お願いする 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "片道 で 、 です ね ？", "note": "で marks the option you choose: 片道でお願いします.", "grammar": "de_choice" },
-        { "text": "片道 です か ？", "gloss": "Is it one way?", "result": "npc_confused", "reaction": "えっと … 片道 で いい です か ？", "note": "The staff asked you to choose. Answer with your choice: 片道でお願いします.", "grammar": "de_choice" }
+        { "text": "片道 です か ？", "gloss": "Is it one way?", "result": "npc_confused", "reaction": "えっと … 片道 で いい です か ？", "note": "The staff asked you to choose. Answer with your choice: 片道でお願いします.", "grammar": "de_choice" },
+        { "text": "片道 。", "gloss": "One way. (blunt)", "result": "success", "grade": "okay", "note": "Right meaning, but a bare 片道 sounds curt to staff: 片道でお願いします." }
       ],
       "tiles": {
         "answers": [["片道", "で", "お願いします=お願いする"]],
@@ -76,7 +78,8 @@
       "choices": [
         { "text": "ICカード に チャージ したい=する です 。", "gloss": "I'd like to top up my IC card.", "result": "success" },
         { "text": "ICカード に チャージ します=する か ？", "gloss": "Will you top up the IC card?", "result": "npc_confused", "reaction": "え ？ … チャージ したい=する ん=の です か ？", "note": "～たいです says what you want to do: チャージしたいです (I'd like to top up).", "grammar": "tai" },
-        { "text": "おめでとうございます 。", "gloss": "Congratulations!", "result": "npc_amused", "reaction": "ふふ 、 ありがとうございます 。 … で 、 今日 は ？", "note": "おめでとうございます is for good news. Say what you'd like to do: ICカードにチャージしたいです.", "grammar": "tai" }
+        { "text": "おめでとうございます 。", "gloss": "Congratulations!", "result": "npc_amused", "reaction": "ふふ 、 ありがとうございます 。 … で 、 今日 は ？", "note": "おめでとうございます is for good news. Say what you'd like to do: ICカードにチャージしたいです.", "grammar": "tai" },
+        { "text": "ICカード に チャージ したい=する 。", "gloss": "I wanna top up my IC card. (too casual)", "result": "success", "grade": "okay", "note": "Right meaning, but plain したい is too casual for station staff: add です." }
       ],
       "tiles": {
         "answers": [["ICカード に", "チャージ", "したい=する", "です"]],
@@ -95,7 +98,8 @@
       "choices": [
         { "text": "$amt 円 で お願いします=お願いする 。", "gloss": "¥$amt, please.", "result": "success" },
         { "text": "$amt 円 に お願いします=お願いする 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "$amt 円 で 、 です ね ？", "note": "で marks the amount you go with: 3000円でお願いします.", "grammar": "de_choice" },
-        { "text": "$amt 円 です か ？", "gloss": "Is it ¥$amt?", "result": "npc_confused", "reaction": "えっと 、 いくら に します=する か ？", "note": "The staff asked how much. Answer with the amount: 3000円でお願いします.", "grammar": "de_choice" }
+        { "text": "$amt 円 です か ？", "gloss": "Is it ¥$amt?", "result": "npc_confused", "reaction": "えっと 、 いくら に します=する か ？", "note": "The staff asked how much. Answer with the amount: 3000円でお願いします.", "grammar": "de_choice" },
+        { "text": "$amt 円 。", "gloss": "¥$amt. (blunt)", "result": "success", "grade": "okay", "note": "Right meaning, but a bare amount sounds curt to staff: 3000円でお願いします." }
       ],
       "tiles": {
         "answers": [["$amt 円", "で", "お願いします=お願いする"]],
@@ -127,7 +131,8 @@
       "choices": [
         { "text": "$dest 行き は 何番線 です か ？", "gloss": "Which platform is the train for $dest_en?", "result": "success" },
         { "text": "$dest 行き は {何|なん}=何 です か ？", "gloss": "What is the train for $dest_en?", "result": "npc_confused", "reaction": "え ？ … 何番線 、 です か ？", "note": "何番線 asks which platform (track number). 何ですか only asks what something is.", "grammar": "nanban" },
-        { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "npc_puzzled", "reaction": "えっ ？ … ほか に 何 か ？", "note": "どういたしまして answers someone else's thank-you. Ask your question: 横浜行きは何番線ですか.", "grammar": "nanban" }
+        { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "npc_puzzled", "reaction": "えっ ？ … ほか に 何 か ？", "note": "どういたしまして answers someone else's thank-you. Ask your question: 横浜行きは何番線ですか.", "grammar": "nanban" },
+        { "text": "$dest 行き は 何番線 ？", "gloss": "Which platform for $dest_en? (too casual)", "result": "success", "grade": "okay", "note": "Right meaning, but dropping です か is too casual with station staff: 何番線ですか." }
       ],
       "tiles": {
         "answers": [["$dest 行き", "は", "何番線", "です か"]],
@@ -159,7 +164,8 @@
       "choices": [
         { "text": "$dest まで 、 どの くらい かかります=かかる か ？", "gloss": "How long does it take to $dest_en?", "result": "success" },
         { "text": "$dest から 、 どの くらい かかります=かかる か ？", "gloss": "How long does it take from $dest_en?", "result": "npc_puzzled", "reaction": "$dest まで 、 です か ？", "note": "You're going to 鎌倉, so it's 鎌倉まで. から would mean starting from there.", "grammar": "kara_made" },
-        { "text": "$dest まで 、 いくら かかります=かかる か ？", "gloss": "How much does it cost to $dest_en?", "result": "npc_puzzled", "reaction": "$price 円 です よ 。 … 時間 です か ？", "note": "いくら asks how much money. To ask how long, use どのくらい: 鎌倉までどのくらいかかりますか.", "grammar": "donokurai" }
+        { "text": "$dest まで 、 いくら かかります=かかる か ？", "gloss": "How much does it cost to $dest_en?", "result": "npc_puzzled", "reaction": "$price 円 です よ 。 … 時間 です か ？", "note": "いくら asks how much money. To ask how long, use どのくらい: 鎌倉までどのくらいかかりますか.", "grammar": "donokurai" },
+        { "text": "$dest まで 、 どの くらい かかる ？", "gloss": "How long to $dest_en? (too casual)", "result": "success", "grade": "okay", "note": "Right meaning, but plain かかる？ is too casual with station staff: かかりますか." }
       ],
       "tiles": {
         "answers": [["$dest まで", "どの くらい", "かかります=かかる", "か"]],
@@ -191,7 +197,8 @@
       "choices": [
         { "text": "快速 は $dest に 止まります=止まる か ？", "gloss": "Does the rapid train stop at $dest_en?", "result": "success" },
         { "text": "快速 は $dest に 止めます=止める か ？", "gloss": "Does the rapid train stop (something) at $dest_en?", "result": "npc_puzzled", "reaction": "止まります=止まる か ？ … はい 。", "note": "止まる is what a train does (it stops). 止める is stopping something else, like a car. 快速は品川に止まりますか.", "grammar": "tomaru" },
-        { "text": "快速 は $dest を 止まります=止まる か ？", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "$dest に 、 です ね ？", "note": "Where a train stops takes に: 品川に止まります.", "grammar": "tomaru" }
+        { "text": "快速 は $dest を 止まります=止まる か ？", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "$dest に 、 です ね ？", "note": "Where a train stops takes に: 品川に止まります.", "grammar": "tomaru" },
+        { "text": "快速 は $dest に 止まる ？", "gloss": "Does the rapid stop at $dest_en? (too casual)", "result": "success", "grade": "okay", "note": "Right meaning, but plain 止まる？ is too casual with station staff: 止まりますか." }
       ],
       "tiles": {
         "answers": [["快速 は", "$dest", "に", "止まります=止まる か"]],
@@ -224,7 +231,8 @@
       "choices": [
         { "text": "ありがとうございます 。", "gloss": "Thank you.", "result": "success" },
         { "text": "お大事に 。", "gloss": "Take care of yourself (get well).", "result": "npc_puzzled", "reaction": "ふふ 。 お気をつけて 。", "note": "お大事に is for someone who is unwell. お気をつけて means take care on your way. Answer with ありがとうございます.", "grammar": "kiwotsukete" },
-        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "… ？ ふふ 、 お気をつけて 。", "note": "いただきます is said right before eating.", "grammar": "itadakimasu" }
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "… ？ ふふ 、 お気をつけて 。", "note": "いただきます is said right before eating.", "grammar": "itadakimasu" },
+        { "text": "ありがとう 。", "gloss": "Thanks. (too casual)", "result": "success", "grade": "okay", "note": "Right meaning, but ありがとう alone is too casual for station staff: ありがとうございます." }
       ],
       "end": true
     }

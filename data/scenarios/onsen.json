@@ -114,6 +114,13 @@
           "reaction": "ふふ 、 お湯 は 飲みません=飲む よ 。",
           "note": "いただきます is for food and drink. Have you washed? いいえ、先に洗います.",
           "grammar": "itadakimasu"
+        },
+        {
+          "text": "いいえ 、 先 に 洗う 。",
+          "gloss": "No, I'll wash first. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but plain 洗う is casual with a guest you've just met: いいえ、先に洗います."
         }
       ],
       "tiles": {
@@ -175,6 +182,13 @@
           "reaction": "ふふ 、 飲む お湯 じゃ ありません=ある よ 。",
           "note": "入れないでください means \"please don't put it in\". Agree, and say where the towel goes instead: 頭の上に置きます.",
           "grammar": "naide"
+        },
+        {
+          "text": "うん 。 タオル は 頭 の 上 に 置く 。",
+          "gloss": "Yeah, I'll put it on my head. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but うん and plain 置く are casual with a stranger: はい。タオルは頭の上に置きます."
         }
       ],
       "tiles": {
@@ -234,6 +248,13 @@
           "reaction": "え ？ … どちら から 来ました=来る か ？",
           "note": "どちらから来ましたか asks where you've come from. Answer [place]から来ました.",
           "grammar": "kara_from"
+        },
+        {
+          "text": "ことまち から 来た=来る 。",
+          "gloss": "I came from Kotomachi. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but plain 来た is casual with someone you've just met: ことまちから来ました."
         }
       ],
       "tiles": {
@@ -297,6 +318,13 @@
           "reaction": "え ？ まだ お風呂=風呂 です よ 。",
           "note": "おやすみなさい is for going to bed. Answer the warning: 気をつけます.",
           "grammar": "greetings_time"
+        },
+        {
+          "text": "うん 、 気をつける 。",
+          "gloss": "Yeah, I'll be careful. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but うん and plain 気をつける are for friends: to an older stranger, はい、気をつけます."
         }
       ],
       "tiles": {
@@ -358,6 +386,13 @@
           "reaction": "ふふ 、 お湯 じゃ なくて=ない 、 水 です よ 。",
           "note": "お湯 is the hot bath water. Drink 水, cold water, afterwards.",
           "grammar": "wo_object"
+        },
+        {
+          "text": "うん 、 分かった=分かる 。",
+          "gloss": "Yeah, got it. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but うん、分かった is for friends: to a stranger, はい、水を飲みます."
         }
       ],
       "tiles": {
@@ -418,6 +453,13 @@
           "reaction": "… ？ はい 、 また ね 。",
           "note": "いらっしゃいませ is what shop staff say. Leaving before someone else, say お先に失礼します.",
           "grammar": "osakini"
+        },
+        {
+          "text": "うん 。 じゃあ ね 。",
+          "gloss": "Yeah. See ya. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but じゃあね is for friends: leaving before a stranger, say お先に失礼します."
         }
       ],
       "tiles": {

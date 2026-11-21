@@ -21,12 +21,13 @@ import { canWaitForDinner, checkIn, checkInVariant, checkOut, CHECK_IN_FROM, CHE
 import { belongings, goodById, goodFor, receive, shelve, SHELF_SIZE, unshelve } from './inventory.ts';
 import { addPoints, canGiveToday, chatPoints, finishInvite, friendAt, friendById, FRIENDS, GIFT_POINTS, give, heartsFor, inviteReady, inviteScenario, isFriend, MAX_HEARTS, photoId, PHOTOS, POINTS, pointsOf, tasteOf, toNextHeart, type FriendId, type HeartChange, type InviteDef, type Taste } from './friends.ts';
 import { DialogueView } from '../ui/dialogue.ts';
+import { faceCanvas } from '../town/faces.ts';
 import { clear, h } from '../ui/dom.ts';
 import { coins, confetti, countUp, floatText, play, wait } from '../ui/fx.ts';
 import { correctionItem, Notebook, type NotebookContext } from '../ui/notebook.ts';
 import { Popup } from '../ui/popup.ts';
 import { ALWAYS, renderTokens, unmarkNew } from '../ui/text.ts';
-import { comboMultiplier, errandPay, levelFor, levelProgress, XP, xpForLevel } from './rewards.ts';
+import { comboMultiplier, errandPay, levelFor, levelProgress, nextCombo, slips, XP, xpForLevel } from './rewards.ts';
 import { chatter, consequences, forms, grammar, npcs, requests, scenarioById, scenarios, vocab, type ChatterLine, type ConsequenceDef, type SceneWho } from './content.ts';
 import { boardNotes, isFestival, morningNote, pickChatter, weatherFor } from './weather.ts';
 import { pickVariant, planRequests, type Errand } from './errands.ts';
@@ -582,7 +583,11 @@ export class Game {
     // After an ordinary chat with a friend you can give them something from your things.
     const special = def.id.startsWith('invite_') || def.id === 'gift_give';
     const extra = friend && !special && canGiveToday(this.g, friend) && this.giftable().length ? { id: 'give', label: 'Give something' } : undefined;
-    const run = new ScenarioRun({ def, variant, stage: progress.stage, friendship, period, vocab, judge: this.judge, extraSlots: greetSlots(period) });
+    // Who you're talking to: a friend by name, anyone else by who they are.
+    const listener = friend
+      ? { friend: true, name: plainText(parseLine(npcs[def.npc].name, vocab)) }
+      : { friend: false, name: npcs[def.npc].listener ?? 'someone you don\'t know well' };
+    const run = new ScenarioRun({ def, variant, stage: progress.stage, friendship, period, vocab, judge: this.judge, extraSlots: greetSlots(period), listener });
     this.activeRun = run;
     this.phase = 'talk';
     this.popup.hide();
@@ -609,16 +614,20 @@ export class Game {
       done: (r, then) => this.finishScenario(r, then),
       hearts: friend ? heartsFor(friendship) : undefined,
       extra,
-      answered: (ok, said) => {
-        if (ok) for (const l of lemmasOf(said)) {
+      answered: (grade, said) => {
+        if (grade !== 'miss') for (const l of lemmasOf(said)) {
           this.learner.markKnown(l, this.g.day);
           unmarkNew(l);
         }
-        this.combo = ok ? this.combo + 1 : 0;
+        // Perfect adds to the streak, okay keeps it as it is, a miss breaks it.
+        this.combo = nextCombo(this.combo, grade);
         this.g.today.bestCombo = Math.max(this.g.today.bestCombo ?? 0, this.combo);
+        const grades = (this.g.today.grades ??= { perfect: 0, okay: 0, miss: 0 });
+        grades[grade] += 1;
         return this.combo;
       },
       combo: () => this.combo,
+      face: (expr) => faceCanvas(def.npc, expr),
     });
   }
 
@@ -666,7 +675,7 @@ export class Game {
       // the request comes back tomorrow.
       errand.missed = true;
     } else if (errand) {
-      const pay = errandPay(run.stage, run.corrections.length, run.moneySpent, errand.retry);
+      const pay = errandPay(run.stage, slips(run.grades), run.moneySpent, errand.retry);
       this.g.money -= run.moneySpent;
       this.addYen(pay.reward + pay.refund, `+${yen(pay.reward)}`);
       this.g.today.yen = (this.g.today.yen ?? 0) - pay.refund;
@@ -1220,7 +1229,14 @@ export class Game {
     const bar = h('div', { class: 'res-level' }, lvLabel, h('span', { class: 'res-bar' }, fill),
       h('span', { class: 'res-next' }, `${xpForLevel(levelNow + 1) - xpBefore} XP to Lv ${levelNow + 1}`));
     const yenLine = h('div', { class: 'res-yen' }, h('span', { class: 'res-label' }, 'Yen earned from errands'), h('b', {}, yen(t.yen ?? 0)));
-    const box = h('div', { class: 'results' }, ...rows.map((r) => r.el), sum, totalEl, bar, yenLine);
+    const gr = t.grades ?? { perfect: 0, okay: 0, miss: 0 };
+    const judged = gr.perfect + gr.okay + gr.miss
+      ? h('div', { class: 'res-grades', 'aria-label': `${gr.perfect} perfect, ${gr.okay} okay, ${gr.miss} missed` },
+          h('span', { class: 'g-perfect' }, 'Perfect ', h('b', {}, String(gr.perfect))),
+          h('span', { class: 'g-okay' }, 'Okay ', h('b', {}, String(gr.okay))),
+          h('span', { class: 'g-miss' }, 'Miss ', h('b', {}, String(gr.miss))))
+      : null;
+    const box = h('div', { class: 'results' }, ...rows.map((r) => r.el), judged, sum, totalEl, bar, yenLine);
     void (async () => {
       await wait(250);
       for (const r of rows) {

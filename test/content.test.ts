@@ -21,13 +21,28 @@ test('vocabulary size', () => {
   assert.ok(vocab.size >= 100, `have ${vocab.size} words`);
 });
 
-test('every multiple-choice moment offers exactly three answers', () => {
+test('every multiple-choice moment offers three answers (a fourth only as an okay one beside two wrong)', () => {
   assert.equal(CHOICES_PER_NODE, 3);
   for (const s of scenarios) {
     for (const [id, n] of Object.entries(s.nodes)) {
-      if (n.choices) assert.equal(n.choices.length, 3, `${s.id}.${id}`);
+      if (!n.choices) continue;
+      if (n.choices.length === 3) continue;
+      assert.equal(n.choices.length, 4, `${s.id}.${id}`);
+      assert.equal(n.choices.filter((c) => c.grade === 'okay').length, 1, `${s.id}.${id}`);
+      assert.ok(n.choices.filter((c) => c.result !== 'success').length >= 2, `${s.id}.${id}`);
     }
   }
+});
+
+test('most conversations have an okay answer to fall into', () => {
+  let nodes = 0;
+  let graded = 0;
+  for (const s of scenarios) for (const n of Object.values(s.nodes)) {
+    if (!n.choices) continue;
+    nodes++;
+    if (n.choices.some((c) => c.grade === 'okay' || c.register)) graded++;
+  }
+  assert.ok(graded / nodes > 0.7, `${graded} of ${nodes}`);
 });
 
 test('validation flags a node with the wrong number of choices', () => {

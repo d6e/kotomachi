@@ -40,7 +40,8 @@
       "choices": [
         { "text": "すみません 、 $item は どこ です か ？", "gloss": "Excuse me, where are the $item_en?", "result": "success" },
         { "text": "$item は 何 です か ？", "gloss": "What are $item_en?", "result": "npc_confused", "reaction": "え ？ $item は … $item です よ 。", "note": "何 asks 'what'. To ask where something is, use どこ: 傘はどこですか.", "grammar": "doko" },
-        { "text": "ありがとうございます 。", "gloss": "Thank you.", "result": "npc_puzzled", "reaction": "え ？ … 何 か お探し=探す です か ？", "note": "Answer the question: name the thing and ask where it is, like 電池はどこですか.", "grammar": "doko" }
+        { "text": "ありがとうございます 。", "gloss": "Thank you.", "result": "npc_puzzled", "reaction": "え ？ … 何 か お探し=探す です か ？", "note": "Answer the question: name the thing and ask where it is, like 電池はどこですか.", "grammar": "doko" },
+        { "text": "$item 、 どこ ？", "gloss": "Where are the $item_en? (too casual)", "result": "success", "grade": "okay", "note": "Right meaning, but a bare どこ？ is too casual for a clerk: ask 傘はどこですか.", "grammar": "doko" }
       ],
       "tiles": {
         "answers": [["$item", "は", "どこ", "です か"]],
@@ -59,7 +60,8 @@
       "choices": [
         { "text": "ありがとうございます 。", "gloss": "Thank you.", "result": "success" },
         { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "npc_puzzled", "reaction": "えっ ？ ふふ 、 $where です よ 。", "note": "どういたしまして answers someone else's thank-you. When someone helps you, say ありがとうございます." },
-        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 $item は 食べ物 じゃ ありません=ある よ 。", "note": "いただきます is said right before you eat.", "grammar": "itadakimasu" }
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 $item は 食べ物 じゃ ありません=ある よ 。", "note": "いただきます is said right before you eat.", "grammar": "itadakimasu" },
+        { "text": "ありがとう 。", "gloss": "Thanks. (too casual)", "result": "success", "grade": "okay", "note": "Right meaning, but ありがとう alone is too casual for a clerk: say ありがとうございます.", "grammar": "plain_vs_polite" }
       ],
       "next": { "success": "counter" }
     },
@@ -72,7 +74,8 @@
       "choices": [
         { "text": "肉まん を 一つ ください 。", "gloss": "One meat bun, please.", "result": "success" },
         { "text": "肉まん が 一つ ください 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "肉まん を 一つ 、 です ね ？", "note": "The thing you ask for takes を: 肉まんを一つください.", "grammar": "wo_object" },
-        { "text": "肉まん を 一つ 召し上がります=召し上がる 。", "gloss": "I will (honorifically) eat one meat bun.", "result": "npc_amused", "reaction": "ふふ 。 肉まん を 一つ 、 です ね ？", "note": "召し上がる is honorific, for other people's eating. Just ask: 肉まんを一つください.", "grammar": "meshiagaru" }
+        { "text": "肉まん を 一つ 召し上がります=召し上がる 。", "gloss": "I will (honorifically) eat one meat bun.", "result": "npc_amused", "reaction": "ふふ 。 肉まん を 一つ 、 です ね ？", "note": "召し上がる is honorific, for other people's eating. Just ask: 肉まんを一つください.", "grammar": "meshiagaru" },
+        { "text": "肉まん 一つ 。", "gloss": "One meat bun. (blunt)", "result": "success", "grade": "okay", "note": "Right meaning, but a bare 肉まん一つ is curt to a clerk: finish with ください.", "grammar": "hitotsu" }
       ],
       "tiles": {
         "answers": [["肉まん", "を", "一つ", "ください"]],

@@ -23,6 +23,8 @@ export interface DayLog {
   clean?: number;
   levelUps?: number;
   bestCombo?: number;
+  /** How today's answers landed: perfect, okay or a miss. Older saves don't have it. */
+  grades?: { perfect: number; okay: number; miss: number };
   /** Experience and yen earned today, for the night's results. */
   xp?: number;
   yen?: number;
@@ -87,7 +89,7 @@ export interface GameData {
 }
 
 export function newDayLog(friendship: GameData['friendship']): DayLog {
-  return { newWords: [], corrections: [], promotions: [], lookups: 0, greeted: false, friendshipStart: { ...friendship }, clean: 0, levelUps: 0, bestCombo: 0, xp: 0, yen: 0, chat: {}, gifted: [] };
+  return { newWords: [], corrections: [], promotions: [], lookups: 0, greeted: false, friendshipStart: { ...friendship }, clean: 0, levelUps: 0, bestCombo: 0, grades: { perfect: 0, okay: 0, miss: 0 }, xp: 0, yen: 0, chat: {}, gifted: [] };
 }
 
 export function newGame(): GameData {
@@ -157,6 +159,9 @@ export function migrate(raw: unknown): GameData | null {
   g.giftsGiven = g.giftsGiven && typeof g.giftsGiven === 'object' ? g.giftsGiven : {};
   g.today.chat ??= {};
   g.today.gifted ??= [];
+  // Answers weren't graded perfect / okay / miss yet.
+  const gr = g.today.grades as Partial<NonNullable<DayLog['grades']>> | undefined;
+  g.today.grades = { perfect: Number(gr?.perfect) || 0, okay: Number(gr?.okay) || 0, miss: Number(gr?.miss) || 0 };
   // Before you had things of your own, only keepsakes were kept, and all of them sat on the shelf.
   if (!old.bag || typeof old.bag !== 'object') {
     g.bag = Object.fromEntries(g.keepsakes.map((k) => [k, 1]));

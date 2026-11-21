@@ -42,6 +42,16 @@ export function errandPay(stage: number, misses: number, spent: number, retry = 
   return { reward: Math.round((base * factor) / 10) * 10, refund: Math.max(0, spent) };
 }
 
+/** The streak after an answer: a perfect one adds to it, an okay one keeps it, a miss breaks it. */
+export function nextCombo(combo: number, grade: 'perfect' | 'okay' | 'miss'): number {
+  return grade === 'perfect' ? combo + 1 : grade === 'okay' ? combo : 0;
+}
+
+/** Slips that cost pay on an errand: each miss counts in full, an okay answer half. */
+export function slips(grades: { perfect: number; okay: number; miss: number }): number {
+  return grades.miss + grades.okay / 2;
+}
+
 /** The night's combo multiplier: 1 + a tenth per right answer in a row, at most ×3. */
 export function comboMultiplier(bestCombo: number): number {
   return Math.min(3, Math.round((1 + Math.max(0, bestCombo) / 10) * 10) / 10);

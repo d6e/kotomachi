@@ -1,15 +1,15 @@
 [
-  { "id": "yuki", "name": "ゆき", "role": "Barista at the cafe. Friendship changes how she talks to you." },
-  { "id": "clerk", "name": "店員=店員", "role": "Konbini clerk" },
-  { "id": "mori", "name": "森 さん", "role": "Pharmacist" },
-  { "id": "server", "name": "山田 さん", "role": "Server at the restaurant" },
-  { "id": "ekiin", "name": "駅員", "role": "Station staff at the ticket window" },
-  { "id": "kobayashi", "name": "小林 さん", "role": "Post office clerk" },
-  { "id": "tanaka", "name": "田中 さん", "role": "Your neighbor" },
-  { "id": "takahashi", "name": "高橋 さん", "role": "Works at the shrine's charm counter in 鎌倉" },
-  { "id": "sato", "name": "佐藤 さん", "role": "Runs the souvenir shop in 鎌倉" },
-  { "id": "yamamoto", "name": "山本 さん", "role": "Runs the goldfish stall at the festival" },
-  { "id": "okami", "name": "女将 さん", "role": "Runs the ryokan in 箱根 and looks after the front desk" },
-  { "id": "nakai", "name": "仲居 さん", "role": "Looks after the guest rooms at the ryokan" },
-  { "id": "suzuki", "name": "鈴木 さん", "role": "Another guest at the ryokan, who comes every year" }
+  { "id": "yuki", "name": "ゆき", "role": "Barista at the cafe. Friendship changes how she talks to you.", "listener": "a barista" },
+  { "id": "clerk", "name": "店員=店員", "role": "Konbini clerk", "listener": "a shop clerk" },
+  { "id": "mori", "name": "森 さん", "role": "Pharmacist", "listener": "a pharmacist" },
+  { "id": "server", "name": "山田 さん", "role": "Server at the restaurant", "listener": "a server" },
+  { "id": "ekiin", "name": "駅員", "role": "Station staff at the ticket window", "listener": "station staff" },
+  { "id": "kobayashi", "name": "小林 さん", "role": "Post office clerk", "listener": "a post office clerk" },
+  { "id": "tanaka", "name": "田中 さん", "role": "Your neighbor", "listener": "a neighbour" },
+  { "id": "takahashi", "name": "高橋 さん", "role": "Works at the shrine's charm counter in 鎌倉", "listener": "shrine staff" },
+  { "id": "sato", "name": "佐藤 さん", "role": "Runs the souvenir shop in 鎌倉", "listener": "a shopkeeper" },
+  { "id": "yamamoto", "name": "山本 さん", "role": "Runs the goldfish stall at the festival", "listener": "a stallholder" },
+  { "id": "okami", "name": "女将 さん", "role": "Runs the ryokan in 箱根 and looks after the front desk", "listener": "the ryokan’s 女将さん" },
+  { "id": "nakai", "name": "仲居 さん", "role": "Looks after the guest rooms at the ryokan", "listener": "ryokan staff" },
+  { "id": "suzuki", "name": "鈴木 さん", "role": "Another guest at the ryokan, who comes every year", "listener": "someone you’ve just met" }
 ]

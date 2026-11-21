@@ -56,7 +56,8 @@
       "choices": [
         { "text": "いってきます 。", "gloss": "I'm off! (said by the one leaving)", "result": "success" },
         { "text": "いってらっしゃい 。", "gloss": "See you later! (said to the one leaving)", "result": "npc_amused", "reaction": "ふふ 、 いってきます 、 です よ 。", "note": "The person leaving says いってきます. The one staying says いってらっしゃい.", "grammar": "ittekimasu" },
-        { "text": "ただいま 。", "gloss": "I'm home!", "result": "npc_amused", "reaction": "ふふ 、 それ は 帰る 時 の 言葉 です よ 。", "note": "ただいま is what you say when you get home. When you head out, say いってきます.", "grammar": "ittekimasu" }
+        { "text": "ただいま 。", "gloss": "I'm home!", "result": "npc_amused", "reaction": "ふふ 、 それ は 帰る 時 の 言葉 です よ 。", "note": "ただいま is what you say when you get home. When you head out, say いってきます.", "grammar": "ittekimasu" },
+        { "text": "さようなら 。", "gloss": "Goodbye. (stiff)", "result": "success", "grade": "okay", "note": "Right meaning, but さようなら sounds stiff and final; when a neighbour sees you off, say いってきます." }
       ],
       "tiles": { "answers": [["いってきます"]], "decoys": ["いってらっしゃい", "ただいま", "どうも"] },
       "blank": { "before": "", "after": "。", "answers": ["いってきます"] },
@@ -122,7 +123,8 @@
       "choices": [
         { "text": "かわいい です ね 。", "gloss": "Cute, isn't it.", "result": "success" },
         { "text": "かわいい な です ね 。", "gloss": "(な doesn't go here)", "result": "npc_puzzled", "reaction": "ふふ 、 かわいい です ね 。", "note": "かわいい is an い-adjective: just add です, with no な.", "grammar": "i_adj" },
-        { "text": "おいしい です ね 。", "gloss": "Tasty, isn't it.", "result": "npc_amused", "reaction": "えっ ！ 猫 です よ ！", "note": "おいしい means tasty. For a cute cat, say かわいいですね.", "grammar": "i_adj" }
+        { "text": "おいしい です ね 。", "gloss": "Tasty, isn't it.", "result": "npc_amused", "reaction": "えっ ！ 猫 です よ ！", "note": "おいしい means tasty. For a cute cat, say かわいいですね.", "grammar": "i_adj" },
+        { "text": "かわいい 猫 です 。", "gloss": "It is a cute cat. (flat)", "result": "success", "grade": "okay", "note": "Right meaning, but without ね it sounds like a flat report; share the feeling: かわいいですね." }
       ],
       "tiles": { "answers": [["かわいい", "です", "ね"]], "decoys": ["な", "おいしい", "か"] },
       "blank": { "before": "", "after": "です ね 。", "answers": ["かわいい"] },
@@ -154,7 +156,8 @@
       "choices": [
         { "text": "はい 、 今度 行きます=行く 。", "gloss": "Yes, I'll go next time.", "result": "success" },
         { "text": "はい 、 昨日 行きます=行く 。", "gloss": "Yes, I'll go yesterday.", "result": "npc_puzzled", "reaction": "昨日 … ？ ふふ 、 今度 です ね 。", "note": "昨日 is yesterday; 今度 is next time: 今度行きます.", "grammar": "ne_yo" },
-        { "text": "ごちそうさまでした 。", "gloss": "Thanks for the meal.", "result": "npc_amused", "reaction": "ふふ 、 まだ 食べて=食べる いません=いる よ 。", "note": "ごちそうさまでした is said after eating. Here, say はい、今度行きます.", "grammar": "gochisousama" }
+        { "text": "ごちそうさまでした 。", "gloss": "Thanks for the meal.", "result": "npc_amused", "reaction": "ふふ 、 まだ 食べて=食べる いません=いる よ 。", "note": "ごちそうさまでした is said after eating. Here, say はい、今度行きます.", "grammar": "gochisousama" },
+        { "text": "はい 、 今度 参ります=参る 。", "gloss": "Yes, I shall humbly go next time. (too stiff)", "result": "success", "grade": "okay", "note": "Right meaning, but humble 参ります is too stiff for a chat with a neighbour: 今度行きます." }
       ],
       "tiles": { "answers": [["はい 、", "今度", "行きます=行く"]], "decoys": ["昨日", "を", "が"] },
       "blank": { "before": "はい 、", "after": "行きます=行く 。", "answers": ["こんど", "今度"] },
@@ -186,7 +189,8 @@
       "choices": [
         { "text": "はい 、 朝 ここ に 出します=出す 。", "gloss": "Okay, I'll put it here in the morning.", "result": "success" },
         { "text": "はい 、 夜 ここ に 出します=出す 。", "gloss": "Okay, I'll put it here at night.", "result": "npc_puzzled", "reaction": "いいえ 、 朝 です よ 。", "note": "朝 is morning; 夜 is night.", "grammar": "tekudasai" },
-        { "text": "はい 、 ここ を 出します=出す 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "ここ に 、 です よ 。", "note": "Where you put something takes に: ここに出します.", "grammar": "ni_destination" }
+        { "text": "はい 、 ここ を 出します=出す 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "ここ に 、 です よ 。", "note": "Where you put something takes に: ここに出します.", "grammar": "ni_destination" },
+        { "text": "かしこまりました 。", "gloss": "Certainly. (too stiff)", "result": "success", "grade": "okay", "note": "Right meaning, but かしこまりました is shop-staff language, too stiff for a neighbour: はい、朝ここに出します." }
       ],
       "tiles": { "answers": [["はい 、", "朝", "ここ", "に", "出します=出す"]], "decoys": ["夜", "を", "で"] },
       "blank": { "before": "はい 、 朝 ここ", "after": "出します=出す 。", "answers": ["に"] },

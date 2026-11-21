@@ -55,6 +55,13 @@
           "reaction": "ふふ 、 お食事=食事 は 夜 です よ 。",
           "note": "いただきます is for just before you eat. To ask for a room, say 今晩、部屋はありますか.",
           "grammar": "itadakimasu"
+        },
+        {
+          "text": "いいえ 。 今晩 、 部屋 ある ？",
+          "gloss": "No. Got a room tonight? (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but plain ある？ is casual for the front desk: 今晩、部屋はありますか."
         }
       ],
       "tiles": {
@@ -118,6 +125,13 @@
           "reaction": "ふふ 、 お食事=食事 は これ から です よ 。",
           "note": "ごちそうさまでした is for after a meal. Dinner hasn't even started.",
           "grammar": "gochisousama"
+        },
+        {
+          "text": "じゃあ 、 一泊 。",
+          "gloss": "Then one night. (curt)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but a bare 一泊 is curt to the okami: じゃあ、一泊お願いします."
         }
       ],
       "tiles": {
@@ -179,6 +193,13 @@
           "reaction": "ふふ 、 お部屋=部屋 で 待って=待つ いて=いる ください ね 。",
           "note": "いってきます is for leaving your own home. Here, agree to the time: はい、お願いします.",
           "grammar": "ittekimasu"
+        },
+        {
+          "text": "うん 、 いい よ 。",
+          "gloss": "Yeah, that's fine. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but うん、いいよ is for friends: to ryokan staff, はい、お願いします."
         }
       ],
       "tiles": {
@@ -241,6 +262,13 @@
           "reaction": "ふふ 、 それ は 私 の 言葉 です よ 。",
           "note": "Staff say いらっしゃいませ to guests, not the other way round. Here, just say 分かりました.",
           "grammar": "irasshaimase"
+        },
+        {
+          "text": "うん 、 分かった=分かる 。",
+          "gloss": "Yeah, got it. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but うん、分かった is for friends: to the okami, はい、分かりました."
         }
       ],
       "tiles": {
@@ -300,6 +328,13 @@
           "reaction": "ふふ 、 お夕食=夕食 は まだ です よ 。",
           "note": "ごちそうさまでした is for after a meal.",
           "grammar": "gochisousama"
+        },
+        {
+          "text": "どうも 。",
+          "gloss": "Thanks. (curt)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but a lone どうも is curt for ryokan staff: say ありがとうございます."
         }
       ],
       "end": true

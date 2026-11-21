@@ -57,6 +57,13 @@
           "reaction": "ふふ 、 私 が 見る の です か ？",
           "note": "見てください is her asking you to look. Ask about the price instead: …はいくらですか.",
           "grammar": "tekudasai"
+        },
+        {
+          "text": "$item 、 いくら ？",
+          "gloss": "The $item_en, how much? (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but a bare いくら？ is casual for ryokan staff: …はいくらですか."
         }
       ],
       "tiles": {
@@ -120,6 +127,13 @@
           "reaction": "ええ 、 名物 です よ 。 … いかが です か ？",
           "note": "She told you it's famous. To buy it, say これをください.",
           "grammar": "wo_object"
+        },
+        {
+          "text": "じゃあ 、 これ 。",
+          "gloss": "Then this. (curt)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but a bare これ is curt to the okami: じゃあ、これをください."
         }
       ],
       "tiles": {
@@ -180,6 +194,13 @@
           "reaction": "ふふ 、 お部屋=部屋 で どうぞ 。",
           "note": "いただきます is said right before you eat, not when you buy something.",
           "grammar": "itadakimasu"
+        },
+        {
+          "text": "ありがとう 。",
+          "gloss": "Thanks. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but plain ありがとう is casual for ryokan staff: ありがとうございます."
         }
       ],
       "end": true

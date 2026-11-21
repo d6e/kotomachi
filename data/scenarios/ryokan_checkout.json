@@ -45,6 +45,13 @@
           "reaction": "ふふ 、 朝ご飯 は もう 食べました=食べる よ ね 。",
           "note": "いただきます is for just before you eat. よく眠れましたか asks if you slept well: はい、よく眠れました.",
           "grammar": "itadakimasu"
+        },
+        {
+          "text": "うん 、 よく 眠れた=眠る 。",
+          "gloss": "Yeah, I slept well. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but うん and plain 眠れた are casual for the okami: はい、よく眠れました."
         }
       ],
       "tiles": {
@@ -103,6 +110,13 @@
           "reaction": "え ？ チェックイン は 昨日 でした=です よ 。",
           "note": "You checked in yesterday. Now hand the key back: はい、どうぞ.",
           "grammar": "douzo"
+        },
+        {
+          "text": "はい 、 これ 。",
+          "gloss": "Here, this. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but はい、これ is how you'd hand something to a friend: to the okami, はい、どうぞ."
         }
       ],
       "tiles": {
@@ -164,6 +178,13 @@
           "reaction": "ふふ 。 $price 円 です よ 。",
           "note": "いただきます is for just before you eat. To pay by card, say カードでお願いします.",
           "grammar": "itadakimasu"
+        },
+        {
+          "text": "カード で 払う 。",
+          "gloss": "I'll pay by card. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but plain 払う is casual at the front desk: カードでお願いします."
         }
       ],
       "tiles": {
@@ -223,6 +244,13 @@
           "reaction": "ふふ 、 それ は 私 の 言葉 です よ 。",
           "note": "いらっしゃいませ is what staff say. To thank someone for a gift, say ありがとうございます.",
           "grammar": "irasshaimase"
+        },
+        {
+          "text": "ありがとう 。 うれしい 。",
+          "gloss": "Thanks. I'm so pleased. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but plain ありがとう and うれしい are casual for the okami: add ございます and です."
         }
       ],
       "tiles": {
@@ -281,6 +309,13 @@
           "reaction": "ふふ 、 いってらっしゃいませ=いってらっしゃい 。 … また どうぞ 。",
           "note": "いってきます is for leaving your own home. Leaving a place that looked after you, say お世話になりました.",
           "grammar": "osewa"
+        },
+        {
+          "text": "ありがとう 。 また ね 。",
+          "gloss": "Thanks. See ya. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but またね is for friends: leaving a ryokan, say お世話になりました."
         }
       ],
       "tiles": {

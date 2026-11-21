@@ -42,7 +42,8 @@
       "choices": [
         { "text": "いただきます 。", "gloss": "Thank you, I will (before drinking).", "result": "success" },
         { "text": "ごちそうさま 。", "gloss": "Thanks for the meal.", "result": "npc_amused", "reaction": "ふふ 、 それ は 飲んだ=飲む 後 だ よ 。", "note": "ごちそうさま comes after. Before you start: いただきます.", "grammar": "itadakimasu" },
-        { "text": "いってきます 。", "gloss": "I'm off!", "result": "npc_amused", "reaction": "え ？ もう 帰る の ？", "note": "いってきます is for leaving. Before you drink: いただきます.", "grammar": "itadakimasu" }
+        { "text": "いってきます 。", "gloss": "I'm off!", "result": "npc_amused", "reaction": "え ？ もう 帰る の ？", "note": "いってきます is for leaving. Before you drink: いただきます.", "grammar": "itadakimasu" },
+        { "text": "ありがとうございます 。", "gloss": "Thank you very much. (too stiff)", "result": "success", "grade": "okay", "note": "Right meaning, but ありがとうございます is stiff with a close friend; before you drink, say いただきます." }
       ],
       "next": { "success": "talk1" }
     },
@@ -103,7 +104,8 @@
           "reaction": "ふふ 、 持って=持つ 行く 、 だ よ 。",
           "note": "You're going to where 田中さん will be, so it's 持って行く. 持って来る is bringing something to where you are now.",
           "grammar": "iku_kuru"
-        }
+        },
+        { "text": "はい 、 お茶 を 持って=持つ 行きます=行く 。", "gloss": "Yes, I will bring the tea. (too stiff)", "result": "success", "grade": "okay", "note": "Right meaning, but 持って行きます sounds stiff with a close friend: うん、お茶を持って行くね." }
       ],
       "tiles": { "answers": [["うん 、", "お茶", "を", "持って=持つ", "行く", "ね"]], "decoys": ["で", "来る", "が"] },
       "blank": { "before": "うん 、 お茶", "after": "持って=持つ 行く ね 。", "answers": ["を"] },

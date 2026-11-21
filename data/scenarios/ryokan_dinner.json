@@ -67,6 +67,13 @@
           "reaction": "ふふ 、 私 は ここ に います=いる よ 。",
           "note": "いってらっしゃい is said to someone heading out. Say ありがとうございます.",
           "grammar": "ittekimasu"
+        },
+        {
+          "text": "あ 、 どうも 。",
+          "gloss": "Oh, thanks. (curt)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but a lone どうも is curt for ryokan staff: say ありがとうございます."
         }
       ],
       "next": {
@@ -104,6 +111,13 @@
           "reaction": "あ 、 好き な もの じゃ なくて=ない 、 苦手 な もの です よ 。",
           "note": "苦手 is the opposite of 好き here: something you don't like or can't eat. If there's nothing, say いいえ、ありません.",
           "grammar": "nigate"
+        },
+        {
+          "text": "ない よ 。 大丈夫 。",
+          "gloss": "Nope. I'm fine. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but plain ないよ is casual for staff: いいえ、ありません。大丈夫です."
         }
       ],
       "tiles": {
@@ -165,6 +179,13 @@
           "reaction": "え ？ … 私 は 大丈夫 です よ 。 お客様 は ？",
           "note": "いかがですか is how staff offer something. To ask for it, say …をお願いします.",
           "grammar": "onegai"
+        },
+        {
+          "text": "$drink 。",
+          "gloss": "$drink_en. (curt)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but a bare drink name is curt to the nakai: add をお願いします."
         }
       ],
       "tiles": {
@@ -271,6 +292,13 @@
           "reaction": "え ？ … お味=味 は どう でした=です か ？",
           "note": "お味はいかがでしたか asks how the food was. Answer with おいしかったです.",
           "grammar": "i_adj_past"
+        },
+        {
+          "text": "うん 、 おいしかった=おいしい 。",
+          "gloss": "Yeah, it was good. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but うん and plain おいしかった are casual for staff: とてもおいしかったです."
         }
       ],
       "tiles": {
@@ -330,6 +358,13 @@
           "reaction": "… ふふ 、 それ は 明日 の 朝 です ね 。",
           "note": "おはようございます is for the morning. After a meal, say ごちそうさまでした.",
           "grammar": "greetings_time"
+        },
+        {
+          "text": "ごちそうさま 。",
+          "gloss": "Thanks for the meal. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but ごちそうさま is the casual form: to ryokan staff, ごちそうさまでした."
         }
       ],
       "blank": {

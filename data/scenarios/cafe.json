@@ -30,7 +30,7 @@
       "choices": [
         { "text": "$item を お願いします=お願いする 。", "gloss": "$item_en, please.", "result": "success" },
         { "text": "ごちそうさまでした 。", "gloss": "Thank you for the meal.", "result": "npc_amused", "reaction": "ふふ 、 まだ です よ 。 ご注文=注文 は ？", "note": "ごちそうさまでした is said after eating or drinking, not when you order.", "grammar": "gochisousama" },
-        { "text": "$item だ 。", "gloss": "It's $item_en. (blunt)", "result": "npc_confused", "reaction": "えっと 、 $item です ね ？", "note": "Plain だ sounds blunt to staff. Ask with をお願いします.", "grammar": "plain_vs_polite" }
+        { "text": "$item だ 。", "gloss": "It's $item_en. (blunt)", "result": "success", "grade": "okay", "note": "Right meaning, but plain だ sounds blunt to staff: ask with をお願いします.", "grammar": "plain_vs_polite" }
       ],
       "tiles": {
         "answers": [["$item", "を", "お願いします=お願いする"], ["$item", "を", "ください"]],
@@ -52,7 +52,7 @@
       "choices": [
         { "text": "$size サイズ で お願いします=お願いする 。", "gloss": "Size $size, please.", "result": "success" },
         { "text": "$size サイズ に お願いします=お願いする 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "$size サイズ で 、 です ね ？", "note": "Use で to say what you'll go with: Mサイズでお願いします.", "grammar": "de_choice" },
-        { "text": "$size サイズ だ 。", "gloss": "Size $size. (blunt)", "result": "npc_confused", "reaction": "あ 、 $size サイズ です ね 。", "note": "Plain だ sounds blunt to staff.", "grammar": "plain_vs_polite" }
+        { "text": "$size サイズ だ 。", "gloss": "Size $size. (blunt)", "result": "success", "grade": "okay", "note": "Right meaning, but plain だ sounds blunt to staff: say Mサイズでお願いします.", "grammar": "plain_vs_polite" }
       ],
       "tiles": {
         "answers": [["$size サイズ", "で", "お願いします=お願いする"]],

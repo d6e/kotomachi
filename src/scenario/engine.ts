@@ -95,40 +95,71 @@ export function finishRun(
   return { progress: { ...p, runs, cleanRuns }, promoted: false };
 }
 
+/**
+ * How an answer lands, like the judgement in a rhythm game:
+ *   perfect: right meaning, right register for who you're talking to, natural;
+ *   okay:    right meaning, but awkward, blunt, too casual or too stiff;
+ *   miss:    the wrong thing.
+ */
+export type Grade = 'perfect' | 'okay' | 'miss';
+
+/** Who you're talking to, for the register check and its explanation. */
+export interface Listener {
+  /** A friend (hearts, and casual speech from two hearts) or staff and strangers. */
+  friend: boolean;
+  /** For a friend their name ("ゆき"); otherwise who they are ("a shop clerk"). */
+  name: string;
+}
+
 export interface ChoiceContext {
   period: Period;
   friendship: number;
+  listener?: Listener;
+  /**
+   * The other right answers on the same node: whether there's a plain-speech one and a
+   * not-plain one. A register slip is only Okay when the better register was on offer.
+   * Defaults to both.
+   */
+  alternatives?: { plain: boolean; notPlain: boolean };
 }
 
 export interface ResolvedChoice {
   result: Result;
+  grade: Grade;
   friendshipDelta: number;
   note?: string;
 }
 
+export function tooCasualNote(listener?: Listener): string {
+  if (listener?.friend) return `Right meaning, but too casual for now: ${listener.name} still talks politely to you. Go casual when they do.`;
+  return `Right meaning, but too casual for ${listener?.name ?? 'someone you don\'t know well'}. Use です/ます with staff and people you've just met.`;
+}
+
+export function tooStiffNote(listener?: Listener): string {
+  return `Right meaning, but a bit stiff: ${listener?.name ?? 'they'} ${listener ? 'talks' : 'talk'} casually with you now, so plain speech sounds warmer.`;
+}
+
 export function resolveChoice(choice: ChoiceDef, ctx: ChoiceContext): ResolvedChoice {
   const level = friendshipLevel(ctx.friendship);
+  const alt = ctx.alternatives ?? { plain: true, notPlain: true };
   if (choice.correctWhen && choice.correctWhen !== ctx.period) {
-    return { result: 'npc_amused', friendshipDelta: 0, note: choice.note };
+    return { result: 'npc_amused', grade: 'miss', friendshipDelta: 0, note: choice.note };
   }
-  if (choice.register === 'plain' && choice.result === 'success') {
-    if (level < 2) {
-      return {
-        result: 'npc_puzzled',
-        friendshipDelta: -1,
-        note: choice.note ?? 'You went casual before they did. Match their politeness until they switch to plain speech.',
-      };
-    }
-    return { result: 'success', friendshipDelta: 1, note: undefined };
+  if (choice.result !== 'success') return { result: choice.result, grade: 'miss', friendshipDelta: 0, note: choice.note };
+  if (choice.grade === 'okay') {
+    // A plain-speech okay is only too casual until they go casual with you.
+    if (choice.register === 'plain' && level >= 2) return { result: 'success', grade: 'perfect', friendshipDelta: 1 };
+    return { result: 'success', grade: 'okay', friendshipDelta: 0, note: choice.note };
   }
-  if (choice.register === 'polite' && choice.result === 'success' && level >= 2) {
-    return {
-      result: 'success',
-      friendshipDelta: 0,
-      note: 'They talk to you casually now, so plain speech back would feel warmer.',
-    };
+  if (choice.register === 'plain') {
+    // Plain speech before they've gone casual: understood, but it lands a little rude.
+    if (level < 2 && alt.notPlain) return { result: 'success', grade: 'okay', friendshipDelta: -1, note: choice.note ?? tooCasualNote(ctx.listener) };
+    return { result: 'success', grade: 'perfect', friendshipDelta: level >= 2 ? 1 : 0 };
   }
-  return { result: choice.result, friendshipDelta: 0, note: choice.note };
+  if (choice.register === 'polite' && level >= 2 && alt.plain) {
+    return { result: 'success', grade: 'okay', friendshipDelta: 0, note: tooStiffNote(ctx.listener) };
+  }
+  return { result: 'success', grade: 'perfect', friendshipDelta: 0 };
 }
 
 export interface Correction {
@@ -170,8 +201,13 @@ export interface PromptView {
 export interface AnswerOutcome {
   correct: boolean;
   result: Result;
+  /** Perfect, okay or miss. A line that needs no answer counts as perfect. */
+  grade: Grade;
   said: Token[];
   reaction?: Token[];
+  /** For an okay answer: why it was off, and the better line. */
+  why?: string;
+  better?: Token[];
   ended: boolean;
 }
 
@@ -186,6 +222,8 @@ export interface RunOptions {
   rng?: () => number;
   /** Extra slots computed by the game (e.g. today's greeting). */
   extraSlots?: Slots;
+  /** Who you're talking to (for register grading). */
+  listener?: Listener;
 }
 
 const GENERIC_RECAST = 'すみません 、 もう一度 お願いします 。';
@@ -208,7 +246,10 @@ export class ScenarioRun {
   readonly evidence: NodeEvidence[] = [];
   friendshipDelta = 0;
   moneySpent = 0;
+  /** No misses (an okay answer still counts as clean for moving up the ladder). */
   clean = true;
+  /** How the answers landed in this conversation. */
+  readonly grades: Record<Grade, number> = { perfect: 0, okay: 0, miss: 0 };
   ended = false;
   /** Set when a wrong pick ended the conversation with a consequence scene. */
   consequence: string | null = null;
@@ -218,6 +259,8 @@ export class ScenarioRun {
   private readonly rng: () => number;
   private fails = 0;
   private removedChoices = new Set<number>();
+  /** On a node with an okay answer and two wrong ones, the wrong one left off the menu. */
+  private dropped: { node: string; index: number } | null = null;
   private lookedUp = new Set<string>();
   private prompt: PromptView | null = null;
 
@@ -286,9 +329,10 @@ export class ScenarioRun {
       fallback: mode < baseMode,
     };
     if (mode === 1 || mode === 2) {
+      const off = this.droppedChoice();
       const choices = (node.choices ?? [])
         .map((c, index) => ({ c, index }))
-        .filter(({ index }) => !this.removedChoices.has(index));
+        .filter(({ index }) => !this.removedChoices.has(index) && index !== off);
       view.choices = shuffle(choices, this.rng).map(({ c, index }) => ({
         index,
         tokens: this.parse(c.text),
@@ -309,9 +353,36 @@ export class ScenarioRun {
     return view;
   }
 
+  /** Menus show three answers: with four authored, one wrong one sits out, chosen once per visit. */
+  private droppedChoice(): number | null {
+    const choices = this.node.choices ?? [];
+    if (choices.length <= 3) return null;
+    if (this.dropped?.node !== this.nodeId) {
+      const wrong = choices.flatMap((c, i) => (c.result !== 'success' ? [i] : []));
+      this.dropped = { node: this.nodeId, index: wrong[Math.floor(this.rng() * wrong.length)]! };
+    }
+    return this.dropped.index;
+  }
+
+  private context(): ChoiceContext {
+    const ok = (c: ChoiceDef) => c.result === 'success' && (c.grade !== 'okay' || c.register === 'plain') && (!c.correctWhen || c.correctWhen === this.opts.period);
+    const right = (this.node.choices ?? []).filter(ok);
+    return {
+      period: this.opts.period,
+      friendship: this.opts.friendship + this.friendshipDelta,
+      listener: this.opts.listener,
+      alternatives: { plain: right.some((c) => c.register === 'plain'), notPlain: right.some((c) => c.register !== 'plain') },
+    };
+  }
+
+  private grade(choice: ChoiceDef): ResolvedChoice {
+    return resolveChoice(choice, this.context());
+  }
+
   private correctExample(): Token[] {
     const node = this.node;
-    const success = node.choices?.find((c) => c.result === 'success' && !c.correctWhen && c.register !== 'plain')
+    const success = node.choices?.find((c) => this.grade(c).grade === 'perfect' && !c.correctWhen)
+      ?? node.choices?.find((c) => this.grade(c).grade === 'perfect')
       ?? node.choices?.find((c) => c.result === 'success' && (!c.correctWhen || c.correctWhen === this.opts.period));
     if (success) return this.parse(success.text);
     if (node.tiles) return this.parse(node.tiles.answers[0]!.join(' '));
@@ -345,6 +416,7 @@ export class ScenarioRun {
     this.prompt = null;
     this.lookedUp = new Set();
     this.removedChoices = new Set();
+    this.dropped = null;
     this.fails = 0;
     if (node.end || !next) {
       this.ended = true;
@@ -356,6 +428,7 @@ export class ScenarioRun {
 
   private fail(result: Result, said: Token[], note: string, grammar?: string): void {
     this.clean = false;
+    this.grades.miss += 1;
     this.fails += 1;
     this.prompt = null;
     const better = this.correctExample();
@@ -373,6 +446,7 @@ export class ScenarioRun {
     if (redirect) {
       this.lookedUp = new Set();
       this.removedChoices = new Set();
+      this.dropped = null;
       this.fails = 0;
       this.nodeId = this.skipInapplicable(redirect);
     }
@@ -380,8 +454,7 @@ export class ScenarioRun {
 
   /** Which of this node's choices would be right just now (to show the answer after a miss). */
   rightChoices(): number[] {
-    const ctx = { period: this.opts.period, friendship: this.opts.friendship + this.friendshipDelta };
-    return (this.node.choices ?? []).flatMap((c, i) => (resolveChoice(c, ctx).result === 'success' ? [i] : []));
+    return (this.node.choices ?? []).flatMap((c, i) => (this.grade(c).grade === 'perfect' ? [i] : []));
   }
 
   /** Advance past a node that needs no input. */
@@ -390,7 +463,7 @@ export class ScenarioRun {
     if (view.mode !== 0) throw new Error('this node needs an answer');
     this.complete([], true);
     const ended = this.advance('success');
-    return { correct: true, result: 'success', said: [], ended };
+    return { correct: true, result: 'success', grade: 'perfect', said: [], ended };
   }
 
   answerChoice(index: number): AnswerOutcome {
@@ -399,26 +472,32 @@ export class ScenarioRun {
     if (!choice) throw new Error(`no choice ${index}`);
     const firstTry = this.fails === 0;
     const said = this.parse(choice.text);
-    const resolved = resolveChoice(choice, { period: this.opts.period, friendship: this.opts.friendship + this.friendshipDelta });
+    const resolved = this.grade(choice);
     this.friendshipDelta += resolved.friendshipDelta;
     const reaction = choice.reaction ? this.parse(choice.reaction) : undefined;
     if (resolved.result === 'success') {
-      if (resolved.note) {
+      let why: string | undefined;
+      let better: Token[] | undefined;
+      if (resolved.grade === 'okay') {
+        // Understood, so the conversation goes on; the notebook keeps the better way.
+        better = this.correctExample();
+        why = resolved.note ?? 'Right meaning, but there is a more natural way to say it.';
         this.corrections.push({
           scenario: this.def.id,
           nodeId: this.nodeId,
           said: plainText(said),
-          better: plainText(said),
-          note: resolved.note,
+          better: plainText(better),
+          note: why,
           grammar: choice.grammar,
           saidTokens: said,
-          betterTokens: said,
+          betterTokens: better,
         });
       }
+      this.grades[resolved.grade] += 1;
       this.complete(said, firstTry);
       const ended = this.advance('success');
       // Reactions are for mistakes; on success the NPC simply carries on.
-      return { correct: true, result: 'success', said, ended };
+      return { correct: true, result: 'success', grade: resolved.grade, said, why, better, ended };
     }
     if (choice.consequence) {
       // No retry: you go off and it plays out. The correction still goes in the notebook.
@@ -426,12 +505,12 @@ export class ScenarioRun {
       this.consequence = choice.consequence;
       this.ended = true;
       this.prompt = null;
-      return { correct: false, result: resolved.result, said, ended: true };
+      return { correct: false, result: resolved.result, grade: 'miss', said, ended: true };
     }
     this.removedChoices.add(index);
     const npcReply = reaction ?? this.parse(node.recast ?? GENERIC_RECAST);
     this.fail(resolved.result, said, resolved.note ?? 'Not quite right here.', choice.grammar);
-    return { correct: false, result: resolved.result, said, reaction: npcReply, ended: false };
+    return { correct: false, result: resolved.result, grade: 'miss', said, reaction: npcReply, ended: false };
   }
 
   answerTiles(tileIds: number[]): AnswerOutcome {
@@ -444,13 +523,14 @@ export class ScenarioRun {
     const match = node.tiles.answers.find((a) => plainText(this.parse(a.join(' '))) === built);
     const firstTry = this.fails === 0;
     if (match) {
+      this.grades.perfect += 1;
       this.complete(said, firstTry);
       const ended = this.advance('success');
-      return { correct: true, result: 'success', said, ended };
+      return { correct: true, result: 'success', grade: 'perfect', said, ended };
     }
     const npcReply = this.parse(node.recast ?? GENERIC_RECAST);
     this.fail('npc_puzzled', said, `You built 「${built}」. One natural way: 「${plainText(this.parse(node.tiles.answers[0]!.join(' ')))}」.`);
-    return { correct: false, result: 'npc_puzzled', said, reaction: npcReply, ended: false };
+    return { correct: false, result: 'npc_puzzled', grade: 'miss', said, reaction: npcReply, ended: false };
   }
 
   answerBlank(input: string): AnswerOutcome {
@@ -465,9 +545,10 @@ export class ScenarioRun {
     if (ok) {
       // Credit the words of the full sentence the blank stands for.
       const full = node.tiles ? this.parse(node.tiles.answers[0]!.join(' ')) : said;
+      this.grades.perfect += 1;
       this.complete(full, firstTry);
       const ended = this.advance('success');
-      return { correct: true, result: 'success', said, ended };
+      return { correct: true, result: 'success', grade: 'perfect', said, ended };
     }
     const expected = answers[0]!;
     const npcReply = this.parse(node.recast ?? GENERIC_RECAST);
@@ -476,6 +557,6 @@ export class ScenarioRun {
       said,
       `You typed 「${input}」 in 「${plainText(view.blank.before)}＿${plainText(view.blank.after)}」. Expected: 「${expected}」.`,
     );
-    return { correct: false, result: 'npc_puzzled', said, reaction: npcReply, ended: false };
+    return { correct: false, result: 'npc_puzzled', grade: 'miss', said, reaction: npcReply, ended: false };
   }
 }

@@ -56,6 +56,13 @@
           "reaction": "え ？ ここ は 神社 です よ 。",
           "note": "お参りですか asks whether you've come to pray. Answer お参りに来ました.",
           "grammar": "ni_kuru"
+        },
+        {
+          "text": "うん 、 お参り に 来た=来る 。",
+          "gloss": "Yeah, I came to pray. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but うん and plain 来た are for friends: at the charm counter, はい、お参りに来ました."
         }
       ],
       "tiles": {
@@ -118,6 +125,13 @@
           "reaction": "はい 、 そう です ね … 。 いかが です か ？",
           "note": "That only repeats what you heard. To ask for one, say ～を一つください.",
           "grammar": "hitotsu"
+        },
+        {
+          "text": "$item の お守り 、 一つ 。",
+          "gloss": "One $item_en charm. (curt)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but a bare noun order is curt at a shrine counter: finish with を一つください."
         }
       ],
       "tiles": {
@@ -182,6 +196,13 @@
           "reaction": "… ？ $price 円 です 。",
           "note": "ごちそうさまでした is for after a meal, not when you pay.",
           "grammar": "gochisousama"
+        },
+        {
+          "text": "はい 、 これ 。",
+          "gloss": "Here, this. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but はい、これ is how you'd hand something to a friend: at the counter, はい、どうぞ."
         }
       ],
       "tiles": {
@@ -239,6 +260,13 @@
           "reaction": "え ？ … はい 。",
           "note": "おやすみなさい is for bedtime. Answer お気をつけて with ありがとうございます.",
           "grammar": "greetings_time"
+        },
+        {
+          "text": "どうも 。",
+          "gloss": "Thanks. (curt)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but a lone どうも is curt after such a kind send-off: say ありがとうございます."
         }
       ],
       "end": true

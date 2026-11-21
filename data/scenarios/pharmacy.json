@@ -83,7 +83,8 @@
       "choices": [
         { "text": "$body が $pred 。", "gloss": "$sym_en", "result": "success" },
         { "text": "$body を $pred 。", "gloss": "(wrong particle)", "result": "npc_puzzled", "reaction": "あ 、 $body が $plain ん=の です ね 。", "note": "Symptoms take が: 喉が痛いです, 熱があります, 咳が出ます.", "grammar": "ga_itai" },
-        { "text": "元気 です 。", "gloss": "I'm fine!", "result": "npc_amused", "reaction": "それ は よかった=いい です 。 … で 、 今日 は ？", "note": "元気です means you're well. Say what's wrong, like 頭が痛いです.", "grammar": "ga_itai" }
+        { "text": "元気 です 。", "gloss": "I'm fine!", "result": "npc_amused", "reaction": "それ は よかった=いい です 。 … で 、 今日 は ？", "note": "元気です means you're well. Say what's wrong, like 頭が痛いです.", "grammar": "ga_itai" },
+        { "text": "$body が $plain 。", "gloss": "$sym_en (too casual)", "result": "success", "grade": "okay", "register": "plain", "note": "Right meaning, but the plain form is too casual for a pharmacist: use です/ます, like 喉が痛いです.", "grammar": "plain_vs_polite" }
       ],
       "tiles": {
         "answers": [["$body", "が", "$pred"]],
@@ -102,7 +103,8 @@
       "choices": [
         { "text": "昨日 から です 。", "gloss": "Since yesterday.", "result": "success" },
         { "text": "明日 から です 。", "gloss": "From tomorrow.", "result": "npc_amused", "reaction": "ふふ 、 明日 は まだ です よ 。", "note": "明日 is tomorrow; 昨日 is yesterday. ～から means since: 昨日からです.", "grammar": "kara_made" },
-        { "text": "昨日 まで です 。", "gloss": "Until yesterday.", "result": "npc_puzzled", "reaction": "昨日 まで … ？ 今日 は 大丈夫 です か ？", "note": "まで means until; から means since. 昨日からです = since yesterday.", "grammar": "kara_made" }
+        { "text": "昨日 まで です 。", "gloss": "Until yesterday.", "result": "npc_puzzled", "reaction": "昨日 まで … ？ 今日 は 大丈夫 です か ？", "note": "まで means until; から means since. 昨日からです = since yesterday.", "grammar": "kara_made" },
+        { "text": "昨日 から 。", "gloss": "Since yesterday. (curt)", "result": "success", "grade": "okay", "note": "Right meaning, but dropping です is curt with a pharmacist: say 昨日からです.", "grammar": "kara_made" }
       ],
       "tiles": {
         "answers": [["昨日", "から", "です"]],
@@ -121,7 +123,8 @@
       "choices": [
         { "text": "いいえ 、 ありません=ある 。", "gloss": "No, I don't.", "result": "success" },
         { "text": "いいえ 、 あります=ある 。", "gloss": "No, I do.", "result": "npc_confused", "reaction": "えっ ？ あります=ある か ？ ありません=ある か ？", "note": "いいえ goes with a negative: いいえ、ありません.", "grammar": "arimasen" },
-        { "text": "はい 、 元気 です 。", "gloss": "Yes, I'm well.", "result": "npc_amused", "reaction": "ふふ 、 アレルギー の 話 です よ 。", "note": "Answer the question: いいえ、ありません (no, I don't have any).", "grammar": "arimasen" }
+        { "text": "はい 、 元気 です 。", "gloss": "Yes, I'm well.", "result": "npc_amused", "reaction": "ふふ 、 アレルギー の 話 です よ 。", "note": "Answer the question: いいえ、ありません (no, I don't have any).", "grammar": "arimasen" },
+        { "text": "ない 。", "gloss": "Nope, none. (too casual)", "result": "success", "grade": "okay", "register": "plain", "note": "Right meaning, but plain ない is too casual for a pharmacist: say いいえ、ありません.", "grammar": "arimasen" }
       ],
       "tiles": {
         "answers": [["いいえ 、", "ありません=ある"]],
@@ -156,7 +159,8 @@
       "choices": [
         { "text": "一日 何回 $use か ？", "gloss": "How many times a day do I $use_en?", "result": "success" },
         { "text": "一日 何 円 です か ？", "gloss": "How many yen a day?", "result": "npc_confused", "reaction": "えっ ？ … 何回 、 です か ？", "note": "何回 asks how many times. 円 is yen.", "grammar": "counters_kai" },
-        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 まだ です よ 。", "note": "いただきます is said right before eating or drinking.", "grammar": "itadakimasu" }
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 まだ です よ 。", "note": "いただきます is said right before eating or drinking.", "grammar": "itadakimasu" },
+        { "text": "一日 何回 ？", "gloss": "How many times a day? (too casual)", "result": "success", "grade": "okay", "register": "plain", "note": "Right meaning, but a bare 一日何回？ is too casual for a pharmacist: ask in full, ending in ますか.", "grammar": "counters_kai" }
       ],
       "tiles": {
         "answers": [["一日", "何回", "$use", "か"]],
@@ -193,7 +197,8 @@
       "choices": [
         { "text": "ありがとうございます 。", "gloss": "Thank you.", "result": "success" },
         { "text": "お大事に 。", "gloss": "Take care of yourself.", "result": "npc_amused", "reaction": "ふふ 、 それ は 私 が 言う 言葉 です よ 。", "note": "お大事に is said to someone who is unwell. As the patient, say ありがとうございます.", "grammar": "odaijini" },
-        { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "npc_puzzled", "reaction": "えっ ？ ふふ 、 お大事に 。", "note": "どういたしまして answers someone else's thank-you. Here, thank the pharmacist: ありがとうございます.", "grammar": "odaijini" }
+        { "text": "どういたしまして 。", "gloss": "You're welcome.", "result": "npc_puzzled", "reaction": "えっ ？ ふふ 、 お大事に 。", "note": "どういたしまして answers someone else's thank-you. Here, thank the pharmacist: ありがとうございます.", "grammar": "odaijini" },
+        { "text": "ありがとう 。", "gloss": "Thanks. (too casual)", "result": "success", "grade": "okay", "register": "plain", "note": "Right meaning, but ありがとう alone is too casual for a pharmacist: say ありがとうございます.", "grammar": "plain_vs_polite" }
       ],
       "effects": { "pay": true },
       "next": { "success": "chat" }

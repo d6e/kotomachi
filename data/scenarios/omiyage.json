@@ -64,6 +64,13 @@
           "reaction": "えっと … 何 を お探し=探す です か ？",
           "note": "お探しですか is the shop's polite question. Say what you want: お土産を買いたいです.",
           "grammar": "tai"
+        },
+        {
+          "text": "お土産 を 買いたい=買う 。",
+          "gloss": "I wanna buy a souvenir. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but 買いたい without です is casual for a shop clerk: お土産を買いたいです."
         }
       ],
       "tiles": {
@@ -124,6 +131,13 @@
           "reaction": "えっと … いかが です か ？",
           "note": "人気です is the shop telling you it sells well. To buy it, say これをください.",
           "grammar": "kosoado"
+        },
+        {
+          "text": "いい ね 。 これ 。",
+          "gloss": "Nice. This one. (curt)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but いいね and a bare これ are curt to a clerk: いいですね。これをください."
         }
       ],
       "tiles": {
@@ -246,6 +260,13 @@
           "reaction": "ふふ 。",
           "note": "いただきます is for just before you eat. To thank someone, say ありがとうございます.",
           "grammar": "itadakimasu"
+        },
+        {
+          "text": "ありがとう 。",
+          "gloss": "Thanks. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but plain ありがとう is casual for a shop clerk: ありがとうございます."
         }
       ],
       "end": true

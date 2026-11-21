@@ -36,6 +36,14 @@ export interface ChoiceDef {
    * data/consequences.json); the request comes back the next day.
    */
   consequence?: string;
+  /**
+   * 'okay': the meaning is right but it comes out awkward, rude, too blunt or too stiff.
+   * The conversation goes on and the streak holds without growing; `note` says why
+   * (shown in the conversation), and the Perfect answer is shown as the better line.
+   * With register "plain" it is only off until the friend talks casually (two hearts),
+   * and then it counts as perfect.
+   */
+  grade?: 'okay';
 }
 
 export interface TilesDef {
@@ -107,6 +115,8 @@ export interface NpcDef {
   /** Display name, in Japanese. */
   name: string;
   role: string;
+  /** Who they are to you, in English, for "too casual for a shop clerk". */
+  listener?: string;
 }
 
 export interface GrammarNote {

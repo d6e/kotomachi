@@ -105,6 +105,13 @@
           "reaction": "ふふ 。 $item を 一つ 、 です ね ？",
           "note": "食べます means eat. To order something, say をお願いします.",
           "grammar": "onegai"
+        },
+        {
+          "text": "はい 、 $item 一つ 。",
+          "gloss": "Yes, one $item_en. (blunt)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but a bare item and number sounds curt to a clerk: 座布団を一つお願いします."
         }
       ],
       "tiles": {
@@ -168,6 +175,13 @@
           "reaction": "えっと … はい 、 です か ？",
           "note": "いいえ means no. To agree, say はい、お願いします.",
           "grammar": "onegai"
+        },
+        {
+          "text": "うん 、 いい よ 。",
+          "gloss": "Yeah, that's fine. (too casual)",
+          "result": "success",
+          "grade": "okay", "register": "plain",
+          "note": "Right meaning, but うん、いいよ is too casual for a clerk: はい、お願いします."
         }
       ],
       "tiles": {
@@ -224,6 +238,13 @@
           "reaction": "え ？ … はい 。",
           "note": "おはようございます is a morning greeting. To thank someone, say ありがとうございます.",
           "grammar": "greetings_time"
+        },
+        {
+          "text": "ありがとう 。",
+          "gloss": "Thanks. (too casual)",
+          "result": "success",
+          "grade": "okay", "register": "plain",
+          "note": "Right meaning, but ありがとう alone is too casual for a clerk: ありがとうございます."
         }
       ],
       "end": true
