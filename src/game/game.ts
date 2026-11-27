@@ -131,6 +131,12 @@ export class Game {
         else this.openNotebook();
       }
     });
+    // A home-screen app on a phone can be closed at any moment and never reach bedtime,
+    // so keep the day so far whenever the page goes out of sight.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') this.autosave();
+    });
+    window.addEventListener('pagehide', () => this.autosave());
     // Exposed for automated play-testing in a browser.
     (globalThis as Record<string, unknown>)['__kotomachi'] = this;
   }
@@ -346,7 +352,19 @@ export class Game {
     this.wake();
     this.setDay();
     if (this.g.errands.length === 0) this.planDay();
-    this.showMorning();
+    // A day you left partway through picks up in town, at home, at the time you left.
+    if (this.g.minutes > DAY_START) {
+      this.goToTown();
+      this.toast(`Welcome back. It's ${formatClock(this.g.minutes)} on day ${this.g.day}.`);
+    } else this.showMorning();
+  }
+
+  /**
+   * Save the day so far. Only between conversations: mid-conversation the day is
+   * half-updated, and the last save from walking about is the one to keep.
+   */
+  private autosave(): void {
+    if (this.phase === 'town' || this.phase === 'morning') save(this.g);
   }
 
   private planDay(): void {
@@ -461,6 +479,7 @@ export class Game {
   private goToTown(): void {
     this.hideScreen();
     this.phase = 'town';
+    this.autosave();
     this.input.clear();
     this.renderHud(true);
     if (this.pendingUps.length) {
