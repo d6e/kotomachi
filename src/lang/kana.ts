@@ -1,7 +1,8 @@
-// Romaji -> kana conversion for typed input, plus small kana helpers.
-// Romaji is only ever an input method: it is converted as the player types and
-// never shown on screen. Lowercase becomes hiragana; a chunk that starts with
-// an uppercase letter becomes katakana (so "HOTTO" -> ホット).
+// Romaji -> kana conversion for typed input, kana -> romaji for the word card,
+// plus small kana helpers.
+// Typed romaji is converted as the player types. Lowercase becomes hiragana; a
+// chunk that starts with an uppercase letter becomes katakana (so "HOTTO" -> ホット).
+// The only place romaji is shown is the word card, and only when you tap the reading.
 
 const BASE: Record<string, string> = {
   a: 'あ', i: 'い', u: 'う', e: 'え', o: 'お',
@@ -76,9 +77,9 @@ export function toKana(input: string, opts: ToKanaOptions = {}): string {
     const katakana = isUpper;
     const rest = input.slice(i).toLowerCase();
 
-    // Double consonant -> っ (but "nn" is ん).
+    // Double consonant -> っ (but "nn" is ん). Hepburn writes っち as "tchi" (dotchi).
     const next = rest[1];
-    if (next !== undefined && rest[0] === next && CONSONANTS.includes(rest[0]!) && rest[0] !== 'n') {
+    if ((next !== undefined && rest[0] === next && CONSONANTS.includes(rest[0]!) && rest[0] !== 'n') || rest.startsWith('tch')) {
       out += katakana ? 'ッ' : 'っ';
       i += 1;
       continue;
@@ -145,4 +146,107 @@ export function isKana(s: string): boolean {
 /** True if the string still contains latin letters (an unfinished romaji chunk). */
 export function hasLatin(s: string): boolean {
   return /[a-zA-Z]/.test(s);
+}
+
+// ------------------------------------------------------------ kana -> romaji
+
+// Hepburn, one kana at a time (ゃゅょ and the small vowels combine with the kana before).
+const ROMAJI: Record<string, string> = {
+  あ: 'a', い: 'i', う: 'u', え: 'e', お: 'o',
+  か: 'ka', き: 'ki', く: 'ku', け: 'ke', こ: 'ko',
+  が: 'ga', ぎ: 'gi', ぐ: 'gu', げ: 'ge', ご: 'go',
+  さ: 'sa', し: 'shi', す: 'su', せ: 'se', そ: 'so',
+  ざ: 'za', じ: 'ji', ず: 'zu', ぜ: 'ze', ぞ: 'zo',
+  た: 'ta', ち: 'chi', つ: 'tsu', て: 'te', と: 'to',
+  だ: 'da', ぢ: 'ji', づ: 'zu', で: 'de', ど: 'do',
+  な: 'na', に: 'ni', ぬ: 'nu', ね: 'ne', の: 'no',
+  は: 'ha', ひ: 'hi', ふ: 'fu', へ: 'he', ほ: 'ho',
+  ば: 'ba', び: 'bi', ぶ: 'bu', べ: 'be', ぼ: 'bo',
+  ぱ: 'pa', ぴ: 'pi', ぷ: 'pu', ぺ: 'pe', ぽ: 'po',
+  ま: 'ma', み: 'mi', む: 'mu', め: 'me', も: 'mo',
+  や: 'ya', ゆ: 'yu', よ: 'yo',
+  ら: 'ra', り: 'ri', る: 'ru', れ: 're', ろ: 'ro',
+  わ: 'wa', ゐ: 'i', ゑ: 'e', を: 'o', ん: 'n', ゔ: 'vu',
+  ぁ: 'a', ぃ: 'i', ぅ: 'u', ぇ: 'e', ぉ: 'o', ゃ: 'ya', ゅ: 'yu', ょ: 'yo', ゎ: 'wa',
+  ゕ: 'ka', ゖ: 'ke',
+};
+
+// Two-kana sounds: kana + small ゃゅょ, and the newer combinations used for loanwords.
+const ROMAJI_PAIRS: Record<string, string> = {
+  しゃ: 'sha', しゅ: 'shu', しょ: 'sho', しぇ: 'she',
+  じゃ: 'ja', じゅ: 'ju', じょ: 'jo', じぇ: 'je',
+  ぢゃ: 'ja', ぢゅ: 'ju', ぢょ: 'jo',
+  ちゃ: 'cha', ちゅ: 'chu', ちょ: 'cho', ちぇ: 'che',
+  つぁ: 'tsa', つぃ: 'tsi', つぇ: 'tse', つぉ: 'tso',
+  てぃ: 'ti', でぃ: 'di', とぅ: 'tu', どぅ: 'du', てゅ: 'tyu', でゅ: 'dyu',
+  ふぁ: 'fa', ふぃ: 'fi', ふぇ: 'fe', ふぉ: 'fo', ふゅ: 'fyu',
+  うぃ: 'wi', うぇ: 'we', うぉ: 'wo', いぇ: 'ye',
+  ゔぁ: 'va', ゔぃ: 'vi', ゔぇ: 've', ゔぉ: 'vo',
+  くぁ: 'kwa', ぐぁ: 'gwa',
+};
+for (const [k, c] of Object.entries({ き: 'k', ぎ: 'g', に: 'n', ひ: 'h', び: 'b', ぴ: 'p', み: 'm', り: 'r' })) {
+  ROMAJI_PAIRS[k + 'ゃ'] = c + 'ya';
+  ROMAJI_PAIRS[k + 'ゅ'] = c + 'yu';
+  ROMAJI_PAIRS[k + 'ょ'] = c + 'yo';
+}
+
+const MACRON: Record<string, string> = { a: 'ā', i: 'ī', u: 'ū', e: 'ē', o: 'ō' };
+
+export interface ToRomajiOptions {
+  /** Read は as "wa" and へ as "e", as the particles are (は, へ, こんにちは). */
+  particle?: boolean;
+}
+
+/**
+ * Kana to Hepburn romaji, spelled kana by kana so it lines up with what's written:
+ * なる -> naru, きって -> kitte, まっちゃ -> matcha, てんいん -> ten'in,
+ * コーヒー -> kōhī (ー puts a line over the vowel before it). Anything that isn't
+ * kana (～, spaces, latin letters) is kept as it is.
+ */
+export function toRomaji(input: string, opts: ToRomajiOptions = {}): string {
+  const s = katakanaToHiragana(input).replace(/ヷ/g, 'ゔぁ').replace(/ヸ/g, 'ゔぃ').replace(/ヹ/g, 'ゔぇ').replace(/ヺ/g, 'ゔぉ');
+  // Each sound in romaji, with っ, ん and ー kept as kana until the next sound is known.
+  const units: string[] = [];
+  let i = 0;
+  while (i < s.length) {
+    const pair = ROMAJI_PAIRS[s.slice(i, i + 2)];
+    if (pair !== undefined) {
+      units.push(pair);
+      i += 2;
+      continue;
+    }
+    const ch = s[i]!;
+    if (ch === 'ー' || ch === 'っ' || ch === 'ん') units.push(ch);
+    else units.push(ROMAJI[ch] ?? ch);
+    i += 1;
+  }
+  if (opts.particle && units.length) {
+    const last = s[s.length - 1];
+    if (last === 'は') units[units.length - 1] = 'wa';
+    else if (last === 'へ') units[units.length - 1] = 'e';
+  }
+  let out = '';
+  for (let u = 0; u < units.length; u++) {
+    const unit = units[u]!;
+    const next = units[u + 1];
+    if (unit === 'っ') {
+      // Doubles the next consonant (きって kitte, まっちゃ matcha). At the end, or before
+      // a vowel, it's a short stop with no letter of its own.
+      if (next && /^[bcdfghjkmnprstvwyz]/.test(next)) out += next.startsWith('ch') ? 't' : next[0];
+      continue;
+    }
+    if (unit === 'ん') {
+      // ん before a vowel or y gets an apostrophe so it isn't read as な/にゃ (ten'in).
+      out += next && /^[aeiouy]/.test(next) ? "n'" : 'n';
+      continue;
+    }
+    if (unit === 'ー') {
+      const prev = out[out.length - 1];
+      if (prev && MACRON[prev]) out = out.slice(0, -1) + MACRON[prev];
+      else if (!prev || !/[āīūēō]/.test(prev)) out += '-';
+      continue;
+    }
+    out += unit;
+  }
+  return out;
 }

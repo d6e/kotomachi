@@ -1,8 +1,10 @@
 // The word popup: reading, meaning, part of speech, conjugation breakdown, and
-// where you met the word.
+// where you met the word. Tapping the reading (or the word) shows it in romaji,
+// for anyone still learning their kana; it's hidden until then.
 
 import { explainForm } from '../lang/conj.ts';
-import { parseLine, type Token, type Vocab } from '../lang/markup.ts';
+import { toRomaji } from '../lang/kana.ts';
+import { parseLine, type Token, type Vocab, type VocabEntry } from '../lang/markup.ts';
 import type { Learner, WordStatus } from '../learner/model.ts';
 import type { NpcDef, NpcId } from '../scenario/types.ts';
 import { clear, h } from './dom.ts';
@@ -66,9 +68,28 @@ export class Popup {
       const whoEl = who ? renderTokens(parseLine(who.name, vocab), { furigana: ALWAYS }) : null;
       return h('li', {}, whoEl ?? '', whoEl ? ' · ' : '', this.ctx.placeName(m.place), ` · day ${m.day}`);
     });
+    const romaji = h('span', { class: 'romaji', lang: 'en' }, readingRomaji(entry));
+    const hint = h('span', { class: 'romaji-hint', lang: 'en', 'aria-hidden': 'true' }, 'romaji');
+    const reading = h(
+      'button',
+      { type: 'button', class: 'popup-reading', 'aria-pressed': 'false', 'aria-label': `${entry.reading}: show romaji` },
+      h('span', { class: 'kana', lang: 'ja' }, `「${entry.reading}」`),
+      hint,
+      romaji,
+    );
+    const toggle = () => {
+      const on = reading.getAttribute('aria-pressed') !== 'true';
+      reading.setAttribute('aria-pressed', String(on));
+      reading.setAttribute('aria-label', on ? `${entry.reading}: ${romaji.textContent}` : `${entry.reading}: show romaji`);
+      this.el.classList.toggle('show-romaji', on);
+    };
+    reading.addEventListener('click', toggle);
+    head.classList.add('popup-word-tap');
+    head.addEventListener('click', toggle);
+    this.el.classList.remove('show-romaji');
     this.el.append(
       h('div', { class: 'popup-head' }, head, h('span', { class: `chip st-${status}` }, STATUS_LABEL[status])),
-      h('div', { class: 'popup-reading', lang: 'ja' }, `「${entry.reading}」`),
+      reading,
       h('div', { class: 'popup-meaning' }, entry.meaning),
       h('div', { class: 'popup-pos' }, entry.pos),
     );
@@ -85,4 +106,9 @@ export class Popup {
     this.el.style.left = `${left}px`;
     this.el.style.top = `${top}px`;
   }
+}
+
+/** A word's reading in romaji, with は and へ read as particles where the word is one (or ends in one). */
+export function readingRomaji(entry: Pick<VocabEntry, 'reading' | 'pos'>): string {
+  return toRomaji(entry.reading, { particle: /particle|set phrase|conjunction/.test(entry.pos) });
 }

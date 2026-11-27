@@ -2,7 +2,7 @@
 
 A small top-down town where you learn Japanese by living there. There's no farming and no dungeon. Each day you get a few errands, like buying a latte at the cafe, picking up onigiri at the konbini, getting eye drops at the pharmacy, eating at the restaurant, buying a train ticket, sending a parcel at the post office or greeting your neighbour. Each errand is a real conversation in Japanese. At night your notebook collects the words you met, the mistakes you made and the grammar you ran into. Sleeping saves the game.
 
-Romaji is never shown on screen. You only type it, and it turns into kana as you type.
+Romaji stays out of the way. You type it and it turns into kana as you type. The one place it shows is the word card, and only when you tap the reading, for anyone still learning their kana.
 
 ## Running it
 
@@ -94,7 +94,7 @@ All of these numbers are constants at the top of `src/scenario/engine.ts` and `s
 - Station (駅員): the full ladder, with five visits: a ticket to Tokyo, which platform the Yokohama train leaves from, how long it takes to Kamakura, whether the rapid stops at Shinagawa, and topping up an IC card. Tickets are 片道 and counted with 枚.
 - Post office (小林さん): the full ladder, with five visits: stamps and a postcard, a letter to America by airmail, a parcel to the UK by sea (and what's in it), a parcel to Osaka where you borrow a pen to write the address, and picking up a parcel with a missed-delivery slip.
 - 田中さん: the full ladder. The right greeting depends on the time of day, then a short chat that changes daily: heading out, the warm weather, rain tomorrow, the cat on the bench, the new bakery, burnable-trash day, or your weekend.
-- A lookup popup with reading, meaning, part of speech, the conjugation you saw ("お願いします ← お願いする, polite ます form") and where you met the word.
+- A lookup popup with reading (tap it, or the word, to see it in romaji: なる → naru, コーヒー → kōhī), meaning, part of speech, the conjugation you saw ("お願いします ← お願いする, polite ます form") and where you met the word.
 - The notebook: words by place, words by person, corrections, grammar notes and progress.
 - The day loop: morning errands, the day (the clock runs while you walk, and each conversation takes 20 minutes), the night summary and sleep. Sleeping saves to `localStorage`.
 - Requests instead of a to-do list. Each morning brings three errands, each asked by someone in town with a reason in simple Japanese (tap any word, or open English under it). Up to two are steps in a regular's story: ゆき runs short of milk before the morning rush, gets a headache, sends postcards home and wants you to try her new latte; 田中さん sends a parcel to their grandchild in Osaka, needs an umbrella and cough medicine, and goes to Tokyo to visit; 山田さん's restaurant clock stops before the new curry; 小林さん is too busy at the post office for lunch. 山田さん joins on day 3 and 小林さん on day 5. Each step thanks you, and the last one ends with a gift that goes on your shelf. The rest are everyday requests, and the scheduler still picks the variant with the most due words underneath. The data is in `data/requests.json`.

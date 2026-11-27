@@ -17,6 +17,9 @@ test('small tsu, n, and yoon', () => {
   assert.equal(toKana('kyou'), 'きょう');
   assert.equal(toKana('shokugo'), 'しょくご');
   assert.equal(toKana('chotto'), 'ちょっと');
+  assert.equal(toKana('dotchi'), 'どっち');
+  assert.equal(toKana('matcha'), 'まっちゃ');
+  assert.equal(toKana('MATCHA'), 'マッチャ');
   assert.equal(toKana('jaa'), 'じゃあ');
   assert.equal(toKana('sanbai'), 'さんばい');
 });
