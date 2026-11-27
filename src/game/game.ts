@@ -404,7 +404,11 @@ export class Game {
   private begin(g: GameData, slot: number): void {
     this.g = g;
     this.slot = slot;
+    // Someone else may have been playing a moment ago: nothing of theirs carries over.
     this.combo = 0;
+    this.activeRun = null;
+    this.pendingUps = [];
+    this.metBefore.clear();
     this.shownDone = new Set(g.errands.filter((e) => e.done).map((e) => `${e.scenario}/${e.variant}`));
     this.learner = new Learner(this.g.learner, vocab);
     this.refreshHome();
