@@ -150,6 +150,8 @@ ruby.no-furi rt { visibility: hidden; }
 .errands .box {
   width: 16px; height: 16px; border: 2px solid var(--out); border-radius: 4px; display: inline-grid; place-items: center;
   font-size: 11px; font-weight: 700; color: #fff; flex: none; background: #fff;
+  /* The row's tall line height would push the tick out through the bottom of the box. */
+  line-height: 1; font-family: var(--ui); overflow: hidden;
 }
 .errands li.done .box { background: var(--good); }
 .errands.big li { font-size: 20px; line-height: 2.2; }
