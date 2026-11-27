@@ -3,7 +3,7 @@
 
 import { hasLatin, toKana } from '../lang/kana.ts';
 import { parseLine, type Token, type Vocab } from '../lang/markup.ts';
-import { MODE_NAMES, type AnswerOutcome, type Grade, type PromptView, type ScenarioRun } from '../scenario/engine.ts';
+import { type AnswerOutcome, type Grade, type PromptView, type ScenarioRun } from '../scenario/engine.ts';
 import type { Expression } from '../town/faces.ts';
 import { clear, h } from './dom.ts';
 import { confettiFrom, embers, floatText, play, reducedMotion, sparkle } from './fx.ts';
@@ -340,7 +340,7 @@ export class DialogueView {
       : h('span', { class: 'hearts', title: `${hooks.hearts} of 5 hearts`, 'aria-label': `${hooks.hearts} of 5 hearts` }, '♥'.repeat(hooks.hearts), h('span', { class: 'hearts-empty' }, '♥'.repeat(5 - hooks.hearts)));
     this.header.append(
       h('div', { class: 'who' }, this.faceEl, name, hearts, this.comboEl),
-      h('div', { class: 'stage' + (view.fallback ? ' fallback' : '') }, MODE_NAMES[view.mode], glossToggle),
+      ...(glossToggle ? [h('div', { class: 'stage' }, glossToggle)] : []),
     );
     this.el.classList.toggle('show-gloss', hooks.glossOn());
   }
