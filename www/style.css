@@ -154,8 +154,8 @@ ruby.no-furi rt { visibility: hidden; }
 .errands li.done .box { background: var(--good); }
 .errands.big li { font-size: 20px; line-height: 2.2; }
 /* The morning's requests: who asked and why, then what to do. */
-.requests { list-style: none; margin: 10px 0; padding: 0; display: grid; gap: 10px; }
-.requests li { background: #f6f9ff; border: 2px solid var(--rim); border-radius: 10px; padding: 8px 12px; }
+.requests { list-style: none; margin: 10px 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.requests li { min-width: 0; background: #f6f9ff; border: 2px solid var(--rim); border-radius: 10px; padding: 8px 12px; }
 .requests li.story { background: #fff8f2; border-color: #ffc4a0; }
 .req-who { display: flex; gap: 8px; align-items: center; }
 .req-tag { font-size: 11px; font-weight: 800; color: var(--accent-dk); text-transform: uppercase; letter-spacing: 0.06em; }

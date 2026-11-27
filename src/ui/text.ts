@@ -37,6 +37,9 @@ export function renderTokens(tokens: Token[], opts: TextOptions): HTMLElement {
         if (e.key === 'Enter') tap(e);
       });
     }
+    // Each word stays on one line, but a line may break between words. Safari won't
+    // break between two no-wrap spans by itself, so mark the spot.
+    if (line.lastChild) line.append(h('wbr', {}));
     line.append(el);
   }
   return line;
