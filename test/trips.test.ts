@@ -62,9 +62,9 @@ test('the ticket machines at the station can be reached', () => {
   assert.ok(reachable(ROOMS.station).has(`${spot.tx},${spot.ty}`));
 });
 
-test('trips: two places to go now, more planned, each named in Japanese; only built towns are sold', () => {
-  assert.ok(TRIPS.length >= 3 && TRIPS.length <= 4);
-  assert.equal(TRIPS.filter((t) => t.built).length, 2);
+test('trips: three places to go now, more planned, each named in Japanese; only built towns are sold', () => {
+  assert.ok(TRIPS.length >= 4 && TRIPS.length <= 6);
+  assert.equal(TRIPS.filter((t) => t.built).length, 3);
   const levels = TRIPS.map((t) => t.level);
   assert.deepEqual([...levels].sort((a, b) => a - b), levels, 'listed in level order');
   for (const t of TRIPS) assert.ok(vocab.has(t.name), `${t.name} in vocab`);
@@ -75,7 +75,7 @@ test('trips: two places to go now, more planned, each named in Japanese; only bu
   assert.equal(canTravel(k, k.level, k.fare, 600), 'ok');
   // A town that isn't built can't be reached at any level, and the machine doesn't list it.
   for (const t of TRIPS.filter((x) => !x.built)) assert.equal(canTravel(t, 99, 99999, 600), 'closed');
-  assert.deepEqual(ON_SALE.map((t) => t.id), ['kamakura', 'hakone']);
+  assert.deepEqual(ON_SALE.map((t) => t.id), ['kamakura', 'akihabara', 'hakone']);
   for (const t of ON_SALE) assert.ok(ARRIVAL[t.id], `${t.id} has somewhere to arrive`);
   // 箱根 is further: a longer ride, and you can only go once you've reached its level.
   const hakone = TRIPS.find((t) => t.id === 'hakone')!;

@@ -188,6 +188,8 @@ ruby.no-furi rt { visibility: hidden; }
 .cat-item.level { opacity: 0.6; }
 .item-icon { width: 48px; image-rendering: pixelated; }
 .item-icon.keepsake { width: 36px; }
+.gacha-won { text-align: center; }
+.gacha-won .item-icon.keepsake { width: 72px; display: block; margin: 4px auto 0; }
 .cat-word { font-size: 21px; line-height: 1.9; }
 .cat-word .muted { font-size: 13px; line-height: 1.3; }
 .cat-buy { display: grid; justify-items: end; gap: 4px; }

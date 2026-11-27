@@ -392,6 +392,36 @@ export const STAFF: Record<string, StaffArt> = {
     rows: [...SHORT_HAIR, ...FACE, ...HAPPI],
     key: staffKey({ H: 'trunk', h: 'hairHi', D: 'trunkSh', C: 'roofB', c: 'roofBSh', k: 'white' }),
   },
+  // 中村さん at the electronics shop in 秋葉原: short black hair, the shop's blue polo and a name badge.
+  nakamura: {
+    rows: [...SHORT_HAIR, ...FACE, '..OkCCCCCCCCkO..', '.OSOCCCCCKKCOSO.', '..OOcCCCCCCcOO..', BODY[3]!],
+    key: staffKey({ H: 'hairK', h: 'hairKHi', D: 'hairKSh', C: 'roofB', c: 'roofBSh', k: 'roofBHi', K: 'gold' }),
+  },
+  // はな at the maid cafe: long brown hair with a white frilled headband, a navy dress and a white apron.
+  hana: {
+    rows: [
+      ...SHORT_HAIR.slice(0, 3),
+      '..OWWWWWWWWWWO..',
+      '.OHHHHHHHHhHHHO.',
+      '.OHHHHHHHHHHHHO.',
+      '.OHHSSHHHHSSHHO.',
+      '.OHSSSSSSSSSSHO.',
+      '.OHSSESSSSESSHO.',
+      '.OHSSESSSSESSHO.',
+      '.OHSPSSSSSSPSHO.',
+      '.OHOOSSssSSOOHO.',
+      '.OHCWWkkkkWWCHO.',
+      '.OSOCWWWWWWCOSO.',
+      '..OOcWWWWWWcOO..',
+      '...OFFO..OFFO...',
+    ],
+    key: staffKey({ C: 'navy', c: 'navySh', k: 'flowerA', W: 'white' }),
+  },
+  // 加藤さん at the arcade: short brown hair, a red staff vest over a white shirt.
+  kato: {
+    rows: [...SHORT_HAIR, ...FACE, '..OkkCCCCCCkkO..', '.OSOCCCKCCCCOSO.', '..OOcCCCCCCcOO..', BODY[3]!],
+    key: staffKey({ H: 'trunk', h: 'hairHi', D: 'trunkSh', C: 'roofG', c: 'roofGSh', k: 'white', K: 'gold' }),
+  },
 };
 
 /** Passers-by: the player's and the neighbour's shapes in other clothes and hair. */

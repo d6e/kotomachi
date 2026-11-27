@@ -1,0 +1,408 @@
+{
+  "id": "denki_buy",
+  "title": "An electronics shop in Akihabara",
+  "place": "denki",
+  "npc": "nakamura",
+  "maxStage": 4,
+  "errand": "秋葉原 の 電気屋 で $item を 買う",
+  "start": "greet",
+  "variants": [
+    {
+      "id": "charger",
+      "price": 1980,
+      "slots": {
+        "item": "充電器",
+        "item_en": "phone charger",
+        "floor": "三階",
+        "floor_en": "the 3rd floor",
+        "wrongfloor": "四階",
+        "device": "スマホ",
+        "device_en": "my phone"
+      }
+    },
+    {
+      "id": "earphones",
+      "price": 2980,
+      "slots": {
+        "item": "イヤホン",
+        "item_en": "earphones",
+        "floor": "二階",
+        "floor_en": "the 2nd floor",
+        "wrongfloor": "三階",
+        "device": "スマホ",
+        "device_en": "my phone"
+      }
+    },
+    {
+      "id": "mouse",
+      "price": 1480,
+      "slots": {
+        "item": "マウス",
+        "item_en": "mouse",
+        "floor": "四階",
+        "floor_en": "the 4th floor",
+        "wrongfloor": "二階",
+        "device": "パソコン",
+        "device_en": "my computer"
+      }
+    }
+  ],
+  "nodes": {
+    "greet": {
+      "line": "いらっしゃいませ 。 何 か お探し=探す です か ？",
+      "gloss": "Welcome. Are you looking for something?",
+      "targets": [
+        "探す",
+        "いる"
+      ],
+      "grammar": [
+        "te_iru"
+      ],
+      "choices": [
+        {
+          "text": "$item を 探して=探す います=いる 。",
+          "gloss": "I'm looking for a $item_en.",
+          "result": "success"
+        },
+        {
+          "text": "$item を 探しました=探す 。",
+          "gloss": "I looked for a $item_en. (past)",
+          "result": "npc_puzzled",
+          "reaction": "$item を お探し=探す です ね ？",
+          "note": "What you're doing right now takes ～ています: $itemを探しています. 探しました is past, as if the looking were over.",
+          "grammar": "te_iru"
+        },
+        {
+          "text": "$item を 売って=売る います=いる 。",
+          "gloss": "I'm selling a $item_en.",
+          "result": "npc_amused",
+          "reaction": "え ？ ふふ 、 お買い物=買い物 です よ ね ？",
+          "note": "売る is sell. You want to buy one: $itemを探しています (I'm looking for a $item_en)."
+        },
+        {
+          "text": "$item 、 ある ？",
+          "gloss": "Got a $item_en? (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but ある？ is how you'd ask a friend: in a shop, $itemを探しています."
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "$item",
+            "を",
+            "探して=探す",
+            "います=いる"
+          ]
+        ],
+        "decoys": [
+          "探しました=探す",
+          "売って=売る",
+          "が"
+        ]
+      },
+      "blank": {
+        "before": "$item を",
+        "after": "います=いる 。",
+        "answers": [
+          "さがして"
+        ]
+      },
+      "recast": "何 か お探し=探す です か ？",
+      "next": {
+        "success": "floor"
+      }
+    },
+    "floor": {
+      "line": "$item の 売り場 は $floor です 。 ご案内=案内 します=する 。",
+      "gloss": "The $item_en section is on $floor_en. I'll show you up.",
+      "targets": [
+        "売り場",
+        "案内"
+      ],
+      "grammar": [
+        "kai_floor"
+      ],
+      "maxMode": 2,
+      "choices": [
+        {
+          "text": "$floor です ね 。 お願いします=お願いする 。",
+          "gloss": "$floor_en? Yes, please.",
+          "result": "success"
+        },
+        {
+          "text": "$wrongfloor です ね 。 お願いします=お願いする 。",
+          "gloss": "(the wrong floor)",
+          "result": "npc_puzzled",
+          "reaction": "いいえ 、 $floor です よ 。",
+          "note": "Listen for the floor: $floor. Floors are counted with 階: 一階 (いっかい), 二階, 三階 (さんがい), 四階 (よんかい).",
+          "grammar": "kai_floor"
+        },
+        {
+          "text": "はい 、 $item です 。",
+          "gloss": "Yes, it's a $item_en.",
+          "result": "npc_confused",
+          "reaction": "… はい 。 売り場 は $floor です よ 。",
+          "note": "The clerk told you where it is. Say the floor back, $floorですね, and お願いします to be shown the way.",
+          "grammar": "kai_floor"
+        },
+        {
+          "text": "うん 、 お願い=お願いする 。",
+          "gloss": "Yeah, please. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but うん、お願い is for friends. To shop staff: $floorですね。お願いします."
+        }
+      ],
+      "next": {
+        "success": "pick"
+      }
+    },
+    "pick": {
+      "line": "こちら は いかが です か ？ 人気 です よ 。",
+      "gloss": "How about this one? It's popular.",
+      "targets": [
+        "使える",
+        "人気"
+      ],
+      "grammar": [
+        "potential"
+      ],
+      "choices": [
+        {
+          "text": "これ は $device に 使えます=使える か ？",
+          "gloss": "Does this work with $device_en?",
+          "result": "success"
+        },
+        {
+          "text": "これ は $device を 使えます=使える か ？",
+          "gloss": "(wrong particle)",
+          "result": "npc_puzzled",
+          "reaction": "え ？ $device に 、 です か ？",
+          "note": "What something works with takes に: $deviceに使えますか (can it be used with my $device_en?).",
+          "grammar": "potential"
+        },
+        {
+          "text": "これ は $device です か ？",
+          "gloss": "Is this a $device_en?",
+          "result": "npc_amused",
+          "reaction": "いいえ 、 $item です よ 。",
+          "note": "That asks whether it IS a $device_en. To ask if it works with yours: これは$deviceに使えますか."
+        },
+        {
+          "text": "これ 、 $device に 使える ？",
+          "gloss": "This work with my $device_en? (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but plain 使える？ is for friends: to the clerk, $deviceに使えますか."
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "これ は",
+            "$device",
+            "に",
+            "使えます=使える",
+            "か"
+          ]
+        ],
+        "decoys": [
+          "を",
+          "です",
+          "使います=使う"
+        ]
+      },
+      "blank": {
+        "before": "これ は $device に",
+        "after": "か ？",
+        "answers": [
+          "つかえます"
+        ]
+      },
+      "recast": "こちら は いかが です か ？",
+      "next": {
+        "success": "decide"
+      }
+    },
+    "decide": {
+      "line": "はい 、 使えます=使える よ 。 $price 円 です 。",
+      "gloss": "Yes, it does. It's ¥$price.",
+      "targets": [
+        "する",
+        "じゃあ"
+      ],
+      "grammar": [
+        "ni_suru"
+      ],
+      "choices": [
+        {
+          "text": "じゃあ 、 これ に します=する 。",
+          "gloss": "Then I'll take this one.",
+          "result": "success"
+        },
+        {
+          "text": "じゃあ 、 これ を します=する 。",
+          "gloss": "(wrong particle)",
+          "result": "npc_puzzled",
+          "reaction": "これ に 、 です か ？",
+          "note": "Choosing takes に: これにします (I'll go with this). これをします would mean 'I'll do this'.",
+          "grammar": "ni_suru"
+        },
+        {
+          "text": "じゃあ 、 これ に なります=なる 。",
+          "gloss": "Then I'll become this.",
+          "result": "npc_amused",
+          "reaction": "え ？ ふふ 、 これ に します=する か ？",
+          "note": "なります means 'becomes'. Deciding on something is これにします.",
+          "grammar": "ni_suru"
+        },
+        {
+          "text": "じゃあ 、 これ で いい 。",
+          "gloss": "Then this'll do. (offhand)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but これでいい sounds offhand, as if it's only just good enough: say これにします."
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "じゃあ 、",
+            "これ",
+            "に",
+            "します=する"
+          ]
+        ],
+        "decoys": [
+          "を",
+          "なります=なる",
+          "が"
+        ]
+      },
+      "blank": {
+        "before": "じゃあ 、 これ",
+        "after": "します=する 。",
+        "answers": [
+          "に"
+        ]
+      },
+      "recast": "$price 円 です 。",
+      "next": {
+        "success": "pay"
+      }
+    },
+    "pay": {
+      "line": "ありがとうございます 。 お支払い=支払い は どう なさいます=なさる か ？",
+      "gloss": "Thank you. How would you like to pay?",
+      "targets": [
+        "カード",
+        "支払い"
+      ],
+      "grammar": [
+        "de_choice"
+      ],
+      "effects": {
+        "pay": true
+      },
+      "choices": [
+        {
+          "text": "カード で お願いします=お願いする 。",
+          "gloss": "By card, please.",
+          "result": "success"
+        },
+        {
+          "text": "カード を お願いします=お願いする 。",
+          "gloss": "A card, please.",
+          "result": "npc_puzzled",
+          "reaction": "カード で 、 です ね ？",
+          "note": "を asks for a card. Paying by card takes で: カードでお願いします.",
+          "grammar": "de_choice"
+        },
+        {
+          "text": "カード が 好き です 。",
+          "gloss": "I like cards.",
+          "result": "npc_amused",
+          "reaction": "ふふ 。 お支払い=支払い は カード で 、 です か ？",
+          "note": "That says you like cards. To pay with one: カードでお願いします.",
+          "grammar": "de_choice"
+        },
+        {
+          "text": "カード 。",
+          "gloss": "Card. (curt)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but a bare カード is curt: カードでお願いします."
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "カード",
+            "で",
+            "お願いします=お願いする"
+          ]
+        ],
+        "decoys": [
+          "を",
+          "が",
+          "好き"
+        ]
+      },
+      "blank": {
+        "before": "カード",
+        "after": "お願いします=お願いする 。",
+        "answers": [
+          "で"
+        ]
+      },
+      "recast": "お支払い=支払い は どう なさいます=なさる か ？",
+      "next": {
+        "success": "bye"
+      }
+    },
+    "bye": {
+      "line": "ありがとうございました=ありがとうございます 。 また どうぞ 。",
+      "gloss": "Thank you very much. Please come again.",
+      "targets": [
+        "また"
+      ],
+      "grammar": [
+        "irasshaimase"
+      ],
+      "maxMode": 2,
+      "choices": [
+        {
+          "text": "ありがとうございます 。",
+          "gloss": "Thank you.",
+          "result": "success"
+        },
+        {
+          "text": "いらっしゃいませ 。",
+          "gloss": "Welcome! (what staff say)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 また どうぞ 。",
+          "note": "いらっしゃいませ is what staff say to welcome you in. On your way out, say ありがとうございます.",
+          "grammar": "irasshaimase"
+        },
+        {
+          "text": "ごちそうさまでした 。",
+          "gloss": "Thank you for the meal.",
+          "result": "npc_amused",
+          "reaction": "… ？ ありがとうございました=ありがとうございます 。",
+          "note": "ごちそうさまでした is for after a meal, not after shopping.",
+          "grammar": "gochisousama"
+        },
+        {
+          "text": "どうも 。",
+          "gloss": "Thanks. (curt)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but a lone どうも is curt after the clerk showed you round: say ありがとうございます."
+        }
+      ],
+      "end": true
+    }
+  }
+}

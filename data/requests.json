@@ -68,6 +68,9 @@
     { "scenario": "shrine_visit", "from": "tanaka", "reason": "鎌倉 に 行きます=行く か ？ お守り を お願いします=お願いする 。", "reason_en": "Are you going to Kamakura? Could you get me a charm from the shrine there?", "level": 3, "trip": true },
     { "scenario": "omiyage_buy", "from": "yuki", "reason": "鎌倉 の お土産 、 楽しみ に して=する います=いる ！", "reason_en": "Bring me something back from Kamakura! I'm looking forward to it.", "level": 3, "trip": true },
     { "scenario": "omiyage_buy", "from": "kobayashi", "reason": "鎌倉 の 絵はがき 、 いい です よ 。", "reason_en": "The picture postcards from Kamakura are lovely.", "level": 3, "trip": true },
+    { "scenario": "denki_buy", "from": "tanaka", "reason": "秋葉原 に 行きます=行く か ？ 電気屋 で 買い物 を お願いします=お願いする 。", "reason_en": "Are you going to Akihabara? Could you pick something up for me at the electronics shop?", "level": 4, "trip": true },
+    { "scenario": "arcade_crane", "from": "yuki", "reason": "ぬいぐるみ が 大好き です 。 取って=取る ください ！", "reason_en": "I love plushies. Win me one at the arcade in Akihabara!", "level": 4, "trip": true },
+    { "scenario": "maid_cafe", "from": "kobayashi", "reason": "秋葉原 の メイドカフェ 、 楽しい です よ 。", "reason_en": "The maid cafe in Akihabara is fun. Give it a try.", "level": 4, "trip": true },
     { "scenario": "ryokan_baiten", "from": "tanaka", "reason": "箱根 に 行きます=行く か ？ 温泉まんじゅう 、 大好き です 。", "reason_en": "Are you going to Hakone? I love the hot-spring buns they sell there.", "level": 6, "trip": true },
     { "scenario": "ryokan_baiten", "from": "kobayashi", "reason": "箱根 の お土産 、 楽しみ に して=する います=いる 。", "reason_en": "I'm looking forward to a souvenir from Hakone.", "level": 6, "trip": true }
   ]

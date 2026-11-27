@@ -3280,5 +3280,299 @@
   "reading": "ほしい",
   "meaning": "to want (a thing)",
   "pos": "adj (i)"
+ },
+ {
+  "id": "中村",
+  "reading": "なかむら",
+  "meaning": "Nakamura (a family name)",
+  "pos": "name"
+ },
+ {
+  "id": "はな",
+  "reading": "はな",
+  "meaning": "Hana (a given name): the waitress at the maid cafe",
+  "pos": "name"
+ },
+ {
+  "id": "加藤",
+  "reading": "かとう",
+  "meaning": "Kato (a family name)",
+  "pos": "name"
+ },
+ {
+  "id": "秋葉原",
+  "reading": "あきはばら",
+  "meaning": "Akihabara, Tokyo's electronics and anime district",
+  "pos": "name"
+ },
+ {
+  "id": "電気屋",
+  "reading": "でんきや",
+  "meaning": "electronics shop",
+  "pos": "noun"
+ },
+ {
+  "id": "電気街口",
+  "reading": "でんきがいぐち",
+  "meaning": "Electric Town exit (Akihabara station's main exit)",
+  "pos": "noun"
+ },
+ {
+  "id": "出口",
+  "reading": "でぐち",
+  "meaning": "exit, way out",
+  "pos": "noun"
+ },
+ {
+  "id": "充電器",
+  "reading": "じゅうでんき",
+  "meaning": "charger (for a phone and so on)",
+  "pos": "noun"
+ },
+ {
+  "id": "イヤホン",
+  "reading": "イヤホン",
+  "meaning": "earphones",
+  "pos": "noun"
+ },
+ {
+  "id": "マウス",
+  "reading": "マウス",
+  "meaning": "(computer) mouse",
+  "pos": "noun"
+ },
+ {
+  "id": "スマホ",
+  "reading": "スマホ",
+  "meaning": "smartphone (short for スマートフォン)",
+  "pos": "noun"
+ },
+ {
+  "id": "パソコン",
+  "reading": "パソコン",
+  "meaning": "computer, PC",
+  "pos": "noun"
+ },
+ {
+  "id": "売り場",
+  "reading": "うりば",
+  "meaning": "section of a shop where something is sold (the ~ counter, the ~ floor)",
+  "pos": "noun"
+ },
+ {
+  "id": "案内",
+  "reading": "あんない",
+  "meaning": "showing the way, guidance; ご案内します = I'll show you (staff speech)",
+  "pos": "noun"
+ },
+ {
+  "id": "三階",
+  "reading": "さんがい",
+  "meaning": "third floor (two floors up); note the reading さんがい",
+  "pos": "noun"
+ },
+ {
+  "id": "四階",
+  "reading": "よんかい",
+  "meaning": "fourth floor",
+  "pos": "noun"
+ },
+ {
+  "id": "メイドカフェ",
+  "reading": "メイドカフェ",
+  "meaning": "maid cafe: a cafe where staff in maid costumes greet you as if you'd come home",
+  "pos": "noun"
+ },
+ {
+  "id": "オムライス",
+  "reading": "オムライス",
+  "meaning": "omurice, an omelette over ketchup rice",
+  "pos": "noun"
+ },
+ {
+  "id": "パフェ",
+  "reading": "パフェ",
+  "meaning": "parfait",
+  "pos": "noun"
+ },
+ {
+  "id": "ケチャップ",
+  "reading": "ケチャップ",
+  "meaning": "ketchup",
+  "pos": "noun"
+ },
+ {
+  "id": "チョコ",
+  "reading": "チョコ",
+  "meaning": "chocolate (short for チョコレート)",
+  "pos": "noun"
+ },
+ {
+  "id": "星",
+  "reading": "ほし",
+  "meaning": "star",
+  "pos": "noun"
+ },
+ {
+  "id": "ハート",
+  "reading": "ハート",
+  "meaning": "heart (the shape)",
+  "pos": "noun"
+ },
+ {
+  "id": "おかえりなさい",
+  "reading": "おかえりなさい",
+  "meaning": "welcome home! (said to someone coming home; ～ませ is extra polite)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "初めて",
+  "reading": "はじめて",
+  "meaning": "for the first time; 初めてです = it's my first time",
+  "pos": "adverb"
+ },
+ {
+  "id": "はじめまして",
+  "reading": "はじめまして",
+  "meaning": "nice to meet you (the first time you meet someone)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "ようこそ",
+  "reading": "ようこそ",
+  "meaning": "welcome!",
+  "pos": "set phrase"
+ },
+ {
+  "id": "描く",
+  "reading": "かく",
+  "meaning": "to draw (a picture)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "スタッフ",
+  "reading": "スタッフ",
+  "meaning": "staff",
+  "pos": "noun"
+ },
+ {
+  "id": "ご遠慮ください",
+  "reading": "ごえんりょください",
+  "meaning": "please refrain from…, please don't (polite, on signs and from staff)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "だけ",
+  "reading": "だけ",
+  "meaning": "only, just",
+  "pos": "particle"
+ },
+ {
+  "id": "聞く",
+  "reading": "きく",
+  "meaning": "to hear; to listen; to ask",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "ゲームセンター",
+  "reading": "ゲームセンター",
+  "meaning": "arcade (game centre); ゲーセン for short",
+  "pos": "noun"
+ },
+ {
+  "id": "ぬいぐるみ",
+  "reading": "ぬいぐるみ",
+  "meaning": "stuffed toy, plushie",
+  "pos": "noun"
+ },
+ {
+  "id": "取れる",
+  "reading": "とれる",
+  "meaning": "can get, can take (potential of 取る); 取れました = I got it!",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "景品",
+  "reading": "けいひん",
+  "meaning": "prize (from a game)",
+  "pos": "noun"
+ },
+ {
+  "id": "やる",
+  "reading": "やる",
+  "meaning": "to do (casual); to play a go at a game",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "三つ",
+  "reading": "みっつ",
+  "meaning": "three (things)",
+  "pos": "counter"
+ },
+ {
+  "id": "残念",
+  "reading": "ざんねん",
+  "meaning": "a shame, too bad",
+  "pos": "adj (na)"
+ },
+ {
+  "id": "動かす",
+  "reading": "うごかす",
+  "meaning": "to move (something)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "動く",
+  "reading": "うごく",
+  "meaning": "to move (by itself)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "もらえる",
+  "reading": "もらえる",
+  "meaning": "can receive; ～てもらえますか = could you … for me?",
+  "pos": "verb (ru)"
+ },
+ {
+  "id": "ガチャガチャ",
+  "reading": "ガチャガチャ",
+  "meaning": "capsule-toy machine (also ガチャ or ガチャポン)",
+  "pos": "noun"
+ },
+ {
+  "id": "カプセル",
+  "reading": "カプセル",
+  "meaning": "capsule",
+  "pos": "noun"
+ },
+ {
+  "id": "百円玉",
+  "reading": "ひゃくえんだま",
+  "meaning": "100-yen coin",
+  "pos": "noun"
+ },
+ {
+  "id": "三枚",
+  "reading": "さんまい",
+  "meaning": "three (flat things)",
+  "pos": "counter"
+ },
+ {
+  "id": "回す",
+  "reading": "まわす",
+  "meaning": "to turn (a handle), to spin",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "招き猫",
+  "reading": "まねきねこ",
+  "meaning": "beckoning cat, a lucky charm figure with a raised paw",
+  "pos": "noun"
+ },
+ {
+  "id": "寿司",
+  "reading": "すし",
+  "meaning": "sushi",
+  "pos": "noun"
  }
 ]

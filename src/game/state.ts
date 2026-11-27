@@ -281,6 +281,10 @@ export const HOURS: Record<string, [number, number]> = {
   // On the 鎌倉 trip.
   shrine: [9 * 60, 17 * 60],
   omiyage: [9 * 60, 19 * 60],
+  // In 秋葉原: the shops open late morning, like the real street.
+  denki: [10 * 60, 20 * 60],
+  maidcafe: [11 * 60, 22 * 60],
+  arcade: [10 * 60, 23 * 60],
 };
 
 export function isOpen(place: string, minutes: number): boolean {

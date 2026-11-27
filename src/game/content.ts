@@ -28,6 +28,9 @@ import ryokanDinner from '../../data/scenarios/ryokan_dinner.json' with { type: 
 import onsen from '../../data/scenarios/onsen.json' with { type: 'json' };
 import ryokanCheckout from '../../data/scenarios/ryokan_checkout.json' with { type: 'json' };
 import ryokanBaiten from '../../data/scenarios/ryokan_baiten.json' with { type: 'json' };
+import denki from '../../data/scenarios/denki.json' with { type: 'json' };
+import maidCafe from '../../data/scenarios/maidcafe.json' with { type: 'json' };
+import arcade from '../../data/scenarios/arcade.json' with { type: 'json' };
 import chatterJson from '../../data/chatter.json' with { type: 'json' };
 import requestsJson from '../../data/requests.json' with { type: 'json' };
 import consequencesJson from '../../data/consequences.json' with { type: 'json' };
@@ -50,6 +53,7 @@ export const scenarios: ScenarioDef[] = [
   cafe, konbini, pharmacy, restaurant, station, post, neighbor, catalog, shrine, omiyage, festival,
   inviteYuki, inviteTanaka, inviteMori, inviteServer, inviteKobayashi, gift,
   ryokanCheckin, ryokanRoom, ryokanDinner, onsen, ryokanCheckout, ryokanBaiten,
+  denki, maidCafe, arcade,
 ] as unknown as ScenarioDef[];
 export const scenarioById: Record<string, ScenarioDef> = Object.fromEntries(scenarios.map((s) => [s.id, s]));
 /** The regulars' stories and everyday requests. */

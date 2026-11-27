@@ -1,0 +1,523 @@
+{
+  "id": "maid_cafe",
+  "title": "A maid cafe in Akihabara",
+  "place": "maidcafe",
+  "npc": "hana",
+  "maxStage": 4,
+  "errand": "秋葉原 の メイドカフェ で $item を 食べる",
+  "start": "home",
+  "variants": [
+    {
+      "id": "omurice",
+      "price": 1500,
+      "slots": {
+        "item": "オムライス",
+        "item_en": "omurice",
+        "drink": "紅茶",
+        "drink_en": "a black tea",
+        "sauce": "ケチャップ",
+        "sauce_en": "ketchup",
+        "pic": "猫",
+        "pic_en": "a cat"
+      }
+    },
+    {
+      "id": "parfait",
+      "price": 1200,
+      "slots": {
+        "item": "パフェ",
+        "item_en": "parfait",
+        "drink": "コーヒー",
+        "drink_en": "a coffee",
+        "sauce": "チョコ",
+        "sauce_en": "chocolate sauce",
+        "pic": "星",
+        "pic_en": "a star"
+      }
+    },
+    {
+      "id": "cake",
+      "price": 1000,
+      "slots": {
+        "item": "ケーキ",
+        "item_en": "cake",
+        "drink": "ココア",
+        "drink_en": "a hot chocolate",
+        "sauce": "チョコ",
+        "sauce_en": "chocolate sauce",
+        "pic": "ハート",
+        "pic_en": "a heart"
+      }
+    }
+  ],
+  "nodes": {
+    "home": {
+      "line": "おかえりなさいませ=おかえりなさい ！",
+      "gloss": "Welcome home!",
+      "targets": [
+        "おかえりなさい",
+        "ただいま"
+      ],
+      "grammar": [
+        "tadaima"
+      ],
+      "maxMode": 2,
+      "choices": [
+        {
+          "text": "ただいま ！",
+          "gloss": "I'm home!",
+          "result": "success"
+        },
+        {
+          "text": "いらっしゃいませ ！",
+          "gloss": "Welcome! (what staff say)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 それ は 私 の 言葉 です よ 。 おかえりなさいませ=おかえりなさい ！",
+          "note": "いらっしゃいませ is the staff's welcome. At a maid cafe they greet you as if you'd come home, so answer ただいま.",
+          "grammar": "tadaima"
+        },
+        {
+          "text": "いってきます ！",
+          "gloss": "I'm off! (said leaving home)",
+          "result": "npc_amused",
+          "reaction": "え 、 もう 出かけます=出かける か ？ おかえりなさいませ=おかえりなさい ！",
+          "note": "いってきます is for leaving home. Coming home, it's ただいま.",
+          "grammar": "tadaima"
+        },
+        {
+          "text": "こんにちは 。",
+          "gloss": "Hello. (misses the game)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Polite, but here the staff play at welcoming you home: answer おかえりなさいませ with ただいま."
+        }
+      ],
+      "next": {
+        "success": "first"
+      }
+    },
+    "first": {
+      "line": "はな です 。 初めて です か ？",
+      "gloss": "I'm Hana. Is this your first time here?",
+      "targets": [
+        "初めて"
+      ],
+      "grammar": [
+        "hajimete"
+      ],
+      "choices": [
+        {
+          "text": "はい 、 初めて です 。",
+          "gloss": "Yes, it's my first time.",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 はじめまして です 。",
+          "gloss": "Yes, nice to meet you is.",
+          "result": "npc_puzzled",
+          "reaction": "初めて 、 です ね 。 ようこそ ！",
+          "note": "はじめまして is 'nice to meet you'. 初めて means 'the first time': はい、初めてです.",
+          "grammar": "hajimete"
+        },
+        {
+          "text": "いいえ 、 はな です 。",
+          "gloss": "No, I'm Hana.",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 はな は 私 です よ 。",
+          "note": "She told you her name. Answer the question: はい、初めてです."
+        },
+        {
+          "text": "うん 、 初めて 。",
+          "gloss": "Yeah, first time. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but うん and a bare 初めて are for friends: はい、初めてです."
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "はい 、",
+            "初めて",
+            "です"
+          ]
+        ],
+        "decoys": [
+          "はじめまして",
+          "私",
+          "が"
+        ]
+      },
+      "blank": {
+        "before": "はい 、",
+        "after": "です 。",
+        "answers": [
+          "はじめて"
+        ]
+      },
+      "recast": "初めて です か ？",
+      "next": {
+        "success": "order"
+      }
+    },
+    "order": {
+      "line": "ご注文=注文 は お決まり=決まる です か ？",
+      "gloss": "Have you decided what you'd like?",
+      "targets": [
+        "と",
+        "注文"
+      ],
+      "grammar": [
+        "to_and"
+      ],
+      "choices": [
+        {
+          "text": "$item と $drink を お願いします=お願いする 。",
+          "gloss": "The $item_en and $drink_en, please.",
+          "result": "success"
+        },
+        {
+          "text": "$item も $drink を お願いします=お願いする 。",
+          "gloss": "(も, not と)",
+          "result": "npc_puzzled",
+          "reaction": "$item と $drink 、 です ね ？",
+          "note": "To list two things, join them with と: $itemと$drinkをお願いします. も means 'too'.",
+          "grammar": "to_and"
+        },
+        {
+          "text": "$item と $drink を 作ります=作る 。",
+          "gloss": "I'll make the $item_en and $drink_en.",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 私 が 作ります=作る よ 。",
+          "note": "作ります says you'll make them. To order: $itemと$drinkをお願いします."
+        },
+        {
+          "text": "$item と $drink 。",
+          "gloss": "$item_en and $drink_en. (curt)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but bare nouns are curt: finish with をお願いします."
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "$item",
+            "と",
+            "$drink",
+            "を",
+            "お願いします=お願いする"
+          ]
+        ],
+        "decoys": [
+          "も",
+          "作ります=作る",
+          "が"
+        ]
+      },
+      "blank": {
+        "before": "$item",
+        "after": "$drink を お願いします=お願いする 。",
+        "answers": [
+          "と"
+        ]
+      },
+      "recast": "ご注文=注文 は お決まり=決まる です か ？",
+      "next": {
+        "success": "draw"
+      }
+    },
+    "draw": {
+      "line": "お待たせしました 。 $item です 。 $sauce で 何 を 描きましょう=描く か ？",
+      "gloss": "Sorry to keep you waiting. Here's your $item_en. What shall I draw on it in $sauce_en?",
+      "targets": [
+        "描く",
+        "何"
+      ],
+      "grammar": [
+        "tekudasai"
+      ],
+      "choices": [
+        {
+          "text": "$pic を 描いて=描く ください 。",
+          "gloss": "Please draw $pic_en.",
+          "result": "success"
+        },
+        {
+          "text": "$pic を 描きました=描く 。",
+          "gloss": "I drew $pic_en.",
+          "result": "npc_puzzled",
+          "reaction": "え ？ $pic 、 です か ？",
+          "note": "描きました says you drew it. To ask her to draw it: $picを描いてください.",
+          "grammar": "tekudasai"
+        },
+        {
+          "text": "$pic を 買って=買う ください 。",
+          "gloss": "Please buy $pic_en.",
+          "result": "npc_amused",
+          "reaction": "え ？ ふふ 、 何 を 描きましょう=描く か ？",
+          "note": "買ってください asks her to buy it. 描く is draw: $picを描いてください.",
+          "grammar": "tekudasai"
+        },
+        {
+          "text": "$pic 、 描いて=描く 。",
+          "gloss": "Draw $pic_en. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but a bare 描いて is how you'd ask a friend: $picを描いてください."
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "$pic",
+            "を",
+            "描いて=描く",
+            "ください"
+          ]
+        ],
+        "decoys": [
+          "描きました=描く",
+          "買って=買う",
+          "が"
+        ]
+      },
+      "blank": {
+        "before": "$pic を",
+        "after": "ください 。",
+        "answers": [
+          "かいて"
+        ]
+      },
+      "recast": "$sauce で 何 を 描きましょう=描く か ？",
+      "next": {
+        "success": "photo"
+      }
+    },
+    "photo": {
+      "line": "はい 、 できました=できる ！ $pic です よ 。",
+      "gloss": "There, done! It's $pic_en.",
+      "targets": [
+        "写真",
+        "撮る"
+      ],
+      "grammar": [
+        "temo_ii"
+      ],
+      "choices": [
+        {
+          "text": "写真 を 撮って=撮る も いい です か ？",
+          "gloss": "May I take a photo?",
+          "result": "success"
+        },
+        {
+          "text": "写真 を 撮って=撮る ください 。",
+          "gloss": "Please take a photo.",
+          "result": "npc_confused",
+          "reaction": "え 、 私 が 撮ります=撮る か ？",
+          "note": "撮ってください asks her to take one. To ask if you may: 写真を撮ってもいいですか.",
+          "grammar": "temo_ii"
+        },
+        {
+          "text": "写真 が 撮って=撮る も いい です か ？",
+          "gloss": "(wrong particle)",
+          "result": "npc_puzzled",
+          "reaction": "写真 を 、 です か ？",
+          "note": "What you take is marked with を: 写真を撮ってもいいですか.",
+          "grammar": "wo_object"
+        },
+        {
+          "text": "写真 、 撮って=撮る も いい ？",
+          "gloss": "Can I take a photo? (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but plain いい？ is for friends: to staff, 撮ってもいいですか."
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "写真",
+            "を",
+            "撮って=撮る",
+            "も",
+            "いい",
+            "です か"
+          ]
+        ],
+        "decoys": [
+          "が",
+          "ください",
+          "撮ります=撮る"
+        ]
+      },
+      "blank": {
+        "before": "写真 を 撮って=撮る",
+        "after": "いい です か ？",
+        "answers": [
+          "も"
+        ]
+      },
+      "recast": "$pic です よ 。",
+      "next": {
+        "success": "rule"
+      }
+    },
+    "rule": {
+      "line": "お料理=料理 は どうぞ 。 でも 、 スタッフ の 写真 は ご遠慮ください 。",
+      "gloss": "Go ahead with the food. But please don't take photos of the staff.",
+      "targets": [
+        "スタッフ",
+        "ご遠慮ください",
+        "料理"
+      ],
+      "grammar": [
+        "goenryo"
+      ],
+      "maxMode": 2,
+      "choices": [
+        {
+          "text": "はい 、 わかりました=わかる 。",
+          "gloss": "Yes, understood.",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 はな さん を 撮ります=撮る 。",
+          "gloss": "OK, I'll take one of you, Hana.",
+          "result": "npc_confused",
+          "reaction": "えっ 、 だめ です よ ！ お料理=料理 だけ です 。",
+          "note": "ご遠慮ください is the polite way signs and staff say 'please don't': photos of the food only.",
+          "grammar": "goenryo"
+        },
+        {
+          "text": "ごちそうさまでした 。",
+          "gloss": "Thank you for the meal.",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 まだ 食べて=食べる いません=いる よ 。",
+          "note": "ごちそうさまでした is for after you've eaten. Here, answer the rule: はい、わかりました.",
+          "grammar": "gochisousama"
+        },
+        {
+          "text": "うん 、 わかった=わかる 。",
+          "gloss": "Yeah, got it. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but うん、わかった is for friends: はい、わかりました."
+        }
+      ],
+      "next": {
+        "success": "pay"
+      }
+    },
+    "pay": {
+      "line": "お会計=会計 は $price 円 です 。",
+      "gloss": "That comes to ¥$price.",
+      "targets": [
+        "会計",
+        "円"
+      ],
+      "grammar": [
+        "douzo"
+      ],
+      "effects": {
+        "pay": true
+      },
+      "choices": [
+        {
+          "text": "はい 、 どうぞ 。",
+          "gloss": "Here you are.",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 ただいま 。",
+          "gloss": "Here, I'm home.",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 ただいま は もう 聞きました=聞く よ 。",
+          "note": "ただいま is for coming home. Handing money over, say はい、どうぞ.",
+          "grammar": "tadaima"
+        },
+        {
+          "text": "はい 、 いただきます 。",
+          "gloss": "(said before eating)",
+          "result": "npc_amused",
+          "reaction": "ふふ 。 $price 円 です よ 。",
+          "note": "いただきます is for just before you eat. Handing money over, say はい、どうぞ.",
+          "grammar": "itadakimasu"
+        },
+        {
+          "text": "はい 、 これ 。",
+          "gloss": "Here, this. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but はい、これ is how you'd hand something to a friend: はい、どうぞ."
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "はい 、",
+            "どうぞ"
+          ]
+        ],
+        "decoys": [
+          "ただいま",
+          "いただきます"
+        ]
+      },
+      "blank": {
+        "before": "はい 、",
+        "after": "。",
+        "answers": [
+          "どうぞ"
+        ]
+      },
+      "recast": "お会計=会計 は $price 円 です 。",
+      "next": {
+        "success": "bye"
+      }
+    },
+    "bye": {
+      "line": "ありがとうございました=ありがとうございます 。 いってらっしゃいませ=いってらっしゃい ！",
+      "gloss": "Thank you! Have a good day out!",
+      "targets": [
+        "いってらっしゃい",
+        "いってきます"
+      ],
+      "grammar": [
+        "ittekimasu"
+      ],
+      "maxMode": 2,
+      "choices": [
+        {
+          "text": "いってきます ！",
+          "gloss": "I'm off!",
+          "result": "success"
+        },
+        {
+          "text": "ただいま ！",
+          "gloss": "I'm home!",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 いってらっしゃいませ=いってらっしゃい ！",
+          "note": "ただいま is for coming home. Seen off with いってらっしゃいませ, you answer いってきます: here, for once, it's just right.",
+          "grammar": "ittekimasu"
+        },
+        {
+          "text": "おかえりなさい ！",
+          "gloss": "Welcome home!",
+          "result": "npc_amused",
+          "reaction": "ふふ 。 いってらっしゃいませ=いってらっしゃい ！",
+          "note": "おかえりなさい welcomes someone home. You're the one leaving: いってきます.",
+          "grammar": "tadaima"
+        },
+        {
+          "text": "ありがとうございました=ありがとうございます 。",
+          "gloss": "Thank you. (misses the game)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Polite, but she's playing at seeing you off from home: answer いってらっしゃいませ with いってきます."
+        }
+      ],
+      "end": true
+    }
+  }
+}

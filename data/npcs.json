@@ -11,5 +11,8 @@
   { "id": "yamamoto", "name": "山本 さん", "role": "Runs the goldfish stall at the festival", "listener": "a stallholder" },
   { "id": "okami", "name": "女将 さん", "role": "Runs the ryokan in 箱根 and looks after the front desk", "listener": "the ryokan’s 女将さん" },
   { "id": "nakai", "name": "仲居 さん", "role": "Looks after the guest rooms at the ryokan", "listener": "ryokan staff" },
-  { "id": "suzuki", "name": "鈴木 さん", "role": "Another guest at the ryokan, who comes every year", "listener": "someone you’ve just met" }
+  { "id": "suzuki", "name": "鈴木 さん", "role": "Another guest at the ryokan, who comes every year", "listener": "someone you’ve just met" },
+  { "id": "nakamura", "name": "中村 さん", "role": "Works at an electronics shop in 秋葉原", "listener": "a shop assistant" },
+  { "id": "hana", "name": "はな", "role": "Waits on tables at a maid cafe in 秋葉原 (はな is her name at work)", "listener": "cafe staff" },
+  { "id": "kato", "name": "加藤 さん", "role": "Looks after the crane games at an arcade in 秋葉原", "listener": "arcade staff" }
 ]

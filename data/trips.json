@@ -1,5 +1,6 @@
 [
   { "id": "kamakura", "name": "鎌倉", "level": 3, "fare": 1800, "minutes": 50, "built": true, "blurb": "An old seaside town. Near the station: a shrine for charms and a souvenir shop." },
+  { "id": "akihabara", "name": "秋葉原", "level": 4, "fare": 1600, "minutes": 60, "built": true, "blurb": "Tokyo's Electric Town. Out of the 電気街口 exit: an electronics shop, a maid cafe, an arcade, and capsule-toy machines on the street." },
   { "id": "yokohama", "name": "横浜", "level": 6, "fare": 1200, "built": false, "blurb": "A harbour city with a big Chinatown." },
   { "id": "hakone", "name": "箱根", "level": 6, "fare": 3200, "minutes": 80, "built": true, "blurb": "Hot springs in the mountains. Stay the night at a ryokan: a bath, dinner in your room and a futon. ¥9,800 a night, paid when you check out." },
   { "id": "nikko", "name": "日光", "level": 12, "fare": 5400, "built": false, "blurb": "Bright old shrines deep in the cedar forest." }

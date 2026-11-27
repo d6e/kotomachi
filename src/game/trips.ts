@@ -31,12 +31,13 @@ export const TRIP_MINUTES = 50;
 export const LAST_TRAIN_OUT = 17 * 60;
 
 /** Where a trip's train arrives: the open-air town. */
-export const ARRIVAL: Record<string, TripPlace> = { kamakura: 'kamakura', hakone: 'hakone' };
+export const ARRIVAL: Record<string, TripPlace> = { kamakura: 'kamakura', hakone: 'hakone', akihabara: 'akihabara' };
 
 /** Which trip a place belongs to, so the train home takes as long as the ride out. */
 const TRIP_OF: Partial<Record<TripPlace, string>> = {
   kamakura: 'kamakura', shrine: 'kamakura', omiyage: 'kamakura',
   hakone: 'hakone', ryokan: 'hakone', washitsu: 'hakone', onsen: 'hakone',
+  akihabara: 'akihabara', denki: 'akihabara', maidcafe: 'akihabara', arcade: 'akihabara',
 };
 
 /** How long the ride is between home and wherever this trip place is. */
@@ -54,6 +55,22 @@ export function canTravel(trip: Trip, level: number, money: number, minutes: num
   return 'ok';
 }
 
+/** What comes out of the capsule-toy machines in 秋葉原: one of these, at random. */
+export const GACHA_TOYS = [
+  { id: 'gacha_maneki', word: '招き猫', en: 'a beckoning cat' },
+  { id: 'gacha_sushi', word: '寿司', en: 'a tiny sushi' },
+  { id: 'gacha_densha', word: '電車', en: 'a little train' },
+] as const;
+/** A turn of a capsule machine's handle: three 100-yen coins. */
+export const GACHA_PRICE = 300;
+
+/** A random toy from the machine, preferring one you don't have yet. */
+export function gachaPull(owned: readonly string[], rand: () => number = Math.random): (typeof GACHA_TOYS)[number] {
+  const fresh = GACHA_TOYS.filter((t) => !owned.includes(t.id));
+  const pool = fresh.length ? fresh : GACHA_TOYS;
+  return pool[Math.min(pool.length - 1, Math.floor(rand() * pool.length))]!;
+}
+
 /** A souvenir: a keepsake you bring home from a trip, by what you bought. */
 export interface Souvenir extends Keepsake {
   scenario: string;
@@ -69,7 +86,16 @@ export const SOUVENIRS: Souvenir[] = [
   // From the ryokan in 箱根: the tenugui towel from your room, and a wood mosaic box from its shop.
   { id: 'tenugui', word: '手ぬぐい', from: 'okami' satisfies NpcId, scenario: 'ryokan_checkout' },
   { id: 'yosegi', word: '寄木細工', from: 'okami' satisfies NpcId, scenario: 'ryokan_baiten', variant: 'yosegi' },
+  // From 秋葉原: the plushie you win at the crane game.
+  { id: 'nuigurumi_neko', word: 'ぬいぐるみ', from: 'kato' satisfies NpcId, scenario: 'arcade_crane', variant: 'neko' },
+  { id: 'nuigurumi_inu', word: 'ぬいぐるみ', from: 'kato' satisfies NpcId, scenario: 'arcade_crane', variant: 'inu' },
 ];
+
+/** The capsule toys are keepsakes too, though no conversation gives them: you turn the handle yourself. */
+export const GACHA_KEEPSAKES: Keepsake[] = GACHA_TOYS.map((t) => ({ id: t.id, word: t.word, from: 'kato' satisfies NpcId }));
+
+/** Every keepsake that comes from a trip: souvenirs, and the capsule toys. */
+export const TRIP_KEEPSAKES: Keepsake[] = [...SOUVENIRS, ...GACHA_KEEPSAKES];
 
 /** What a finished conversation brings home, if anything. */
 export function souvenirFor(scenario: string, variant: string): Souvenir | undefined {

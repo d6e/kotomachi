@@ -24,15 +24,20 @@ export type RoomCell = ' ' | '#' | '.' | 'D' | 'S' | '=' | 'h' | 'H' | 'f' | 'm'
   | 'T' | ',' | 'L' | 'P' | '1' | '2' | '3'
   // At the hot springs: 'M' the mountains behind (and Mount Fuji), '~' hot water,
   // 'u' the ryokan's little shop, 'q' a washing place in the bath.
-  | 'M' | '~' | 'u' | 'q';
+  | 'M' | '~' | 'u' | 'q'
+  // In 秋葉原: 'B' the tall buildings behind the street, 'R' the road, 'z' the crossing
+  // over it (walkable), 'E' the station's front, 'G' a row of capsule-toy machines,
+  // 'C' a crane game in the arcade.
+  | 'B' | 'R' | 'z' | 'E' | 'G' | 'C';
 
 /** The places you can reach by train: the town you arrive in, and the places in it. */
-export type TripPlace = 'kamakura' | 'shrine' | 'omiyage' | 'hakone' | 'ryokan' | 'washitsu' | 'onsen';
+export type TripPlace = 'kamakura' | 'shrine' | 'omiyage' | 'hakone' | 'ryokan' | 'washitsu' | 'onsen'
+  | 'akihabara' | 'denki' | 'maidcafe' | 'arcade';
 /** Anywhere with its own room-sized map: the insides on the street, and trip places. */
 export type Scene = DoorPlace | TripPlace;
 
 /** Things in a room you can use: the catalog at the post office, your shelf at home. */
-export type ThingId = 'catalog' | 'shelf' | 'tickets' | 'baiten' | 'rest';
+export type ThingId = 'catalog' | 'shelf' | 'tickets' | 'baiten' | 'rest' | 'gacha';
 
 /** Something bought for your room, and where it goes. */
 export interface DecorItem {
@@ -42,7 +47,7 @@ export interface DecorItem {
   spot?: TilePos;
 }
 
-const WALKABLE: ReadonlySet<string> = new Set(['.', 'D', 'r', ',', '1', '2', '3']);
+const WALKABLE: ReadonlySet<string> = new Set(['.', 'D', 'r', ',', '1', '2', '3', 'z']);
 
 export type FloorKind = 'wood' | 'tile' | 'stone' | 'tatami';
 
@@ -415,6 +420,112 @@ TRIP_ROOMS.onsen = {
     ' #q.q.q.q.........# ',
     ' #................# ',
     ' #p.......n......p# ',
+    ' ########D######### ',
+    '                    ',
+  ],
+};
+
+/**
+ * 秋葉原, the city trip. Out of the station's 電気街口 (Electric Town exit) at the bottom,
+ * over the crossing, and the street of tall shops: the electronics shop on the left, the
+ * maid cafe in the middle and the arcade on the right, with capsule-toy machines out front.
+ */
+TRIP_ROOMS.akihabara = {
+  place: 'akihabara',
+  floor: 'stone',
+  wall: 'wall',
+  outdoor: true,
+  exit: 'train',
+  station: '秋葉原',
+  doors: [{ cell: '1', to: 'denki' }, { cell: '2', to: 'maidcafe' }, { cell: '3', to: 'arcade' }],
+  things: [{ cell: 'G', id: 'gacha' }],
+  rows: [
+    'BBBBBBBBBBBBBBBBBBBB',
+    'B#####B######B#####B',
+    'B#####B######B#####B',
+    'B#####B######B#####B',
+    'B##1##B###2##B##3##B',
+    '...,......,.....,.GG',
+    '...,,,,,,,,,,,,,,...',
+    'RRRRRRRRRzzRRRRRRRRR',
+    'RRRRRRRRRzzRRRRRRRRR',
+    '.........,.......n..',
+    '..p......,.......p..',
+    'EEEEEEEEE,EEEEEEEEEE',
+    '         D          ',
+  ],
+};
+
+/** The electronics shop: shelves of gadgets, screens on the wall, and a clerk at the counter. */
+TRIP_ROOMS.denki = {
+  place: 'denki',
+  floor: 'tile',
+  wall: 'stationWall',
+  sign: '電気屋',
+  staff: 'nakamura',
+  exit: 'akihabara',
+  rows: [
+    '                    ',
+    '                    ',
+    ' ################## ',
+    ' ################## ',
+    ' #hhhhh...S...hhhh# ',
+    ' #.......=m=......# ',
+    ' #................# ',
+    ' #.HHH..HHH..HHH..# ',
+    ' #................# ',
+    ' #.HHH..HHH..HHH..# ',
+    ' #p..............p# ',
+    ' ########D######### ',
+    '                    ',
+  ],
+};
+
+/** The maid cafe: pastel walls, hearts, little tables, and はな at the counter. */
+TRIP_ROOMS.maidcafe = {
+  place: 'maidcafe',
+  floor: 'wood',
+  wall: 'wall2',
+  sign: 'メイドカフェ',
+  staff: 'hana',
+  exit: 'akihabara',
+  rows: [
+    '                    ',
+    '                    ',
+    ' ################## ',
+    ' ################## ',
+    ' #p..hhh.S..hhh..p# ',
+    ' #......===.......# ',
+    ' #................# ',
+    ' #................# ',
+    ' #.ctc..ctc...ctc.# ',
+    ' #................# ',
+    ' #p..............p# ',
+    ' ########D######### ',
+    '                    ',
+  ],
+};
+
+/** The arcade: rows of crane games full of plushies, and 加藤さん in the middle aisle. */
+TRIP_ROOMS.arcade = {
+  place: 'arcade',
+  floor: 'tile',
+  wall: 'stationWall',
+  sign: 'ゲームセンター',
+  staff: 'kato',
+  exit: 'akihabara',
+  rows: [
+    '                    ',
+    '                    ',
+    ' ################## ',
+    ' ################## ',
+    ' #CC.CC..S...CC.CC# ',
+    ' #.......===......# ',
+    ' #................# ',
+    ' #.CC..CC....CC.CC# ',
+    ' #................# ',
+    ' #.CC..CC....CC.CC# ',
+    ' #p..............p# ',
     ' ########D######### ',
     '                    ',
   ],

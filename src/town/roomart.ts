@@ -50,6 +50,9 @@ const COUNTERS: Record<string, Pick<Theme, 'counterTop' | 'counterFront' | 'coun
   ryokan: { counterTop: 'woodHi', counterFront: 'woodSh', counterBand: 'noren' },
   washitsu: { counterTop: 'woodHi', counterFront: 'wood', counterBand: 'woodSh' },
   onsen: { counterTop: 'stone', counterFront: 'stoneSh', counterBand: 'stone' },
+  denki: { counterTop: 'tileA', counterFront: 'roofB', counterBand: 'gold' },
+  maidcafe: { counterTop: 'white', counterFront: 'flowerA', counterBand: 'white' },
+  arcade: { counterTop: 'tileA', counterFront: 'roofG', counterBand: 'gold' },
 };
 
 const isWall = (c: string) => c === '#';
@@ -201,6 +204,9 @@ export function drawRoom(room: RoomDef, measure: Measure): RoomArt {
           break;
         case 'w':
           if (left !== 'w') lowTable(b, x, y);
+          break;
+        case 'C':
+          crane(b, x, y, tx + ty);
           break;
       }
     }
@@ -400,6 +406,39 @@ function decorate(b: Buf, signs: SignSpot[], measure: Measure, room: RoomDef, th
     case 'onsen':
       fujiMural(b, 2 * TILE, wallY + 4, 16 * TILE, wallH - 8);
       break;
+    case 'denki':
+      // A wall of TVs all showing the same bright picture, and price cards.
+      for (const tx of [3, 6, 13, 16]) {
+        const x = tx * TILE - 4;
+        b.box(x, mid + 2, 22, 14, 'darkSh');
+        b.rect(x + 2, mid + 4, 18, 10, 'glass');
+        b.rect(x + 2, mid + 10, 18, 4, 'leaf');
+        b.rect(x + 13, mid + 5, 4, 4, 'flowerB');
+      }
+      signAt(10 * TILE + 8);
+      break;
+    case 'maidcafe':
+      // Bunting across the wall, hearts, and a menu board.
+      for (let x = 2 * TILE; x < 18 * TILE; x += 8) {
+        b.rect(x, mid, 8, 1, 'out');
+        b.shape(x + 1, mid + 1, 6, 5, (i, j) => Math.abs(i - 2.5) <= 3 - j * 0.6, () => ((x / 8) % 2 ? 'flowerA' : 'roofDHi'));
+      }
+      for (const tx of [3, 15]) {
+        heartMark(b, tx * TILE + 4, mid + 9);
+        heartMark(b, tx * TILE + 12, mid + 12);
+      }
+      b.box(12 * TILE + 4, mid + 7, 16, 12, 'chalk');
+      for (let i = 0; i < 3; i++) b.rect(12 * TILE + 7, mid + 10 + i * 3, 10, 1, 'white');
+      signAt(9 * TILE + 8);
+      break;
+    case 'arcade':
+      // Neon strips along the wall, and the prize counter's sign.
+      for (let x = 2 * TILE; x < 18 * TILE; x += 2) {
+        b.set(x, mid + 1, (x / 2) % 3 === 0 ? 'flowerA' : (x / 2) % 3 === 1 ? 'roofBHi' : 'gold');
+        b.set(x + 1, wallY + wallH - 7, (x / 2) % 2 ? 'roofCHi' : 'roofDHi');
+      }
+      signAt(9 * TILE + 8);
+      break;
     case 'home': {
       windowPane(b, 7 * TILE + 6, mid + 3, 30, 18);
       // A wall clock and a calendar.
@@ -417,6 +456,30 @@ function decorate(b: Buf, signs: SignSpot[], measure: Measure, room: RoomDef, th
 }
 
 // ------------------------------------------------------------------ furniture
+
+function heartMark(b: Buf, x: number, y: number): void {
+  b.rect(x, y, 2, 2, 'flowerA');
+  b.rect(x + 3, y, 2, 2, 'flowerA');
+  b.rect(x, y + 1, 5, 2, 'flowerA');
+  b.rect(x + 1, y + 3, 3, 1, 'flowerA');
+  b.set(x + 2, y + 4, 'petalSh');
+}
+
+/** A crane game: a lit glass case of plushies, the claw hanging over them, buttons below. */
+function crane(b: Buf, x: number, y: number, seed: number): void {
+  b.ellipseShadow(x + 8, y + 15, 7, 1.6);
+  const body = (['roofD', 'roofB', 'roofG', 'roofC'] as Role[])[seed % 4]!;
+  b.box(x, y - 13, TILE, 28, body);
+  b.rect(x + 1, y - 12, TILE - 2, 2, 'gold');
+  b.box(x + 2, y - 9, TILE - 4, 14, 'glassHi');
+  b.rect(x + 7, y - 8, 1, 4, 'out');
+  b.rect(x + 5, y - 4, 5, 1, 'greySh');
+  b.rect(x + 5, y - 3, 1, 2, 'greySh');
+  b.rect(x + 9, y - 3, 1, 2, 'greySh');
+  for (let i = 0; i < 3; i++) b.rect(x + 3 + i * 4, y + 1, 3, 3, ITEM_COLOURS[Math.floor(hash(seed, i, 7) * ITEM_COLOURS.length)]!);
+  b.rect(x + 3, y + 8, 3, 2, 'flowerB');
+  b.rect(x + 10, y + 8, 3, 2, 'roofA');
+}
 
 function doormat(b: Buf, x: number, y: number): void {
   b.box(x + 1, y + 2, 14, 11, 'roofE');
@@ -930,6 +993,43 @@ export const KEEPSAKE_ART: Record<string, Mini> = {
     b.rect(x + 1, base - 3, 1, 1, 'white');
     b.rect(x + 3, base - 2, 1, 1, 'white');
     b.rect(x + 5, base - 3, 1, 1, 'white');
+  },
+  // From the crane game in 秋葉原: a cat plushie and a dog plushie.
+  nuigurumi_neko: (b, x, base) => {
+    b.box(x, base - 6, 7, 6, 'grey');
+    b.set(x, base - 7, 'out');
+    b.set(x + 6, base - 7, 'out');
+    b.set(x + 2, base - 4, 'eye');
+    b.set(x + 4, base - 4, 'eye');
+    b.set(x + 3, base - 3, 'blush');
+  },
+  nuigurumi_inu: (b, x, base) => {
+    b.box(x, base - 6, 7, 6, 'dirt');
+    b.rect(x - 1, base - 6, 2, 3, 'dirtSh');
+    b.rect(x + 6, base - 6, 2, 3, 'dirtSh');
+    b.set(x + 2, base - 4, 'eye');
+    b.set(x + 4, base - 4, 'eye');
+    b.set(x + 3, base - 3, 'out');
+  },
+  // Out of the capsule machines in 秋葉原: a beckoning cat, a tiny sushi, a little train.
+  gacha_maneki: (b, x, base) => {
+    b.box(x + 1, base - 6, 5, 6, 'white');
+    b.rect(x + 5, base - 8, 2, 3, 'white');
+    b.set(x + 6, base - 8, 'out');
+    b.rect(x + 2, base - 3, 3, 1, 'roofA');
+    b.set(x + 3, base - 2, 'gold');
+  },
+  gacha_sushi: (b, x, base) => {
+    b.box(x, base - 3, 7, 3, 'white');
+    b.box(x, base - 5, 7, 3, 'roofF');
+    b.rect(x + 1, base - 4, 5, 1, 'roofFHi');
+  },
+  gacha_densha: (b, x, base) => {
+    b.box(x, base - 5, 7, 4, 'white');
+    b.rect(x + 1, base - 4, 5, 1, 'glass');
+    b.rect(x + 1, base - 2, 5, 1, 'top2');
+    b.set(x + 1, base - 1, 'out');
+    b.set(x + 5, base - 1, 'out');
   },
   yosegi: (b, x, base) => {
     b.box(x, base - 5, 7, 5, 'woodHi');

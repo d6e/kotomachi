@@ -122,7 +122,7 @@ export class Notebook {
       }
     }
     if (by.size === 0) this.body.append(h('p', { class: 'empty' }, 'Words you hear or read around town collect here.'));
-    for (const place of ['cafe', 'konbini', 'pharmacy', 'restaurant', 'station', 'post', 'street', 'shrine', 'omiyage', 'matsuri']) {
+    for (const place of ['cafe', 'konbini', 'pharmacy', 'restaurant', 'station', 'post', 'street', 'shrine', 'omiyage', 'matsuri', 'ryokan', 'washitsu', 'onsen', 'denki', 'maidcafe', 'arcade']) {
       const ids = by.get(place);
       if (ids) this.body.append(this.group(this.ctx!.placeName(place), ids));
     }

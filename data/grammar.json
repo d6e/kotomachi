@@ -364,5 +364,47 @@
   "title": "お世話になりました",
   "note": "'Thank you for looking after me.' Said when you leave a place or person who took care of you: a ryokan, a host family, a workplace on your last day.",
   "example": "お世話=世話 に なりました=なる 。"
+ },
+ {
+  "id": "te_iru",
+  "title": "～ています (doing now)",
+  "note": "The て-form plus います describes something in progress: 探しています, I'm looking for. The plain past (探しました) would mean the looking is over.",
+  "example": "充電器 を 探して=探す います=いる 。"
+ },
+ {
+  "id": "kai_floor",
+  "title": "Floors: ～階",
+  "note": "Floors are counted with 階. Watch the sound changes: 一階 いっかい, 二階 にかい, 三階 さんがい, 四階 よんかい. Japanese floors start at ground level, so 一階 is the ground floor.",
+  "example": "売り場 は 三階 です 。"
+ },
+ {
+  "id": "ni_suru",
+  "title": "～にします (I'll go with)",
+  "note": "When you choose something, say [thing]にします: これにします, I'll take this one. に marks the choice; を would make it 'I'll do this'.",
+  "example": "じゃあ 、 これ に します=する 。"
+ },
+ {
+  "id": "tadaima",
+  "title": "ただいま / おかえりなさい",
+  "note": "Said at home: whoever comes in says ただいま (I'm back), and whoever is there answers おかえりなさい (welcome back). Maid cafes play it as if you'd come home, so you answer ただいま.",
+  "example": "ただいま 。"
+ },
+ {
+  "id": "hajimete",
+  "title": "初めて vs はじめまして",
+  "note": "初めて means 'for the first time': 初めてです, it's my first time (here). はじめまして is a greeting for meeting a person, not for visiting a place.",
+  "example": "はい 、 初めて です 。"
+ },
+ {
+  "id": "goenryo",
+  "title": "ご遠慮ください",
+  "note": "A polite 'please don't', on signs and from staff: 写真はご遠慮ください, no photos please. The answer is a simple わかりました.",
+  "example": "写真 は ご遠慮ください 。"
+ },
+ {
+  "id": "te_moraeru",
+  "title": "～てもらえますか",
+  "note": "The て-form plus もらえますか asks someone to do something for you: 動かしてもらえますか, could you move it for me? It's softer than ～てください.",
+  "example": "少し 動かして=動かす もらえます=もらえる か ？"
  }
 ]

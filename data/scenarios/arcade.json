@@ -1,0 +1,361 @@
+{
+  "id": "arcade_crane",
+  "title": "A crane game in Akihabara",
+  "place": "arcade",
+  "npc": "kato",
+  "maxStage": 4,
+  "errand": "秋葉原 の ゲームセンター で $item を 取る",
+  "start": "ask",
+  "variants": [
+    {
+      "id": "neko",
+      "price": 300,
+      "slots": {
+        "item": "猫 の ぬいぐるみ",
+        "item_en": "cat plushie"
+      }
+    },
+    {
+      "id": "inu",
+      "price": 300,
+      "slots": {
+        "item": "犬 の ぬいぐるみ",
+        "item_en": "dog plushie"
+      }
+    }
+  ],
+  "nodes": {
+    "ask": {
+      "line": "はい 、 どう されました=する か ？",
+      "gloss": "Yes? What seems to be the trouble?",
+      "targets": [
+        "取れる",
+        "すみません"
+      ],
+      "grammar": [
+        "potential"
+      ],
+      "choices": [
+        {
+          "text": "すみません 、 $item が 取れません=取れる 。",
+          "gloss": "Excuse me, I can't get the $item_en.",
+          "result": "success"
+        },
+        {
+          "text": "すみません 、 $item が 取りました=取る 。",
+          "gloss": "Excuse me, the $item_en took. (garbled)",
+          "result": "npc_puzzled",
+          "reaction": "え ？ 取れません=取れる か ？",
+          "note": "取りました says you got it. When you can't, it's 取れません, the negative of 取れる (can get).",
+          "grammar": "potential"
+        },
+        {
+          "text": "すみません 、 $item を 売って=売る ください 。",
+          "gloss": "Excuse me, please sell me the $item_en.",
+          "result": "npc_confused",
+          "reaction": "すみません 、 景品 は 売って=売る いません=いる 。",
+          "note": "Prizes (景品) aren't for sale: you win them. Say what's wrong: $itemが取れません."
+        },
+        {
+          "text": "$item 、 取れない=取れる 。",
+          "gloss": "Can't get the $item_en. (grumbling)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but plain 取れない sounds like grumbling to a friend: to staff, すみません、$itemが取れません."
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "すみません 、",
+            "$item",
+            "が",
+            "取れません=取れる"
+          ]
+        ],
+        "decoys": [
+          "取りました=取る",
+          "売って=売る",
+          "で"
+        ]
+      },
+      "blank": {
+        "before": "すみません 、 $item が",
+        "after": "。",
+        "answers": [
+          "とれません"
+        ]
+      },
+      "recast": "どう されました=する か ？",
+      "next": {
+        "success": "tries"
+      }
+    },
+    "tries": {
+      "line": "そう です か 。 何回 やりました=やる か ？",
+      "gloss": "I see. How many goes have you had?",
+      "targets": [
+        "何回",
+        "三回",
+        "やる"
+      ],
+      "grammar": [
+        "counters_kai"
+      ],
+      "effects": {
+        "pay": true
+      },
+      "choices": [
+        {
+          "text": "三回 やりました=やる 。",
+          "gloss": "Three goes.",
+          "result": "success"
+        },
+        {
+          "text": "三つ やりました=やる 。",
+          "gloss": "Three (things).",
+          "result": "npc_puzzled",
+          "reaction": "三回 、 です ね 。",
+          "note": "Goes and times are counted with 回: 一回, 二回, 三回. 三つ counts things.",
+          "grammar": "counters_kai"
+        },
+        {
+          "text": "300 円 です 。",
+          "gloss": "It's ¥300.",
+          "result": "npc_confused",
+          "reaction": "えっと 、 何回 です か ？",
+          "note": "何回 asks how many times. Answer with 回: 三回やりました.",
+          "grammar": "counters_kai"
+        },
+        {
+          "text": "三回 。",
+          "gloss": "Three. (curt)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but a bare 三回 is curt: 三回やりました."
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "三回",
+            "やりました=やる"
+          ]
+        ],
+        "decoys": [
+          "三つ",
+          "円",
+          "です"
+        ]
+      },
+      "blank": {
+        "after": "やりました=やる 。",
+        "answers": [
+          "さんかい"
+        ]
+      },
+      "recast": "何回 やりました=やる か ？",
+      "next": {
+        "success": "move"
+      }
+    },
+    "move": {
+      "line": "三回 です か 。 それ は 残念 です ね 。",
+      "gloss": "Three goes? That's a shame.",
+      "targets": [
+        "動かす",
+        "もらえる",
+        "少し"
+      ],
+      "grammar": [
+        "te_moraeru"
+      ],
+      "choices": [
+        {
+          "text": "少し 動かして=動かす もらえます=もらえる か ？",
+          "gloss": "Could you move it a little for me?",
+          "result": "success"
+        },
+        {
+          "text": "少し 動きます=動く か ？",
+          "gloss": "Does it move a little?",
+          "result": "npc_puzzled",
+          "reaction": "動かして=動かす 、 です か ？",
+          "note": "動く is 'move' by itself. You want the staff to move it for you: 動かしてもらえますか.",
+          "grammar": "te_moraeru"
+        },
+        {
+          "text": "少し 動かしました=動かす 。",
+          "gloss": "I moved it a little.",
+          "result": "npc_amused",
+          "reaction": "えっ 、 お客様 が です か ？ だめ です よ 。",
+          "note": "That says you moved it yourself! Ask the staff to: 少し動かしてもらえますか.",
+          "grammar": "te_moraeru"
+        },
+        {
+          "text": "少し 動かして=動かす 。",
+          "gloss": "Move it a bit. (an order)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but a bare 動かして is an order: ask, 少し動かしてもらえますか."
+        }
+      ],
+      "tiles": {
+        "answers": [
+          [
+            "少し",
+            "動かして=動かす",
+            "もらえます=もらえる",
+            "か"
+          ]
+        ],
+        "decoys": [
+          "動きます=動く",
+          "動かしました=動かす",
+          "を"
+        ]
+      },
+      "blank": {
+        "before": "少し 動かして=動かす",
+        "after": "か ？",
+        "answers": [
+          "もらえます"
+        ]
+      },
+      "recast": "それ は 残念 です ね 。",
+      "next": {
+        "success": "win"
+      }
+    },
+    "win": {
+      "line": "はい 、 これ で どう です か ？ … あ 、 取れました=取れる ね ！ おめでとうございます ！",
+      "gloss": "There, how's that? … Oh, you got it! Congratulations!",
+      "targets": [
+        "おめでとうございます",
+        "取れる"
+      ],
+      "grammar": [
+        "potential"
+      ],
+      "maxMode": 2,
+      "choices": [
+        {
+          "text": "やった ！ ありがとうございます ！",
+          "gloss": "Yes! Thank you!",
+          "result": "success"
+        },
+        {
+          "text": "おめでとうございます ！",
+          "gloss": "Congratulations!",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 おめでとう は 私 から です よ 。",
+          "note": "おめでとうございます congratulates someone else. When you're the one congratulated, say ありがとうございます."
+        },
+        {
+          "text": "いただきます ！",
+          "gloss": "(said before eating)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 ぬいぐるみ は 食べません=食べる よ 。",
+          "note": "いただきます is for food. To thank them: ありがとうございます.",
+          "grammar": "itadakimasu"
+        },
+        {
+          "text": "どうも 。",
+          "gloss": "Thanks. (curt)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but after the help you got, a lone どうも is curt: ありがとうございます."
+        }
+      ],
+      "next": {
+        "success": "bag"
+      }
+    },
+    "bag": {
+      "line": "袋 は いります=要る か ？",
+      "gloss": "Do you need a bag?",
+      "targets": [
+        "袋",
+        "要る"
+      ],
+      "grammar": [
+        "daijoubu"
+      ],
+      "maxMode": 2,
+      "choices": [
+        {
+          "text": "はい 、 お願いします=お願いする 。",
+          "gloss": "Yes, please.",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 いりません=要る 。",
+          "gloss": "Yes, I don't need one.",
+          "result": "npc_puzzled",
+          "reaction": "えっと 、 袋 は いります=要る か ？",
+          "note": "はい and いりません pull opposite ways. For a bag: はい、お願いします. Without one: いいえ、大丈夫です.",
+          "grammar": "daijoubu"
+        },
+        {
+          "text": "はい 、 袋 です 。",
+          "gloss": "Yes, it's a bag.",
+          "result": "npc_confused",
+          "reaction": "… ？ 袋 、 いります=要る か ？",
+          "note": "袋はいりますか asks if you need a bag: はい、お願いします, or いいえ、大丈夫です."
+        },
+        {
+          "text": "うん 、 いる=要る 。",
+          "gloss": "Yeah, need one. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but うん、いる is for friends: はい、お願いします."
+        }
+      ],
+      "next": {
+        "success": "bye"
+      }
+    },
+    "bye": {
+      "line": "ありがとうございました=ありがとうございます 。 また 来て=来る ください ね 。",
+      "gloss": "Thank you. Do come again.",
+      "targets": [
+        "また",
+        "来る"
+      ],
+      "grammar": [
+        "ni_kuru"
+      ],
+      "maxMode": 2,
+      "choices": [
+        {
+          "text": "はい 、 また 来ます=来る ！",
+          "gloss": "I will, I'll come again!",
+          "result": "success"
+        },
+        {
+          "text": "はい 、 また 来ました=来る 。",
+          "gloss": "Yes, I came again. (past)",
+          "result": "npc_puzzled",
+          "reaction": "ふふ 、 また 来て=来る ください ね 。",
+          "note": "Coming again later is non-past: また来ます. 来ました is past."
+        },
+        {
+          "text": "いらっしゃいませ 。",
+          "gloss": "Welcome! (what staff say)",
+          "result": "npc_amused",
+          "reaction": "ふふ 、 それ は 私 の 言葉 です よ 。",
+          "note": "いらっしゃいませ is what staff say. On your way out: はい、また来ます.",
+          "grammar": "irasshaimase"
+        },
+        {
+          "text": "うん 、 また ね 。",
+          "gloss": "Yeah, see you. (too casual)",
+          "result": "success",
+          "grade": "okay",
+          "note": "Right meaning, but また ね is for friends: はい、また来ます."
+        }
+      ],
+      "end": true
+    }
+  }
+}

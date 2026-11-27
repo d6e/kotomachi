@@ -16,7 +16,7 @@ import { drawScene } from '../town/scenes.ts';
 import { drawMemory, isMemoryArt } from '../town/memoryart.ts';
 import { itemIcon } from '../town/roomart.ts';
 import { allKeepsakes, canOrder, CATALOG, catalogById, homeRoom } from './room.ts';
-import { ARRIVAL, canTravel, LAST_TRAIN_OUT, ON_SALE, rideMinutes, SOUVENIRS, type Trip } from './trips.ts';
+import { ARRIVAL, canTravel, GACHA_PRICE, GACHA_TOYS, gachaPull, LAST_TRAIN_OUT, ON_SALE, rideMinutes, SOUVENIRS, TRIP_KEEPSAKES, type Trip } from './trips.ts';
 import { canWaitForDinner, checkIn, checkInVariant, checkOut, CHECK_IN_FROM, CHECK_IN_UNTIL, frontDesk, inYukata, keptOut, roomScenario, roomState, spendable, stayPhase, STAY_PRICE, trainHomeBlocked } from './ryokan.ts';
 import { belongings, goodById, goodFor, receive, shelve, SHELF_SIZE, unshelve } from './inventory.ts';
 import { addPoints, canGiveToday, chatPoints, finishInvite, friendAt, friendById, FRIENDS, GIFT_POINTS, give, heartsFor, inviteReady, inviteScenario, isFriend, MAX_HEARTS, photoId, PHOTOS, POINTS, pointsOf, tasteOf, toNextHeart, type FriendId, type HeartChange, type InviteDef, type Taste } from './friends.ts';
@@ -40,10 +40,12 @@ const PLACE_NAMES: Record<string, string> = {
   cafe: 'Cafe', konbini: 'Konbini', pharmacy: 'Pharmacy', restaurant: 'Restaurant', station: 'Station', post: 'Post office', street: 'Street',
   shrine: 'Shrine in Kamakura', omiyage: 'Souvenir shop in Kamakura', matsuri: 'Festival in the park',
   hakone: 'Hakone', ryokan: 'Ryokan in Hakone', washitsu: 'Your room at the ryokan', onsen: 'The big bath at the ryokan',
+  akihabara: 'Akihabara', denki: 'Electronics shop in Akihabara', maidcafe: 'Maid cafe in Akihabara', arcade: 'Arcade in Akihabara',
 };
 const SCENARIO_FOR: Partial<Record<Scene, string>> = {
   cafe: 'cafe_order', konbini: 'konbini_buy', pharmacy: 'pharmacy_buy', restaurant: 'restaurant_eat', station: 'station_ticket', post: 'post_send',
   shrine: 'shrine_visit', omiyage: 'omiyage_buy', onsen: 'onsen_bath',
+  denki: 'denki_buy', maidcafe: 'maid_cafe', arcade: 'arcade_crane',
 };
 /** In-game minutes per real second of walking around town. */
 const MINUTES_PER_SECOND = 1;
@@ -55,7 +57,7 @@ const TASTE_WORDS: Record<Taste, string> = { love: 'loved it', like: 'liked it',
 type Phase = 'title' | 'morning' | 'town' | 'talk' | 'gift' | 'oops' | 'shop' | 'night';
 
 /** Every keepsake there is: thank-you gifts, souvenirs and photos with friends. */
-const ALL_KEEPSAKES = [...allKeepsakes(requests, SOUVENIRS), ...PHOTOS];
+const ALL_KEEPSAKES = [...allKeepsakes(requests, TRIP_KEEPSAKES), ...PHOTOS];
 
 export class Game {
   private readonly input = new Input();
@@ -102,7 +104,7 @@ export class Game {
       neighborAvailable: () => (!this.g.today.greeted || !!inviteReady(this.g, 'tanaka')) && this.g.minutes < 21 * 60,
       busy: () => this.phase !== 'town' || this.notebook.open || this.popup.open,
       staffName: (npc) => (npcs[npc as keyof typeof npcs] ? plainText(parseLine(npcs[npc as keyof typeof npcs].name, vocab)) : ''),
-      thingName: (id) => ({ catalog: 'カタログ', shelf: '棚', tickets: '切符', baiten: '売店', rest: 'ゆっくり' })[id],
+      thingName: (id) => ({ catalog: 'カタログ', shelf: '棚', tickets: '切符', baiten: '売店', rest: 'ゆっくり', gacha: 'ガチャガチャ' })[id],
       chatter: (who) => this.chatterFor(who),
       mayEnter: (place) => {
         const why = keptOut(this.g, place, this.g.minutes);
@@ -584,6 +586,7 @@ export class Game {
       if (t.id === 'tickets') return this.showTrips();
       if (t.id === 'baiten') return this.startScenario(scenarioById['ryokan_baiten']!);
       if (t.id === 'rest') return this.restInRoom();
+      if (t.id === 'gacha') return this.showGacha();
       return;
     }
     if (t.kind === 'staff' && t.place === 'ryokan') return this.atFrontDesk();
@@ -1129,8 +1132,49 @@ export class Game {
     this.phase = 'town';
     this.input.clear();
     this.renderHud(true);
-    this.toast(`${trip.name} に 着きました: you're in ${trip.id[0]!.toUpperCase()}${trip.id.slice(1)}. Walk back onto the platform for the train home.`
+    const exit = trip.id === 'akihabara' ? ', out of the 電気街口 (Electric Town exit)' : '';
+    this.toast(`${trip.name} に 着きました: you're in ${trip.id[0]!.toUpperCase()}${trip.id.slice(1)}${exit}. Walk back onto the platform for the train home.`
       + (trip.id === 'hakone' ? ` Check-in at the ryokan is ${formatClock(CHECK_IN_FROM)}–${formatClock(CHECK_IN_UNTIL)}.` : ''));
+  }
+
+  /** The capsule-toy machines on the street in 秋葉原: three 100-yen coins a turn, a little toy in each capsule. */
+  private showGacha(won?: (typeof GACHA_TOYS)[number]): void {
+    this.phase = 'shop';
+    const line = (jp: string) => {
+      const tokens = parseLine(jp, vocab);
+      this.seeAll(tokens, 'arcade', 'kato');
+      return renderTokens(tokens, { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false), isNew: (t) => this.learner.isFresh(t.lemma) });
+    };
+    const owned = GACHA_TOYS.filter((t) => this.g.keepsakes.includes(t.id)).length;
+    this.showScreen(
+      h('h2', {}, line('ガチャガチャ')),
+      h('p', {}, line('百円玉 を 三枚 入れて=入れる 、 回して=回す ください 。')),
+      h('p', { class: 'muted' }, `Put in three 100-yen coins (${yen(GACHA_PRICE)}) and turn the handle. ${owned} of ${GACHA_TOYS.length} toys collected. You have ${yen(this.g.money)}.`),
+      won
+        ? h('div', { class: 'gacha-won' },
+          this.icon(won.id, 'keepsake'),
+          h('p', {}, line(`カプセル から ${won.word} が 出ました=出る ！`)),
+          h('p', { class: 'muted' }, `Out of the capsule: ${won.en}.`))
+        : null,
+      h('div', { class: 'row' },
+        this.g.money >= GACHA_PRICE
+          ? h('button', { class: 'primary', onclick: () => this.turnGacha() }, `${won ? 'Again' : 'Turn it'} (${yen(GACHA_PRICE)})`)
+          : h('span', { class: 'cat-state money' }, 'Not enough ¥'),
+        h('button', { onclick: () => this.goToTown() }, 'Close')),
+    );
+  }
+
+  private turnGacha(): void {
+    if (this.g.money < GACHA_PRICE) return;
+    this.addYen(-GACHA_PRICE, `-${yen(GACHA_PRICE)}`);
+    const toy = gachaPull(this.g.keepsakes);
+    const first = !this.g.keepsakes.includes(toy.id);
+    receive(this.g, toy.id);
+    if (first) {
+      this.g.today.promotions.push(`A souvenir for your shelf: ${toy.en}.`);
+      this.refreshHome();
+    }
+    this.showGacha(toy);
   }
 
   /** The train back from a trip, into the station. */

@@ -5,7 +5,7 @@ import { requests } from './content.ts';
 import { PHOTOS } from './friends.ts';
 import { allKeepsakes } from './room.ts';
 import type { GameData } from './state.ts';
-import { SOUVENIRS, souvenirFor } from './trips.ts';
+import { souvenirFor, TRIP_KEEPSAKES } from './trips.ts';
 
 /** Something you can own. `word` is markup, like a line: `お弁当=弁当`. */
 export interface Good {
@@ -48,7 +48,7 @@ const BOUGHT: Good[] = [
 
 export const GOODS: Good[] = [
   ...BOUGHT,
-  ...[...allKeepsakes(requests, SOUVENIRS), ...PHOTOS].map((k) => ({ id: k.id, word: k.word, keepsake: true })),
+  ...[...allKeepsakes(requests, TRIP_KEEPSAKES), ...PHOTOS].map((k) => ({ id: k.id, word: k.word, keepsake: true })),
 ];
 export const goodById: Record<string, Good> = Object.fromEntries(GOODS.map((g) => [g.id, g]));
 

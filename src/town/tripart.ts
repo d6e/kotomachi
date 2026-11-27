@@ -7,14 +7,14 @@ import { TILE } from './map.ts';
 import type { Role } from './palette.ts';
 import { Buf, hash, roundRect } from './pixels.ts';
 import type { RoomArt } from './roomart.ts';
-import { cellAt, ROOM_COLS, ROOM_ROWS, type RoomDef } from './rooms.ts';
+import { cellAt, ROOM_COLS, ROOM_ROWS, type RoomDef, type TripPlace } from './rooms.ts';
 
 const W = ROOM_COLS * TILE;
 const H = ROOM_ROWS * TILE;
 
 /** The bounds, in tiles, of each block of '#' with a door in its bottom row. */
-function blocks(room: RoomDef): { x: number; y: number; w: number; h: number; door: string }[] {
-  const out: { x: number; y: number; w: number; h: number; door: string }[] = [];
+function blocks(room: RoomDef): { x: number; y: number; w: number; h: number; door: string; to: TripPlace }[] {
+  const out: { x: number; y: number; w: number; h: number; door: string; to: TripPlace }[] = [];
   for (const d of room.doors ?? []) {
     let pos: { tx: number; ty: number } | null = null;
     room.rows.forEach((r, ty) => {
@@ -29,7 +29,7 @@ function blocks(room: RoomDef): { x: number; y: number; w: number; h: number; do
     while (cellAt(room, x1 + 1, ty) === '#') x1++;
     let y0 = ty;
     while (cellAt(room, tx, y0 - 1) === '#' || cellAt(room, x0, y0 - 1) === '#') y0--;
-    out.push({ x: x0, y: y0, w: x1 - x0 + 1, h: ty - y0 + 1, door: d.cell });
+    out.push({ x: x0, y: y0, w: x1 - x0 + 1, h: ty - y0 + 1, door: d.cell, to: d.to });
   }
   return out;
 }
@@ -203,6 +203,178 @@ function footbath(b: Buf, front: Buf, signs: SignSpot[], measure: Measure, room:
   signBoard(b, signs, measure, x - 10, y + 2, '温泉');
 }
 
+// ------------------------------------------------------------------ 秋葉原
+
+/** Pavement: pale square slabs, with a grout line every tile. */
+function pavement(b: Buf, tx: number, ty: number): void {
+  const x = tx * TILE;
+  const y = ty * TILE;
+  b.rect(x, y, TILE, TILE, (tx + ty) % 2 ? 'tileA' : 'tileB');
+  b.rect(x, y + TILE - 1, TILE, 1, 'greySh');
+  b.rect(x + TILE - 1, y, 1, TILE, 'greySh');
+}
+
+/** Yellow tactile paving: the bumpy strip that guides you to the doors and the station. */
+function tactile(b: Buf, tx: number, ty: number): void {
+  const x = tx * TILE;
+  const y = ty * TILE;
+  b.rect(x + 2, y + 2, TILE - 4, TILE - 4, 'flowerB');
+  for (let i = 4; i < TILE - 3; i += 4) for (let j = 4; j < TILE - 3; j += 4) b.set(x + i, y + j, 'stripe2');
+}
+
+/** The road, with a white line down the middle and a zebra crossing. */
+function road(b: Buf, room: RoomDef, tx: number, ty: number, crossing: boolean): void {
+  const x = tx * TILE;
+  const y = ty * TILE;
+  b.rect(x, y, TILE, TILE, 'dark');
+  if (hash(tx, ty, 2) < 0.4) b.set(x + 5, y + 9, 'darkSh');
+  if (crossing) {
+    for (let i = 1; i < TILE; i += 5) b.rect(x + i, y + 1, 3, TILE - 2, 'white');
+    return;
+  }
+  // The centre line, between the two rows of road.
+  if (cellAt(room, tx, ty + 1) === 'R' && tx % 2 === 0) b.rect(x + 2, y + TILE - 1, 10, 2, 'white');
+  // Kerbs.
+  if (!'Rz'.includes(cellAt(room, tx, ty - 1))) b.rect(x, y, TILE, 2, 'stoneSh');
+  if (!'Rz'.includes(cellAt(room, tx, ty + 1))) b.rect(x, y + TILE - 2, TILE, 2, 'stoneSh');
+}
+
+/** Tall buildings behind the street, each with rows of lit windows and a sign down its side. */
+function skyline(b: Buf, room: RoomDef): void {
+  let rows = 0;
+  while (room.rows[rows + 1]?.includes('B')) rows++;
+  const h = (rows + 1) * TILE;
+  b.rect(0, 0, W, h, 'glassHi');
+  const tones: Role[] = ['roofE', 'stationWallSh', 'roofESh', 'greySh'];
+  for (let x = 0, i = 0; x < W; i++) {
+    const w = 18 + Math.floor(hash(i, 1, 7) * 22);
+    const top = Math.floor(hash(i, 2, 7) * 8);
+    b.box(x, top, w + 1, h - top, tones[i % tones.length]!);
+    for (let wy = top + 4; wy < h - 4; wy += 6)
+      for (let wx = x + 3; wx < x + w - 3; wx += 5) b.rect(wx, wy, 3, 3, hash(wx, wy, 8) < 0.5 ? 'lampLight' : 'glass');
+    if (hash(i, 3, 7) < 0.5) {
+      const sx = x + w - 6;
+      const role = (['roofG', 'roofB', 'roofD', 'stripe2'] as Role[])[i % 4]!;
+      b.box(sx, top + 6, 5, Math.min(30, h - top - 10), role);
+      for (let k = top + 9; k < top + 6 + Math.min(30, h - top - 10) - 3; k += 4) b.rect(sx + 2, k, 1, 2, 'white');
+    }
+    x += w;
+  }
+}
+
+/** The electronics shop: a tall block in blue, its sign lit up, TVs and phones in the window. */
+function electronics(b: Buf, signs: SignSpot[], measure: Measure, x: number, y: number, w: number, h: number, doorX: number): void {
+  const bottom = y + h;
+  b.box(x, y, w, h, 'roofB');
+  // Floors of windows above the shop.
+  for (let fy = y + 4; fy < bottom - 30; fy += 9)
+    for (let fx = x + 4; fx < x + w - 6; fx += 9) b.box(fx, fy, 7, 6, 'glass');
+  // A band of lights under the sign.
+  for (let lx = x + 2; lx < x + w - 2; lx += 3) b.set(lx, bottom - 28, (lx / 3) % 2 ? 'gold' : 'white');
+  // Shop windows full of screens.
+  for (const wx of [x + 4, doorX + TILE + 3]) {
+    if (wx + 20 > x + w - 2 || (wx < doorX + TILE && wx + 20 > doorX)) continue;
+    b.box(wx, bottom - 20, 20, 15, 'darkSh');
+    for (let i = 0; i < 3; i++) b.box(wx + 2 + i * 6, bottom - 18 + (i % 2) * 3, 5, 6, (['glass', 'roofC', 'flowerA'] as Role[])[i]!);
+  }
+  b.box(doorX + 1, bottom - 20, TILE - 2, 20, 'glassSh');
+  b.rect(doorX + TILE / 2, bottom - 19, 1, 18, 'out');
+  signBoard(b, signs, measure, doorX + TILE / 2, bottom - 36, '電気屋');
+}
+
+/** The maid cafe: a pink front, a striped awning, hearts in the window and a sign over the door. */
+function maidCafe(b: Buf, signs: SignSpot[], measure: Measure, x: number, y: number, w: number, h: number, doorX: number): void {
+  const bottom = y + h;
+  b.box(x, y, w, h, 'wall2');
+  for (let fy = y + 4; fy < bottom - 32; fy += 9)
+    for (let fx = x + 5; fx < x + w - 7; fx += 10) b.box(fx, fy, 7, 6, 'glass');
+  // The awning: pink and white stripes with a scalloped edge.
+  const ay = bottom - 26;
+  for (let i = 0; i < w - 4; i++) b.rect(x + 2 + i, ay, 1, 6, Math.floor(i / 4) % 2 ? 'white' : 'flowerA');
+  for (let i = 0; i < w - 4; i += 4) b.rect(x + 3 + i, ay + 6, 2, 1, 'petalSh');
+  b.rect(x + 2, ay, w - 4, 1, 'out');
+  // Windows with a heart in each.
+  for (const wx of [x + 5, doorX + TILE + 4]) {
+    if (wx + 16 > x + w - 2 || (wx < doorX + TILE && wx + 16 > doorX)) continue;
+    windowPane(b, wx, bottom - 18, 16, 12, false);
+    heart(b, wx + 5, bottom - 15);
+  }
+  b.box(doorX + 1, bottom - 18, TILE - 2, 18, 'door');
+  b.rect(doorX + TILE - 5, bottom - 10, 2, 2, 'knob');
+  heart(b, doorX + 5, bottom - 15);
+  signBoard(b, signs, measure, doorX + TILE / 2, bottom - 38, 'メイドカフェ');
+}
+
+function heart(b: Buf, x: number, y: number): void {
+  b.rect(x, y, 2, 2, 'flowerA');
+  b.rect(x + 3, y, 2, 2, 'flowerA');
+  b.rect(x, y + 1, 5, 2, 'flowerA');
+  b.rect(x + 1, y + 3, 3, 1, 'flowerA');
+  b.set(x + 2, y + 4, 'flowerA');
+}
+
+/** The arcade: a red front ringed with chaser lights, a crane game in the window. */
+function arcadeFront(b: Buf, signs: SignSpot[], measure: Measure, x: number, y: number, w: number, h: number, doorX: number): void {
+  const bottom = y + h;
+  b.box(x, y, w, h, 'roofG');
+  for (let i = x + 2; i < x + w - 2; i += 3) {
+    b.set(i, y + 2, i % 2 ? 'gold' : 'white');
+    b.set(i, bottom - 24, i % 2 ? 'white' : 'gold');
+  }
+  for (let fy = y + 6; fy < bottom - 32; fy += 9)
+    for (let fx = x + 5; fx < x + w - 7; fx += 10) b.box(fx, fy, 7, 6, 'roofDHi');
+  // A crane game in the window: a glass case of plushies with the claw over them.
+  const cx = doorX - 20 > x + 2 ? doorX - 20 : doorX + TILE + 3;
+  b.box(cx, bottom - 21, 16, 21, 'roofD');
+  b.box(cx + 2, bottom - 19, 12, 11, 'glass');
+  b.rect(cx + 7, bottom - 18, 1, 3, 'out');
+  b.rect(cx + 5, bottom - 15, 5, 1, 'gold');
+  for (const [px, role] of [[cx + 3, 'flowerB'], [cx + 7, 'white'], [cx + 10, 'flowerA']] as const) b.rect(px, bottom - 11, 3, 3, role);
+  b.box(doorX + 1, bottom - 20, TILE - 2, 20, 'darkSh');
+  for (let i = 0; i < 3; i++) b.set(doorX + 4 + i * 4, bottom - 14, 'gold');
+  signBoard(b, signs, measure, doorX + TILE / 2, bottom - 38, 'ゲームセンター');
+}
+
+/** One capsule-toy machine: a clear case of coloured capsules over a coin slot and a handle. */
+function gachaMachine(b: Buf, x: number, y: number, seed: number): void {
+  b.ellipseShadow(x + 8, y + 15, 7, 1.6);
+  const body = (['roofB', 'roofG', 'roofC', 'roofD'] as Role[])[seed % 4]!;
+  b.box(x + 1, y - 12, 14, 27, body);
+  b.box(x + 3, y - 10, 10, 11, 'glassHi');
+  for (let i = 0; i < 6; i++) {
+    const role = ITEM_ROLES[Math.floor(hash(seed, i, 5) * ITEM_ROLES.length)]!;
+    b.rect(x + 4 + (i % 3) * 3, y - 6 + Math.floor(i / 3) * 3, 2, 2, role);
+  }
+  b.rect(x + 4, y + 3, 8, 3, 'white');
+  b.box(x + 6, y + 6, 5, 5, 'grey');
+  b.rect(x + 7, y + 8, 3, 1, 'out');
+  b.rect(x + 4, y + 12, 3, 2, 'darkSh');
+}
+const ITEM_ROLES: Role[] = ['roofA', 'flowerB', 'roofC', 'flowerA', 'white', 'roofB'];
+
+/** The station's front along the bottom, with the exit's name over the way out. */
+function stationFront(b: Buf, signs: SignSpot[], measure: Measure, room: RoomDef, ty: number): void {
+  const y = ty * TILE;
+  for (let tx = 0; tx < ROOM_COLS; tx++) {
+    if (cellAt(room, tx, ty) !== 'E') continue;
+    const x = tx * TILE;
+    b.rect(x, y, TILE, TILE, 'stationWall');
+    b.rect(x, y, TILE, 3, 'navy');
+    b.rect(x, y + 3, TILE, 1, 'out');
+    b.rect(x + 3, y + 6, TILE - 6, 6, 'glass');
+    b.rect(x, y + TILE - 1, TILE, 1, 'stationWallSh');
+  }
+  const gap = room.rows[ty]!.indexOf(',');
+  if (gap >= 0) signBoard(b, signs, measure, gap * TILE - 34, y + 1, '電気街口');
+}
+
+/** A street planter: a box with a little tree in it. */
+function planter(b: Buf, x: number, y: number): void {
+  b.ellipseShadow(x + 8, y + 14, 6, 1.6);
+  b.box(x + 2, y + 7, 12, 8, 'stone');
+  b.shape(x + 2, y - 4, 12, 12, roundRect(12, 12, 5), (i, j) => (i + j < 9 ? 'leafHi' : j > 7 ? 'leafSh' : 'leaf'));
+}
+
 /** The posts of a torii stand on the base; the beams over the path go on top. */
 function torii(b: Buf, front: Buf, lx: number, rx: number, y: number): void {
   for (const px of [lx, rx]) {
@@ -229,11 +401,24 @@ export function drawArea(room: RoomDef, measure: Measure): RoomArt {
   const signs: SignSpot[] = [];
   const cell = (tx: number, ty: number) => cellAt(room, tx, ty);
 
-  grass(b, 0, 0, W, H);
-  flowerPatch(b, 6 * TILE, 9 * TILE + 4, 2 * TILE, TILE - 6, 3);
-  flowerPatch(b, 11 * TILE, 10 * TILE + 2, 2 * TILE, TILE - 6, 5);
-  for (let ty = 0; ty < ROOM_ROWS; ty++)
-    for (let tx = 0; tx < ROOM_COLS; tx++) if (cell(tx, ty) === ',' || cell(tx, ty) === '1' || cell(tx, ty) === '2' || cell(tx, ty) === '3') stonePath(b, tx, ty);
+  const city = room.rows.some((row) => row.includes('B'));
+  if (city) {
+    // A city street: pavement, the road, and tall buildings behind.
+    for (let ty = 0; ty < ROOM_ROWS; ty++)
+      for (let tx = 0; tx < ROOM_COLS; tx++) {
+        const c = cell(tx, ty);
+        if (c === 'R' || c === 'z') road(b, room, tx, ty, c === 'z');
+        else pavement(b, tx, ty);
+        if (c === ',') tactile(b, tx, ty);
+      }
+    skyline(b, room);
+  } else {
+    grass(b, 0, 0, W, H);
+    flowerPatch(b, 6 * TILE, 9 * TILE + 4, 2 * TILE, TILE - 6, 3);
+    flowerPatch(b, 11 * TILE, 10 * TILE + 2, 2 * TILE, TILE - 6, 5);
+    for (let ty = 0; ty < ROOM_ROWS; ty++)
+      for (let tx = 0; tx < ROOM_COLS; tx++) if (cell(tx, ty) === ',' || cell(tx, ty) === '1' || cell(tx, ty) === '2' || cell(tx, ty) === '3') stonePath(b, tx, ty);
+  }
   if (room.rows.some((row) => row.includes('M'))) mountains(b, room);
 
   // The station platform you arrived on, along the bottom.
@@ -255,9 +440,8 @@ export function drawArea(room: RoomDef, measure: Measure): RoomArt {
   for (const bl of blocks(room)) {
     const doorX = room.rows[bl.y + bl.h - 1]!.indexOf(bl.door) * TILE;
     const args = [b, signs, measure, bl.x * TILE, bl.y * TILE, bl.w * TILE, bl.h * TILE, doorX] as const;
-    if (bl.door === '1') shrine(...args);
-    else if (bl.door === '3') ryokan(...args);
-    else shop(...args);
+    const draw = { shrine, ryokan, denki: electronics, maidcafe: maidCafe, arcade: arcadeFront }[bl.to as string] ?? shop;
+    draw(...args);
   }
 
   // Things standing on the grass, top to bottom so lower ones overlap.
@@ -285,9 +469,18 @@ export function drawArea(room: RoomDef, measure: Measure): RoomArt {
         case '~':
           if (cell(tx - 1, ty) !== '~' && cell(tx, ty - 1) !== '~') footbath(b, front, signs, measure, room, tx, ty);
           break;
+        case 'G':
+          gachaMachine(b, x, y, tx);
+          break;
+        case 'p':
+          planter(b, x, y);
+          break;
       }
     }
   if (posts.length === 2) torii(b, front, posts[0]!, posts[1]!, postsY);
+
+  const front0 = room.rows.findIndex((row) => row.includes('E'));
+  if (front0 >= 0) stationFront(b, signs, measure, room, front0);
 
   // The station's name board, as on every platform.
   signBoard(b, signs, measure, 14 * TILE, 10 * TILE + 1, room.station ?? '鎌倉');
