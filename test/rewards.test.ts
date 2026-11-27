@@ -50,7 +50,7 @@ test('a save from before yen rewards loads, keeps its money and starts with expe
   old['today'] = { newWords: [], corrections: [], promotions: [], lookups: 0, greeted: false, friendshipStart: {} };
   const store = new Mem();
   store.setItem('kotomachi.save.v1', JSON.stringify(old));
-  const loaded = load(store as unknown as Storage)!;
+  const loaded = load(1, store as unknown as Storage)!;
   assert.ok(loaded, 'loads');
   assert.equal(loaded.version, 2);
   assert.equal(loaded.money, 27000);
@@ -59,8 +59,8 @@ test('a save from before yen rewards loads, keeps its money and starts with expe
   assert.equal(loaded.today.yen, 0);
   assert.equal(loaded.today.clean, 0);
   // And it saves and loads again as it is.
-  save(loaded, store as unknown as Storage);
-  assert.equal(load(store as unknown as Storage)!.xp, loaded.xp);
+  save(loaded, 1, store as unknown as Storage);
+  assert.equal(load(1, store as unknown as Storage)!.xp, loaded.xp);
   assert.equal(migrate({ version: 9 }), null);
   assert.equal(newGame().money, START_MONEY);
 });

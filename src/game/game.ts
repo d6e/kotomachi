@@ -31,7 +31,7 @@ import { comboMultiplier, errandPay, levelFor, levelProgress, nextCombo, slips, 
 import { chatter, consequences, forms, grammar, npcs, requests, scenarioById, scenarios, vocab, type ChatterLine, type ConsequenceDef, type SceneWho } from './content.ts';
 import { boardNotes, isFestival, morningNote, pickChatter, weatherFor } from './weather.ts';
 import { pickVariant, planRequests, type Errand } from './errands.ts';
-import { DAY_END, DAY_START, isOpen, load, newDayLog, newGame, progressFor, save, clearSave, formatClock, type GameData } from './state.ts';
+import { DAY_END, DAY_START, NAME_MAX, cleanName, defaultName, isOpen, lastPlayed, listSlots, newDayLog, newGame, progressFor, save, clearSave, formatClock, type GameData, type SlotSummary } from './state.ts';
 import { TouchPad } from '../ui/pad.ts';
 
 const yen = (n: number): string => `¥${n.toLocaleString('en-US')}`;
@@ -68,6 +68,8 @@ export class Game {
   private readonly toastEl: HTMLElement;
   private readonly judge: FreeformJudge = new UnavailableJudge();
   private g: GameData = newGame();
+  /** Which save slot (1 to 3) this game lives in. */
+  private slot = 1;
   private learner = new Learner(this.g.learner, vocab);
   private phase: Phase = 'title';
   private pad: TouchPad;
@@ -299,22 +301,83 @@ export class Game {
 
   private showTitle(): void {
     this.phase = 'title';
-    const saved = load();
+    this.renderHud(true);
+    const slots = listSlots();
     const card = [
       h('h1', { lang: 'ja' }, 'ことまち'),
       h('p', { class: 'lede' }, 'A small shopping street where every errand is a Japanese lesson.'),
-      h('div', { class: 'row' },
-        saved ? h('button', { class: 'primary', onclick: () => this.begin(saved) }, `Continue (day ${saved.day})`) : null,
-        h('button', { class: saved ? '' : 'primary', onclick: () => (saved ? this.confirmNewGame(saved.day) : this.startNewGame()) }, 'New game'),
-      ),
+      h('ol', { class: 'slots' }, slots.map((s) => this.slotRow(s))),
       h('ul', { class: 'howto' },
         h('li', {}, 'Walk with the arrow keys or WASD, or tap where you want to go. Walk into a door (or tap a shop) to go inside, then talk to whoever works there.'),
         h('li', {}, 'Tap any Japanese word for its reading, meaning and where you met it. Looking a word up counts as not knowing it yet.'),
         h('li', {}, 'Conversations start as multiple choice. Three clean visits move a place up a stage: Japanese only, then word tiles, then typing.'),
-        h('li', {}, 'Your notebook (N) keeps words by place and person, plus the corrections from each day. The game saves as you go.'),
+        h('li', {}, 'Your notebook (N) keeps words by place and person, plus the corrections from each day. The game saves as you go, and each slot is a game of its own.'),
       ),
     ];
     this.showScreen(...card);
+  }
+
+  /** One save slot on the title screen: who it is, how far they've got, and what you can do with it. */
+  private slotRow(s: SlotSummary): HTMLElement {
+    const g = s.game;
+    if (!g) {
+      return h('li', { class: 'slot empty', 'data-slot': String(s.slot) },
+        h('div', { class: 'slot-info' }, h('span', { class: 'slot-name' }, `Slot ${s.slot}`), h('span', { class: 'slot-meta' }, 'Empty')),
+        h('div', { class: 'slot-actions' }, h('button', { class: 'primary', onclick: () => this.askName(s.slot) }, 'New game')),
+      );
+    }
+    const when = lastPlayed(g.savedAt);
+    return h('li', { class: 'slot', 'data-slot': String(s.slot) },
+      h('div', { class: 'slot-info' },
+        h('span', { class: 'slot-name' }, s.name),
+        h('span', { class: 'slot-meta' }, `Day ${g.day} · Lv ${levelFor(g.xp)}${when ? ` · played ${when}` : ''}`),
+      ),
+      h('div', { class: 'slot-actions' },
+        h('button', { class: 'primary', onclick: () => this.begin(g, s.slot) }, 'Continue'),
+        h('button', { class: 'small', onclick: () => this.askName(s.slot, g) }, 'Rename'),
+        h('button', { class: 'small', onclick: () => this.confirmDelete(s) }, 'Delete'),
+      ),
+    );
+  }
+
+  /** Name a new player, or rename one. The name only labels the slot. */
+  private askName(slot: number, existing?: GameData): void {
+    const input = h('input', { type: 'text', class: 'name-input', maxlength: String(NAME_MAX), autocomplete: 'off', autocapitalize: 'words', spellcheck: 'false', placeholder: defaultName(slot), 'aria-label': 'Name', value: existing?.name ?? '' });
+    const done = () => {
+      const name = cleanName(input.value);
+      if (existing) {
+        if (name) existing.name = name;
+        else delete existing.name;
+        save(existing, slot);
+        this.showTitle();
+      } else this.startNewGame(slot, name);
+    };
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); done(); }
+    });
+    this.showScreen(
+      h('h2', {}, existing ? 'Rename' : `New game in slot ${slot}`),
+      h('p', { class: 'ask' }, existing ? 'What should this slot be called?' : "Who's playing? The name goes on the slot, so each of you can find your own game."),
+      input,
+      h('div', { class: 'row' },
+        h('button', { onclick: () => this.showTitle() }, 'Back'),
+        h('button', { class: 'primary', onclick: done }, existing ? 'Save name' : 'Start ▶'),
+      ),
+    );
+    input.focus();
+  }
+
+  private confirmDelete(s: SlotSummary): void {
+    this.ask(`Delete ${s.name}'s game (day ${s.game?.day ?? 1})? This can't be undone.`, 'Delete', 'Keep it', () => {
+      clearSave(s.slot);
+      this.showTitle();
+    }, () => this.showTitle());
+  }
+
+  /** Save the day so far and go back to the save slots, so someone else can play. */
+  private switchPlayer(): void {
+    this.autosave();
+    this.showTitle();
   }
 
   /**
@@ -331,17 +394,16 @@ export class Game {
     );
   }
 
-  private confirmNewGame(day: number): void {
-    this.ask(`Start over from day 1? Your saved game (day ${day}) will be deleted.`, 'Start over', 'Keep my game', () => this.startNewGame(), () => this.showTitle());
+  private startNewGame(slot: number, name: string): void {
+    clearSave(slot);
+    this.begin(newGame(name || undefined), slot);
+    // Claim the slot straight away, so it shows on the title screen even if the app is closed now.
+    save(this.g, this.slot);
   }
 
-  private startNewGame(): void {
-    clearSave();
-    this.begin(newGame());
-  }
-
-  private begin(g: GameData): void {
+  private begin(g: GameData, slot: number): void {
     this.g = g;
+    this.slot = slot;
     this.combo = 0;
     this.shownDone = new Set(g.errands.filter((e) => e.done).map((e) => `${e.scenario}/${e.variant}`));
     this.learner = new Learner(this.g.learner, vocab);
@@ -364,7 +426,7 @@ export class Game {
    * half-updated, and the last save from walking about is the one to keep.
    */
   private autosave(): void {
-    if (this.phase === 'town' || this.phase === 'morning') save(this.g);
+    if (this.phase === 'town' || this.phase === 'morning') save(this.g, this.slot);
   }
 
   private planDay(): void {
@@ -397,7 +459,11 @@ export class Game {
       ))),
       h('p', { class: 'muted' }, 'Tap a word you don\'t know. Each errand pays back what you spend, plus a reward. Opening hours: cafe 8:00–18:00, pharmacy 9:00–19:00, post office 9:00–17:00, restaurant 11:00–22:00. The konbini and the station are always open.'
         + this.trainNote()),
-      h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => this.goToTown() }, 'Head out ▶')),
+      h('div', { class: 'row' },
+        h('span', { class: 'playing muted' }, `Playing as ${this.g.name || defaultName(this.slot)}`),
+        h('button', { onclick: () => this.switchPlayer() }, 'Switch player'),
+        h('button', { class: 'primary', onclick: () => this.goToTown() }, 'Head out ▶'),
+      ),
     );
   }
 
@@ -1352,7 +1418,7 @@ export class Game {
     this.g.today = newDayLog(this.g.friendship);
     if (settled) this.g.today.promotions.push(`The ryokan put your night's stay (${yen(STAY_PRICE)}) on your card.`);
     this.planDay();
-    const ok = save(this.g);
+    const ok = save(this.g, this.slot);
     this.town.invalidate();
     this.wake();
     this.setDay();

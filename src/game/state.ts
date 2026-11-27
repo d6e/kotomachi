@@ -1,4 +1,5 @@
 // Game state and saving. The game saves to localStorage when you sleep, between conversations, and when the page is hidden.
+// There are three save slots, one per player, each a whole game of its own.
 
 import { emptyLearner, type LearnerData } from '../learner/model.ts';
 import { newProgress, type Correction, type ScenarioProgress } from '../scenario/engine.ts';
@@ -6,7 +7,14 @@ import type { NpcId } from '../scenario/types.ts';
 import type { Errand } from './errands.ts';
 import { estimateXp } from './rewards.ts';
 
+/** Where the one save lived before there were slots. It's moved into slot 1 the first time the slots are read. */
 export const SAVE_KEY = 'kotomachi.save.v1';
+export const SLOT_COUNT = 3;
+/** Longest player name, in characters. */
+export const NAME_MAX = 12;
+export function slotKey(slot: number): string {
+  return `kotomachi.slot${slot}.v1`;
+}
 export const DAY_START = 8 * 60;
 export const DAY_END = 23 * 60;
 /** Yen at the start of a new game: enough for a few days of errands, not for a sofa. */
@@ -86,15 +94,20 @@ export interface GameData {
   stay?: Stay;
   /** Nights stayed at the ryokan so far. */
   stays?: number;
+  /** The player's name, shown on their save slot. A save from before slots has none. */
+  name?: string;
+  /** When this game was last saved (ms since 1970), for "last played" on the slot. */
+  savedAt?: number;
 }
 
 export function newDayLog(friendship: GameData['friendship']): DayLog {
   return { newWords: [], corrections: [], promotions: [], lookups: 0, greeted: false, friendshipStart: { ...friendship }, clean: 0, levelUps: 0, bestCombo: 0, grades: { perfect: 0, okay: 0, miss: 0 }, xp: 0, yen: 0, chat: {}, gifted: [] };
 }
 
-export function newGame(): GameData {
+export function newGame(name?: string): GameData {
   return {
     version: 2,
+    ...(name ? { name } : {}),
     day: 1,
     minutes: DAY_START,
     money: START_MONEY,
@@ -121,25 +134,92 @@ export function progressFor(g: GameData, scenario: string): ScenarioProgress {
   return (g.progress[scenario] ??= newProgress());
 }
 
-export function save(g: GameData, storage?: Storage): boolean {
+function storageOr(storage?: Storage): Storage | undefined {
+  return storage ?? globalThis.localStorage;
+}
+
+export function save(g: GameData, slot: number, storage?: Storage, now = Date.now()): boolean {
   try {
-    storage ??= globalThis.localStorage;
-    storage?.setItem(SAVE_KEY, JSON.stringify(g));
-    return !!storage;
+    storage = storageOr(storage);
+    if (!storage) return false;
+    g.savedAt = now;
+    storage.setItem(slotKey(slot), JSON.stringify(g));
+    return true;
   } catch {
     return false;
   }
 }
 
-export function load(storage?: Storage): GameData | null {
+export function load(slot: number, storage?: Storage): GameData | null {
   try {
-    storage ??= globalThis.localStorage;
-    const raw = storage?.getItem(SAVE_KEY);
+    storage = storageOr(storage);
+    if (!storage) return null;
+    adoptOldSave(storage);
+    const raw = storage.getItem(slotKey(slot));
     if (!raw) return null;
     return migrate(JSON.parse(raw));
   } catch {
     return null;
   }
+}
+
+/**
+ * The save from before there were slots goes into the first empty slot (slot 1, unless
+ * something odd happened), and only then is the old copy removed, so nothing is lost.
+ */
+export function adoptOldSave(storage?: Storage): void {
+  try {
+    storage = storageOr(storage);
+    const raw = storage?.getItem(SAVE_KEY);
+    if (!storage || !raw) return;
+    if (!migrate(JSON.parse(raw))) return;
+    for (let slot = 1; slot <= SLOT_COUNT; slot++) {
+      const key = slotKey(slot);
+      if (storage.getItem(key)) continue;
+      storage.setItem(key, raw);
+      if (storage.getItem(key) === raw) storage.removeItem(SAVE_KEY);
+      return;
+    }
+  } catch {
+    /* leave it where it is */
+  }
+}
+
+/** What a save slot shows on the title screen. */
+export interface SlotSummary {
+  slot: number;
+  /** Null for an empty slot. */
+  game: GameData | null;
+  name: string;
+}
+
+export function defaultName(slot: number): string {
+  return `Player ${slot}`;
+}
+
+/** Trim a typed name to something that fits on the slot. Empty means "use the default". */
+export function cleanName(raw: string): string {
+  return [...raw.replace(/\s+/g, ' ').trim()].slice(0, NAME_MAX).join('');
+}
+
+export function listSlots(storage?: Storage): SlotSummary[] {
+  const out: SlotSummary[] = [];
+  for (let slot = 1; slot <= SLOT_COUNT; slot++) {
+    const game = load(slot, storage);
+    out.push({ slot, game, name: game?.name || defaultName(slot) });
+  }
+  return out;
+}
+
+/** "today", "yesterday", "3 days ago" or a date, for when a slot was last played. */
+export function lastPlayed(savedAt: number | undefined, now = Date.now()): string | null {
+  if (typeof savedAt !== 'number' || !Number.isFinite(savedAt)) return null;
+  const day = (t: number) => { const d = new Date(t); return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000; };
+  const ago = day(now) - day(savedAt);
+  if (ago <= 0) return 'today';
+  if (ago === 1) return 'yesterday';
+  if (ago < 7) return `${ago} days ago`;
+  return new Date(savedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', ...(ago > 300 ? { year: 'numeric' } : {}) });
 }
 
 /** Bring an older save up to date. Returns null for something that isn't a save. */
@@ -168,14 +248,18 @@ export function migrate(raw: unknown): GameData | null {
     g.shelf = g.keepsakes.slice(0, 9);
   }
   g.shelf = (Array.isArray(g.shelf) ? g.shelf : []).filter((id) => (g.bag[id] ?? 0) > 0).slice(0, 9);
+  if (typeof g.name !== 'string' || !cleanName(g.name)) delete g.name;
+  else g.name = cleanName(g.name);
+  if (typeof g.savedAt !== 'number') delete g.savedAt;
   if (g.stay && (typeof g.stay !== 'object' || typeof g.stay.day !== 'number' || typeof g.stay.dinner !== 'number')) delete g.stay;
   return g;
 }
 
-export function clearSave(storage?: Storage): void {
+export function clearSave(slot: number, storage?: Storage): void {
   try {
-    storage ??= globalThis.localStorage;
-    storage?.removeItem(SAVE_KEY);
+    storage = storageOr(storage);
+    adoptOldSave(storage);
+    storage?.removeItem(slotKey(slot));
   } catch {
     /* ignore */
   }
