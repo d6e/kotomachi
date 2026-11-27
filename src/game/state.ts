@@ -1,4 +1,4 @@
-// Game state and saving. The game saves when you sleep (to localStorage).
+// Game state and saving. The game saves to localStorage when you sleep, between conversations, and when the page is hidden.
 
 import { emptyLearner, type LearnerData } from '../learner/model.ts';
 import { newProgress, type Correction, type ScenarioProgress } from '../scenario/engine.ts';

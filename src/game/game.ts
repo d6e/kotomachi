@@ -311,7 +311,7 @@ export class Game {
         h('li', {}, 'Walk with the arrow keys or WASD, or tap where you want to go. Walk into a door (or tap a shop) to go inside, then talk to whoever works there.'),
         h('li', {}, 'Tap any Japanese word for its reading, meaning and where you met it. Looking a word up counts as not knowing it yet.'),
         h('li', {}, 'Conversations start as multiple choice. Three clean visits move a place up a stage: Japanese only, then word tiles, then typing.'),
-        h('li', {}, 'Your notebook (N) keeps words by place and person, plus the corrections from each day. Sleeping saves the game.'),
+        h('li', {}, 'Your notebook (N) keeps words by place and person, plus the corrections from each day. The game saves as you go.'),
       ),
     ];
     this.showScreen(...card);
