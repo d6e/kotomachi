@@ -1,0 +1,79 @@
+{
+  "id": "shift_yuki",
+  "title": "A shift with ゆき",
+  "place": "cafe",
+  "npc": "yuki",
+  "maxStage": 2,
+  "start": "start",
+  "variants": [{ "id": "start", "slots": {} }, { "id": "end", "slots": {} }],
+  "nodes": {
+    "start": {
+      "onlyFor": ["start"],
+      "line": {
+        "0": "あ 、 お疲れ様です=お疲れ様 。 今日 も よろしく お願いします=お願いする 。",
+        "2": "あ 、 お疲れ=お疲れ様 ！ 今日 も よろしく ね 。"
+      },
+      "gloss": {
+        "0": "Oh, hello! (lit. good work) Let's have a good shift today.",
+        "2": "Oh, hey! Let's have a good one today."
+      },
+      "targets": ["お疲れ様", "よろしく"],
+      "grammar": ["otsukaresama"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "お疲れ様です=お疲れ様 。 よろしく お願いします=お願いする 。", "gloss": "Hello! (lit. good work) Let's have a good one.", "result": "success", "register": "polite" },
+        { "text": "お疲れ=お疲れ様 。 よろしく ね 。", "gloss": "Hey! Let's have a good one. (casual)", "result": "success", "register": "plain" },
+        { "text": "いらっしゃいませ 。", "gloss": "Welcome!", "result": "npc_amused", "reaction": "ふふ 、 私 は お客=客 さん じゃ ない です よ 。", "note": "Behind the counter, colleagues greet each other with お疲れ様です, even at the start of a shift. いらっしゃいませ is for customers.", "grammar": "otsukaresama" }
+      ],
+      "next": { "success": "go" }
+    },
+    "go": {
+      "onlyFor": ["start"],
+      "line": {
+        "0": "あ 、 お客=客 さん です 。 お願いします=お願いする ！",
+        "2": "あ 、 お客=客 さん だ 。 お願い=お願いする ね ！"
+      },
+      "gloss": {
+        "0": "Oh, a customer. Over to you!",
+        "2": "Oh, a customer. Over to you!"
+      },
+      "targets": ["客"],
+      "end": true,
+      "next": { "success": "end" }
+    },
+    "end": {
+      "onlyFor": ["end"],
+      "line": {
+        "0": "お疲れ様でした=お疲れ様 ！ 今日 は 忙しかった=忙しい です ね 。",
+        "2": "お疲れ=お疲れ様 ！ 今日 、 忙しかった=忙しい ね 。"
+      },
+      "gloss": {
+        "0": "Thanks for today! (lit. you worked hard) It was busy, wasn't it?",
+        "2": "Good work! Busy today, huh?"
+      },
+      "targets": ["お疲れ様", "忙しい"],
+      "grammar": ["otsukaresama", "i_adj_past"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "お疲れ様でした=お疲れ様 。 忙しかった=忙しい です ね 。", "gloss": "Thanks for today. It was busy, wasn't it?", "result": "success", "register": "polite" },
+        { "text": "お疲れ=お疲れ様 。 忙しかった=忙しい ね 。", "gloss": "Good work. Busy, huh? (casual)", "result": "success", "register": "plain" },
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "ふふ 、 まかない は 明日 です よ 。", "note": "When a shift ends, colleagues say お疲れ様でした (thanks for your hard work). いただきます is for just before you eat.", "grammar": "otsukaresama" }
+      ],
+      "effects": { "friendship": 1 },
+      "next": { "success": "bye" }
+    },
+    "bye": {
+      "onlyFor": ["end"],
+      "line": {
+        "0": "店長 が 喜んで=喜ぶ いました=いる よ 。 また お願いします=お願いする ね 。",
+        "2": "店長 、 喜んで=喜ぶ いた=いる よ 。 また よろしく ね 。"
+      },
+      "gloss": {
+        "0": "The manager was pleased with you. See you next shift.",
+        "2": "The manager was happy. See you next time."
+      },
+      "targets": ["店長", "喜ぶ"],
+      "end": true
+    }
+  }
+}

@@ -6,6 +6,7 @@ import { newProgress, type Correction, type ScenarioProgress } from '../scenario
 import type { NpcId } from '../scenario/types.ts';
 import type { Errand } from './errands.ts';
 import { estimateXp } from './rewards.ts';
+import { cleanJob, type JobState } from './job.ts';
 
 /** Where the one save lived before there were slots. It's moved into slot 1 the first time the slots are read. */
 export const SAVE_KEY = 'kotomachi.save.v1';
@@ -98,6 +99,8 @@ export interface GameData {
   name?: string;
   /** When this game was last saved (ms since 1970), for "last played" on the slot. */
   savedAt?: number;
+  /** Your part-time job at the cafe, once you're hired. Older saves don't have it. */
+  job?: JobState;
 }
 
 export function newDayLog(friendship: GameData['friendship']): DayLog {
@@ -251,6 +254,9 @@ export function migrate(raw: unknown): GameData | null {
   if (typeof g.name !== 'string' || !cleanName(g.name)) delete g.name;
   else g.name = cleanName(g.name);
   if (typeof g.savedAt !== 'number') delete g.savedAt;
+  const job = cleanJob(g.job);
+  if (job) g.job = job;
+  else delete g.job;
   if (g.stay && (typeof g.stay !== 'object' || typeof g.stay.day !== 'number' || typeof g.stay.dinner !== 'number')) delete g.stay;
   return g;
 }

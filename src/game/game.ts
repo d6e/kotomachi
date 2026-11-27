@@ -33,6 +33,7 @@ import { boardNotes, isFestival, morningNote, pickChatter, weatherFor } from './
 import { pickVariant, planRequests, type Errand } from './errands.ts';
 import { DAY_END, DAY_START, NAME_MAX, cleanName, defaultName, isOpen, lastPlayed, listSlots, newDayLog, newGame, progressFor, save, clearSave, formatClock, type GameData, type SlotSummary } from './state.ts';
 import { TouchPad } from '../ui/pad.ts';
+import { COLLEAGUE, CUSTOMERS, CUSTOMERS_PER_SHIFT, customerVariant, finishShift, hire, INTERVIEW, isHired, JOB_PLACE, lastShiftStart, planShift, shiftBlocked, shiftPay, SHIFT_HOURS, SHIFT_MINUTES, wageFor, type CustomerKind } from './job.ts';
 
 const yen = (n: number): string => `¥${n.toLocaleString('en-US')}`;
 
@@ -55,6 +56,20 @@ const MINUTES_PER_INVITE = 60;
 const TASTE_WORDS: Record<Taste, string> = { love: 'loved it', like: 'liked it', ok: 'said thanks', odd: 'was puzzled' };
 
 type Phase = 'title' | 'morning' | 'town' | 'talk' | 'gift' | 'oops' | 'shop' | 'night';
+
+/** A shift at the cafe while you work it. */
+interface Shift {
+  plan: { kind: CustomerKind; face: NpcId }[];
+  /** Customers served so far. */
+  served: number;
+  /** The stage serving was at when the shift started: what this shift pays. */
+  stage: number;
+  grades: { perfect: number; okay: number; miss: number };
+  /** New words met today before the shift, to count the shift's own. */
+  words: number;
+  /** A new hourly wage, if serving moved up a stage during the shift. */
+  raise?: number;
+}
 
 /** Every keepsake there is: thank-you gifts, souvenirs and photos with friends. */
 const ALL_KEEPSAKES = [...allKeepsakes(requests, TRIP_KEEPSAKES), ...PHOTOS];
@@ -87,6 +102,8 @@ export class Game {
   private said = new Set<string>();
   /** Level-up cards held back while a gift or a scene is on screen. */
   private pendingUps: string[] = [];
+  /** A shift at the cafe while it's being worked: who comes in, and how it's going. */
+  private shift: Shift | null = null;
 
   constructor(root: HTMLElement) {
     const canvas = h('canvas', { id: 'town', 'aria-label': 'The town. Walk with the arrow keys or WASD, or tap where to go.' });
@@ -410,6 +427,7 @@ export class Game {
     this.combo = 0;
     this.activeRun = null;
     this.pendingUps = [];
+    this.shift = null;
     this.metBefore.clear();
     this.shownDone = new Set(g.errands.filter((e) => e.done).map((e) => `${e.scenario}/${e.variant}`));
     this.learner = new Learner(this.g.learner, vocab);
@@ -465,12 +483,20 @@ export class Game {
       ))),
       h('p', { class: 'muted' }, 'Tap a word you don\'t know. Each errand pays back what you spend, plus a reward. Opening hours: cafe 8:00–18:00, pharmacy 9:00–19:00, post office 9:00–17:00, restaurant 11:00–22:00. The konbini and the station are always open.'
         + this.trainNote()),
+      this.jobNote(),
       h('div', { class: 'row' },
         h('span', { class: 'playing muted' }, `Playing as ${this.g.name || defaultName(this.slot)}`),
         h('button', { onclick: () => this.switchPlayer() }, 'Switch player'),
         h('button', { class: 'primary', onclick: () => this.goToTown() }, 'Head out ▶'),
       ),
     );
+  }
+
+  /** Your shift at the cafe, once you have the job. */
+  private jobNote(): HTMLElement | null {
+    if (!isHired(this.g) || stayPhase(this.g) === 'morning') return null;
+    const wage = wageFor(progressFor(this.g, CUSTOMERS).stage);
+    return h('p', { class: 'muted job-note' }, `Your job at the cafe: talk to ${plainText(parseLine(npcs.yuki.name, vocab))} to work a ${SHIFT_HOURS}-hour shift, starting any time from 8:00 to ${formatClock(lastShiftStart())}. It pays ${yen(wage)} an hour.`);
   }
 
   /** Where the trains go, once you can buy a ticket. */
@@ -535,7 +561,7 @@ export class Game {
     this.seeAll(title, 'street', 'tanaka');
     this.showScreen(
       h('h2', {}, renderTokens(title, { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false) })),
-      h('ul', { class: 'notices' }, boardNotes(this.g.day).map((n) => {
+      h('ul', { class: 'notices' }, boardNotes(this.g.day, !isHired(this.g)).map((n) => {
         this.seeAll(parseLine(n.jp, vocab), 'street', 'tanaka');
         return h('li', { class: 'notice' }, this.tokens(n.jp, false), h('div', { class: 'muted' }, n.en));
       })),
@@ -606,6 +632,8 @@ export class Game {
     // A friend who's ready to invite you asks first, unless you're there on an errand.
     const friend = friendAt(t.place);
     if (friend && inviteReady(this.g, friend) && !this.g.errands.some((e) => e.scenario === id && !e.done && !e.missed)) return this.startInvite(friend);
+    // At the cafe there may be a job to ask about, or a shift to work.
+    if (t.place === JOB_PLACE && (!isHired(this.g) || !shiftBlocked(this.g, this.g.minutes))) return this.showCounter();
     if (id) this.startScenario(scenarioById[id]!);
   }
 
@@ -678,7 +706,7 @@ export class Game {
     const friend = isFriend(def.npc) ? def.npc : undefined;
     const friendship = friend ? pointsOf(this.g, friend) : 0;
     // After an ordinary chat with a friend you can give them something from your things.
-    const special = def.id.startsWith('invite_') || def.id === 'gift_give';
+    const special = def.id.startsWith('invite_') || def.id === 'gift_give' || def.id === COLLEAGUE;
     const extra = friend && !special && canGiveToday(this.g, friend) && this.giftable().length ? { id: 'give', label: 'Give something' } : undefined;
     // Who you're talking to: a friend by name, anyone else by who they are.
     const listener = friend
@@ -692,7 +720,7 @@ export class Game {
     this.dialogue.start(run, {
       vocab,
       npcName: npc.name,
-      placeName: PLACE_NAMES[def.place] ?? def.place,
+      placeName: def.id === INTERVIEW ? 'Cafe · job interview' : this.shift ? 'Cafe · on shift' : PLACE_NAMES[def.place] ?? def.place,
       furigana: (t, mode) => this.learner.showFurigana(t.lemma, mode),
       lookup: (t, el) => this.lookup(t, el.getBoundingClientRect(), false),
       seen: (tokens) => {
@@ -730,6 +758,18 @@ export class Game {
 
   private finishScenario(run: ScenarioRun, then?: string): void {
     const def = run.def;
+    // On a shift the cafe's own cards say how it went; nothing else needs saying in between.
+    const shift = this.shift && (def.id === CUSTOMERS || def.id === COLLEAGUE) ? this.shift : null;
+    if (shift && def.id === CUSTOMERS) {
+      shift.grades.perfect += run.grades.perfect;
+      shift.grades.okay += run.grades.okay;
+      shift.grades.miss += run.grades.miss;
+    }
+    const hiredNow = def.id === INTERVIEW && run.ended && !isHired(this.g);
+    if (hiredNow) {
+      hire(this.g);
+      this.g.today.promotions.push('You got a part-time job at the cafe.');
+    }
     const changes: HeartChange[] = [];
     const bump = (npc: FriendId, n: number) => {
       const c = addPoints(this.g, npc, n);
@@ -810,8 +850,14 @@ export class Game {
       // The outing says it all.
     } else if (def.id === 'gift_give') {
       this.toast(`${plainText(parseLine(npcs[def.npc].name, vocab))} ${TASTE_WORDS[run.variant.id as Taste]}.`);
+    } else if (hiredNow) {
+      // The card says it.
+    } else if (shift && (def.id !== CUSTOMERS || !promoted)) {
+      // The shift's cards say it.
     } else if (promoted) {
-      const msg = `${def.title}: now stage ${next.stage}, ${MODE_NAMES[next.stage as Mode].toLowerCase()}.`;
+      const wage = def.id === CUSTOMERS ? ` Your pay at the cafe goes up to ${yen(wageFor(next.stage))} an hour.` : '';
+      if (shift) shift.raise = wageFor(next.stage);
+      const msg = `${def.title}: now stage ${next.stage}, ${MODE_NAMES[next.stage as Mode].toLowerCase()}.${wage}`;
       this.g.today.promotions.push(msg);
       this.toast(msg);
       this.celebrate(2.5, 50);
@@ -854,12 +900,13 @@ export class Game {
     this.announceHearts(changes);
     const picking = then === 'give' && friend && !gift && !scene && !invite;
     // Over a gift, a scene or an outing the cards would cover the words, so they wait until town.
-    if (gift || scene || invite || picking) this.pendingUps = [...this.pendingUps, ...ups];
+    if (gift || scene || invite || picking || shift || hiredNow) this.pendingUps = [...this.pendingUps, ...ups];
     else this.showLevelUps([...this.pendingUps.splice(0), ...ups]);
-    this.addXp(ups.length * XP.levelUp + (errand && !scene ? XP.errand : 0) + (run.clean ? XP.clean : 0));
+    this.addXp(ups.length * XP.levelUp + (errand && !scene ? XP.errand : 0) + (run.clean ? XP.clean : 0) + (shift && def.id === CUSTOMERS ? XP.errand / 2 : 0));
     const stayNote = this.afterStayScenario(run);
     if (stayNote) setTimeout(() => this.toast(stayNote), 1800);
-    this.g.minutes = Math.min(DAY_END - 1, this.g.minutes + (invite ? MINUTES_PER_INVITE : MINUTES_PER_SCENARIO));
+    // A shift's two hours are counted when it ends.
+    if (!shift) this.g.minutes = Math.min(DAY_END - 1, this.g.minutes + (invite ? MINUTES_PER_INVITE : MINUTES_PER_SCENARIO));
     this.refreshStay();
     this.town.invalidate();
     this.phase = 'town';
@@ -869,6 +916,118 @@ export class Game {
     else if (scene) this.showConsequence(run, scene, errand);
     else if (invite && friend) this.showMemory(friend, invite);
     else if (picking) this.showGiftPicker(friend);
+    else if (shift) this.nextInShift(shift, run);
+    else if (hiredNow) this.showHired();
+  }
+
+  // ------------------------------------------------------------------ the cafe job
+
+  /** At the cafe counter: order something, or ask about the job, or work a shift. */
+  private showCounter(): void {
+    this.phase = 'shop';
+    const hired = isHired(this.g);
+    const errand = this.g.errands.some((e) => e.scenario === SCENARIO_FOR.cafe && !e.done && !e.missed);
+    const wage = wageFor(progressFor(this.g, CUSTOMERS).stage);
+    const notice = parseLine('アルバイト 募集 中', vocab);
+    this.seeAll(notice, 'cafe', 'yuki');
+    this.showScreen(
+      h('h2', {}, this.tokens(npcs.yuki.name, false), ' at the counter'),
+      hired
+        ? h('p', {}, `Work a shift: ${SHIFT_HOURS} hours behind the counter with ${plainText(parseLine(npcs.yuki.name, vocab))}, serving ${CUSTOMERS_PER_SHIFT} customers. It pays ${yen(wage)} an hour, and the manager adds ${yen(shiftPay(1, 0).bonus)} for a shift without a miss.`)
+        : h('div', {},
+            h('p', { class: 'job-sign' }, renderTokens(notice, { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false), isNew: (t) => this.learner.isFresh(t.lemma) })),
+            h('p', {}, `The cafe is hiring. Ask, and ${plainText(parseLine(npcs.yuki.name, vocab))} will fetch the manager for a short interview in Japanese. Shifts pay ${yen(shiftPay(1, 0).wage)} an hour to start.`)),
+      h('div', { class: 'row' },
+        h('button', { onclick: () => this.goToTown() }, 'Not now'),
+        h('button', { class: errand ? 'primary' : '', onclick: () => { this.hideScreen(); this.phase = 'town'; this.startScenario(scenarioById[SCENARIO_FOR.cafe!]!); } }, 'Order a drink'),
+        hired
+          ? h('button', { class: errand ? '' : 'primary', onclick: () => this.startShift() }, 'Work a shift ▶')
+          : h('button', { class: errand ? '' : 'primary', onclick: () => { this.hideScreen(); this.phase = 'town'; this.startScenario(scenarioById[INTERVIEW]!); } }, 'Ask about the job ▶'),
+      ),
+    );
+  }
+
+  private showHired(): void {
+    this.phase = 'shop';
+    const ok = !shiftBlocked(this.g, this.g.minutes);
+    this.showScreen(
+      h('h2', {}, "You're hired!"),
+      h('p', {}, `You have a part-time job at the cafe. Once a day, talk to ${plainText(parseLine(npcs.yuki.name, vocab))} to work a ${SHIFT_HOURS}-hour shift serving customers, starting any time from 8:00 to ${formatClock(lastShiftStart())}. The better you serve, the more you're paid an hour.`),
+      ok ? null : h('p', { class: 'muted' }, shiftBlocked(this.g, this.g.minutes)),
+      h('div', { class: 'row' },
+        h('button', { onclick: () => this.goToTown() }, ok ? 'Later' : 'Back to town ▶'),
+        ok ? h('button', { class: 'primary', onclick: () => this.startShift() }, 'Start my first shift ▶') : null),
+    );
+  }
+
+  private startShift(): void {
+    const why = shiftBlocked(this.g, this.g.minutes);
+    if (why) {
+      this.goToTown();
+      this.toast(why);
+      return;
+    }
+    this.hideScreen();
+    this.phase = 'town';
+    this.shift = { plan: planShift(), served: 0, stage: progressFor(this.g, CUSTOMERS).stage, grades: { perfect: 0, okay: 0, miss: 0 }, words: this.g.today.newWords.length };
+    this.startScenario(scenarioById[COLLEAGUE]!, 'start');
+  }
+
+  private nextCustomer(shift: Shift): void {
+    const base = scenarioById[CUSTOMERS]!;
+    const c = shift.plan[shift.served]!;
+    const def: ScenarioDef = { ...base, npc: c.face };
+    const variant = customerVariant(c.kind, base.variants.find((v) => v.id === c.kind)!);
+    this.startScenario(def, undefined, variant);
+  }
+
+  /** After each part of a shift: the first customer, the next one, ゆき at the end, then pay. */
+  private nextInShift(shift: Shift, run: ScenarioRun): void {
+    if (run.def.id === COLLEAGUE) {
+      if (run.variant.id === 'start') return this.nextCustomer(shift);
+      return this.endShift(shift);
+    }
+    shift.served += 1;
+    if (shift.served >= shift.plan.length) {
+      this.startScenario(scenarioById[COLLEAGUE]!, 'end');
+      return;
+    }
+    // A breather between customers.
+    this.phase = 'shop';
+    const clean = run.grades.miss === 0;
+    this.showScreen(
+      h('h2', {}, `${shift.served} of ${shift.plan.length} served`),
+      h('p', { class: 'shift-tally' }, ...shift.plan.map((_, i) => h('span', { class: `shift-dot${i < shift.served ? ' done' : ''}`, 'aria-hidden': 'true' }, i < shift.served ? '●' : '○')),
+        ` ${clean ? (run.grades.okay === 0 ? 'Perfect service.' : 'Served, with a line or two to polish.') : 'Served, after a slip.'} Notes are in your notebook tonight.`),
+      h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => { this.hideScreen(); this.phase = 'town'; this.nextCustomer(shift); } }, 'Next customer ▶')),
+    );
+  }
+
+  private endShift(shift: Shift): void {
+    this.shift = null;
+    const pay = shiftPay(shift.stage, shift.grades.miss);
+    finishShift(this.g, shift.served);
+    this.g.minutes = Math.min(DAY_END - 1, this.g.minutes + SHIFT_MINUTES);
+    this.g.today.promotions.push(`You worked a shift at the cafe and earned ${yen(pay.total)}.`);
+    this.phase = 'shop';
+    const words = this.g.today.newWords.length - shift.words;
+    const thanks = parseLine('お疲れ様でした=お疲れ様', vocab);
+    this.showScreen(
+      h('h2', {}, renderTokens(thanks, { furigana: ALWAYS, onTap: (t, el) => this.lookup(t, el.getBoundingClientRect(), false) }), ' Shift done'),
+      h('ul', { class: 'pay' },
+        h('li', {}, h('span', {}, `${pay.hours} hours × ${yen(pay.wage)}`), h('b', {}, yen(pay.base))),
+        pay.bonus ? h('li', {}, h('span', {}, 'No misses: a thank-you from the manager'), h('b', {}, `+${yen(pay.bonus)}`)) : null,
+        h('li', { class: 'pay-total' }, h('span', {}, 'Paid'), h('b', {}, yen(pay.total))),
+      ),
+      h('p', { class: 'muted' }, `${shift.served} customers · ${shift.grades.perfect} perfect, ${shift.grades.okay} okay, ${shift.grades.miss} missed${words > 0 ? ` · ${words} new word${words === 1 ? '' : 's'}` : ''}.`
+        + (shift.raise ? ` From your next shift you're paid ${yen(shift.raise)} an hour.` : '')
+        + (pay.bonus ? '' : ` A shift with no misses earns a ${yen(shiftPay(1, 0).bonus)} bonus.`)),
+      h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => this.goToTown() }, 'Back to town ▶')),
+    );
+    this.addYen(pay.total);
+    this.renderHud(true);
+    const box = this.screen.querySelector('.pay-total');
+    if (box && !shift.grades.miss) setTimeout(() => box.isConnected && confetti(box.getBoundingClientRect().left + 40, box.getBoundingClientRect().top, 40), 200);
   }
 
   /** Say so when someone's hearts go up, when they start talking casually, and when they'd like to invite you. */

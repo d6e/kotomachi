@@ -1,0 +1,219 @@
+{
+  "id": "cafe_shift",
+  "title": "Serving customers at the cafe",
+  "place": "cafe",
+  "npc": "kyaku1",
+  "maxStage": 4,
+  "start": "enter",
+  "variants": [
+    { "id": "here", "slots": { "item": "コーヒー", "item_en": "coffee", "price": "400", "paid": "1,000", "change": "600", "wrong": "500", "send": "ごゆっくり どうぞ", "send_en": "Enjoy.", "bye": "いただきます 。", "bye_en": "Thanks. (I'll enjoy it.)" } },
+    { "id": "togo", "slots": { "item": "ラテ", "item_en": "latte", "price": "450", "send": "ありがとうございました=ありがとうございます", "send_en": "Thank you very much!", "bye": "どうも 。", "bye_en": "Thanks." } },
+    { "id": "soldout", "slots": { "item": "紅茶", "item_en": "black tea", "price": "400", "bye": "はい 、 どうぞ 。", "bye_en": "OK, here you are." } },
+    { "id": "toilet", "slots": { "bye": "ありがとうございます 。", "bye_en": "Thank you." } },
+    { "id": "mistake", "slots": { "item": "ココア", "item_en": "cocoa", "bye": "ありがとうございます 。", "bye_en": "Thank you." } }
+  ],
+  "nodes": {
+    "enter": {
+      "onlyFor": ["here", "togo", "soldout", "toilet"],
+      "line": "あの 、 すみません 。",
+      "gloss": "Um, excuse me.",
+      "targets": ["いらっしゃいませ"],
+      "grammar": ["irasshaimase"],
+      "choices": [
+        { "text": "いらっしゃいませ 。", "gloss": "Welcome!", "result": "success" },
+        { "text": "いらっしゃい 。", "gloss": "Welcome. (casual)", "result": "success", "grade": "okay", "note": "Right idea, but いらっしゃい is how you welcome a friend at your door, or how a small local shop calls out. Behind a cafe counter, say the full いらっしゃいませ.", "grammar": "irasshaimase" },
+        { "text": "おかえりなさい 。", "gloss": "Welcome home.", "result": "npc_amused", "reaction": "え ？ ただいま … ？", "note": "おかえりなさい welcomes someone back home. A customer coming into the shop gets いらっしゃいませ.", "grammar": "irasshaimase" },
+        { "text": "いってらっしゃい 。", "gloss": "See you later! (to someone leaving)", "result": "npc_puzzled", "reaction": "え ？ 今 来ました=来る よ 。", "note": "いってらっしゃい sees someone off as they leave. A customer who has just come in gets いらっしゃいませ.", "grammar": "ittekimasu" }
+      ],
+      "tiles": { "answers": [["いらっしゃいませ"]], "decoys": ["おかえりなさい", "いってらっしゃい", "ください"] },
+      "blank": { "before": "", "after": "。", "answers": ["いらっしゃいませ"] },
+      "recast": "え ？ あの 、 すみません 。",
+      "next": { "success": "order_here" }
+    },
+    "order_here": {
+      "onlyFor": ["here"],
+      "line": "$item を 一つ 、 店内 で お願いします=お願いする 。",
+      "gloss": "One $item_en, to have here, please.",
+      "targets": ["かしこまりました", "ございます", "円"],
+      "grammar": ["kashikomarimashita", "gozaimasu"],
+      "choices": [
+        { "text": "かしこまりました 。 $price 円 で ございます 。", "gloss": "Certainly. That's ¥$price.", "result": "success" },
+        { "text": "分かりました=分かる 。 $price 円 です 。", "gloss": "Got it. ¥$price.", "result": "success", "grade": "okay", "note": "Polite, but behind the counter an order is taken with かしこまりました (certainly), and the price given with でございます, the shop's very polite です.", "grammar": "kashikomarimashita" },
+        { "text": "$item を ください 。", "gloss": "$item_en, please.", "result": "npc_puzzled", "reaction": "え ？ $item は 私 の 注文 です よ 。", "note": "をください is what a customer says to ask for something. You're the one serving: take the order with かしこまりました.", "grammar": "kashikomarimashita" }
+      ],
+      "tiles": { "answers": [["かしこまりました 。", "$price 円", "で", "ございます 。"]], "decoys": ["を", "ください", "に"] },
+      "blank": { "before": "", "after": "。 $price 円 で ございます 。", "answers": ["かしこまりました"] },
+      "recast": "えっと 、 $item を 一つ 、 お願いします=お願いする 。",
+      "next": { "success": "order_togo" }
+    },
+    "order_togo": {
+      "onlyFor": ["togo"],
+      "line": "$item を 一つ お願いします=お願いする 。",
+      "gloss": "One $item_en, please.",
+      "targets": ["かしこまりました", "店内", "召し上がる"],
+      "grammar": ["kashikomarimashita", "meshiagaru"],
+      "choices": [
+        { "text": "かしこまりました 。 店内 で お召し上がり=召し上がる です か ？", "gloss": "Certainly. Will you be having it here?", "result": "success" },
+        { "text": "分かりました=分かる 。 ここ で 飲みます=飲む か ？", "gloss": "Got it. Drinking it here?", "result": "success", "grade": "okay", "note": "Polite, but plain for staff. Take the order with かしこまりました, and ask with the honorific 召し上がる: 店内でお召し上がりですか.", "grammar": "meshiagaru" },
+        { "text": "かしこまりました 。 店内 で いただきます=いただく か ？", "gloss": "Certainly. Will you (humbly) partake here?", "result": "npc_puzzled", "reaction": "え ？ あなた が 飲みます=飲む か ？", "note": "いただく is humble: it's for your own eating and drinking, never the customer's. For them it's the honorific 召し上がる: 店内でお召し上がりですか.", "grammar": "meshiagaru" },
+        { "text": "$item を ください 。", "gloss": "$item_en, please.", "result": "npc_puzzled", "reaction": "え ？ $item は 私 の 注文 です よ 。", "note": "をください is what a customer says to ask for something. You're the one serving: take the order with かしこまりました.", "grammar": "kashikomarimashita" }
+      ],
+      "tiles": { "answers": [["かしこまりました 。", "店内 で", "お召し上がり=召し上がる", "です か ？"]], "decoys": ["いただきます=いただく", "を", "ください"] },
+      "blank": { "before": "かしこまりました 。 店内 で", "after": "です か ？", "answers": ["おめしあがり"] },
+      "recast": "えっと 、 $item を 一つ 。",
+      "next": { "success": "togo_price" }
+    },
+    "togo_price": {
+      "onlyFor": ["togo"],
+      "line": "いえ 、 持ち帰り で お願いします=お願いする 。",
+      "gloss": "No, to go, please.",
+      "targets": ["持ち帰り", "ございます"],
+      "grammar": ["gozaimasu"],
+      "choices": [
+        { "text": "お持ち帰り=持ち帰り です ね 。 $price 円 で ございます 。", "gloss": "To go. That's ¥$price.", "result": "success" },
+        { "text": "持ち帰り ね 。 $price 円 。", "gloss": "To go, huh. ¥$price. (casual)", "result": "success", "grade": "okay", "note": "Right, but casual, as if to a friend: no です. Staff say お持ち帰りですね, then the price with でございます.", "grammar": "plain_vs_polite" },
+        { "text": "いくら です か ？", "gloss": "How much is it?", "result": "npc_puzzled", "reaction": "え ？ それ は 私 の セリフ です よ 。", "note": "いくらですか is the customer's question. You tell them the price: …円でございます.", "grammar": "gozaimasu" }
+      ],
+      "tiles": { "answers": [["お持ち帰り=持ち帰り", "です ね 。", "$price 円", "で ございます 。"]], "decoys": ["いくら", "か", "を"] },
+      "blank": { "before": "お持ち帰り=持ち帰り です ね 。 $price 円 で", "after": "。", "answers": ["ございます"] },
+      "recast": "持ち帰り です 。",
+      "next": { "success": "pay_cash" }
+    },
+    "pay_cash": {
+      "onlyFor": ["here"],
+      "line": "$paid 円 で お願いします=お願いする 。",
+      "gloss": "Here's ¥$paid.",
+      "targets": ["預かる", "返す", "円"],
+      "grammar": ["azukaru"],
+      "choices": [
+        { "text": "$paid 円 お預かりします=預かる 。 $change 円 の お返し=返す です 。", "gloss": "¥$paid received. Here's ¥$change change.", "result": "success" },
+        { "text": "$paid 円 もらいます=もらう 。 $change 円 です 。", "gloss": "I'll take ¥$paid. ¥$change.", "result": "success", "grade": "okay", "note": "The sums are right, but もらいます (I'll take it) sounds rough at a till. Staff say お預かりします (I'll take care of it), and hand back change as …円のお返しです.", "grammar": "azukaru" },
+        { "text": "$paid 円 お預かりします=預かる 。 $wrong 円 の お返し=返す です 。", "gloss": "¥$paid received. Here's ¥$wrong change.", "result": "npc_puzzled", "reaction": "あれ ？ お釣り は $change 円 じゃ ない です か ？", "note": "Count the change again: what they handed over, minus the price.", "grammar": "azukaru" }
+      ],
+      "tiles": { "answers": [["$paid 円", "お預かりします=預かる 。", "$change 円 の", "お返し=返す です 。"]], "decoys": ["$wrong 円 の", "もらいます=もらう", "ください"] },
+      "blank": { "before": "$paid 円", "after": "。 $change 円 の お返し=返す です 。", "answers": ["おあずかりします"] },
+      "recast": "$paid 円 です 。",
+      "next": { "success": "card" }
+    },
+    "card": {
+      "onlyFor": ["togo"],
+      "line": "カード で お願いします=お願いする 。",
+      "gloss": "By card, please.",
+      "targets": ["預かる", "少々", "待つ"],
+      "grammar": ["azukaru", "omachi"],
+      "choices": [
+        { "text": "カード お預かりします=預かる 。 少々 お待ち=待つ ください 。", "gloss": "I'll take your card. Just a moment, please.", "result": "success" },
+        { "text": "カード 、 もらいます=もらう 。 ちょっと 待って=待つ ください 。", "gloss": "I'll take the card. Wait a bit, please.", "result": "success", "grade": "okay", "note": "Understood, but plain for a till. Staff say カードお預かりします, and 少々お待ちください: 少々 is the formal 'a little', お待ちください the respectful 'please wait'.", "grammar": "omachi" },
+        { "text": "お待たせしました 。", "gloss": "Sorry to keep you waiting.", "result": "npc_puzzled", "reaction": "え ？ まだ です よ 。 カード で 。", "note": "お待たせしました is for when you hand the order over. While they wait, say 少々お待ちください.", "grammar": "omachi" },
+        { "text": "現金 で お願いします=お願いする 。", "gloss": "Cash, please.", "result": "npc_puzzled", "reaction": "え ？ カード 、 使えません=使える か ？", "note": "They want to pay by card. Take it with カードお預かりします.", "grammar": "azukaru" }
+      ],
+      "tiles": { "answers": [["カード", "お預かりします=預かる 。", "少々", "お待ち=待つ ください 。"]], "decoys": ["もらいます=もらう", "お待たせしました", "ちょっと"] },
+      "blank": { "before": "カード お預かりします=預かる 。", "after": "お待ち=待つ ください 。", "answers": ["しょうしょう"] },
+      "recast": "カード で 。",
+      "next": { "success": "soldout" }
+    },
+    "soldout": {
+      "onlyFor": ["soldout"],
+      "line": "ケーキ は あります=ある か ？",
+      "gloss": "Do you have any cake?",
+      "targets": ["申し訳ございません", "売り切れ"],
+      "grammar": ["moushiwake"],
+      "choices": [
+        { "text": "申し訳ございません 。 今日 は 売り切れ です 。", "gloss": "I'm very sorry. It's sold out today.", "result": "success" },
+        { "text": "ごめんなさい 。 もう ない です 。", "gloss": "Sorry. There's none left.", "result": "success", "grade": "okay", "note": "Right meaning, but ごめんなさい is how you say sorry to a friend. To a customer it's 申し訳ございません, and 売り切れ (sold out) says it nicely.", "grammar": "moushiwake" },
+        { "text": "はい 、 ございます 。", "gloss": "Yes, we do.", "result": "npc_puzzled", "reaction": "え ？ どこ です か ？ … ない です よ 。", "note": "The cake has all gone, so say so: 申し訳ございません。今日は売り切れです.", "grammar": "moushiwake" }
+      ],
+      "tiles": { "answers": [["申し訳ございません 。", "今日 は", "売り切れ です 。"]], "decoys": ["ごめんなさい", "ございます", "が"] },
+      "blank": { "before": "申し訳ございません 。 今日 は", "after": "です 。", "answers": ["うりきれ"] },
+      "recast": "え ？ ケーキ は … ？",
+      "next": { "success": "soldout_after" }
+    },
+    "soldout_after": {
+      "onlyFor": ["soldout"],
+      "line": "そう です か 。 じゃあ 、 $item を お願いします=お願いする 。",
+      "gloss": "I see. A $item_en, then, please.",
+      "targets": ["かしこまりました", "ございます"],
+      "grammar": ["kashikomarimashita"],
+      "choices": [
+        { "text": "かしこまりました 。 $price 円 で ございます 。", "gloss": "Certainly. That's ¥$price.", "result": "success" },
+        { "text": "分かりました=分かる 。 $price 円 です 。", "gloss": "Got it. ¥$price.", "result": "success", "grade": "okay", "note": "Polite, but behind the counter an order is taken with かしこまりました (certainly), and the price given with でございます.", "grammar": "kashikomarimashita" },
+        { "text": "ケーキ です ね 。 かしこまりました 。", "gloss": "Cake. Certainly.", "result": "npc_puzzled", "reaction": "え ？ ケーキ は ない です よ ね ？", "note": "They changed their order. Listen for the new item, then answer with かしこまりました and the price.", "grammar": "kashikomarimashita" }
+      ],
+      "tiles": { "answers": [["かしこまりました 。", "$price 円", "で", "ございます 。"]], "decoys": ["ケーキ", "ください", "に"] },
+      "blank": { "before": "", "after": "。 $price 円 で ございます 。", "answers": ["かしこまりました"] },
+      "recast": "$item を お願いします=お願いする 。",
+      "next": { "success": "toilet" }
+    },
+    "toilet": {
+      "onlyFor": ["toilet"],
+      "line": "トイレ は どこ です か ？",
+      "gloss": "Where's the toilet?",
+      "targets": ["トイレ", "あちら", "ございます"],
+      "grammar": ["kosoado", "gozaimasu"],
+      "choices": [
+        { "text": "あちら で ございます 。", "gloss": "It's over there.", "result": "success" },
+        { "text": "あそこ です 。", "gloss": "Over there.", "result": "success", "grade": "okay", "note": "Understood, but あそこ is everyday speech. Staff point the way with the politer あちら, and でございます: あちらでございます.", "grammar": "kosoado" },
+        { "text": "トイレ です ね 。 かしこまりました 。", "gloss": "A toilet. Certainly.", "result": "npc_amused", "reaction": "ふふ 、 注文 じゃ ない です よ 。 トイレ は どこ です か ？", "note": "They're asking where it is, not ordering. Point the way: あちらでございます.", "grammar": "kosoado" }
+      ],
+      "tiles": { "answers": [["あちら", "で", "ございます 。"]], "decoys": ["あそこ", "を", "かしこまりました"] },
+      "blank": { "before": "", "after": "で ございます 。", "answers": ["あちら"] },
+      "recast": "えっと 、 トイレ は ？",
+      "next": { "success": "mistake" }
+    },
+    "mistake": {
+      "onlyFor": ["mistake"],
+      "line": "あの 、 すみません 。 アイス を 頼みました=頼む けど 、 これ 、 ホット です 。",
+      "gloss": "Um, excuse me. I ordered it iced, but this is hot.",
+      "targets": ["大変", "申し訳ございません", "作る"],
+      "grammar": ["moushiwake", "o_suru"],
+      "choices": [
+        { "text": "大変 申し訳ございません 。 すぐ に お作りします=作る 。", "gloss": "I'm terribly sorry. I'll make you one right away.", "result": "success" },
+        { "text": "すみません 。 すぐ 作ります=作る 。", "gloss": "Sorry. I'll make it right away.", "result": "success", "grade": "okay", "note": "Polite, but light for a mistake that's yours. Staff say 大変申し訳ございません, and offer with the humble お作りします.", "grammar": "moushiwake" },
+        { "text": "ありがとうございます 。", "gloss": "Thank you.", "result": "npc_puzzled", "reaction": "え ？ … あの 、 これ 、 ホット です よ 。", "note": "They're telling you about a mistake, so apologise first: 大変申し訳ございません.", "grammar": "moushiwake" },
+        { "text": "ごゆっくり どうぞ 。", "gloss": "Enjoy.", "result": "npc_puzzled", "reaction": "え ？ でも 、 これ 、 ホット です よ 。", "note": "They're telling you about a mistake, so apologise first and offer to put it right: 大変申し訳ございません。すぐにお作りします.", "grammar": "moushiwake" }
+      ],
+      "tiles": { "answers": [["大変", "申し訳ございません 。", "すぐ に", "お作りします=作る 。"]], "decoys": ["すみません", "ありがとうございます", "を"] },
+      "blank": { "before": "大変", "after": "。 すぐ に お作りします=作る 。", "answers": ["もうしわけございません"] },
+      "recast": "あの 、 これ 、 ホット です 。",
+      "next": { "success": "mistake_after" }
+    },
+    "mistake_after": {
+      "onlyFor": ["mistake"],
+      "line": "いえいえ 、 大丈夫 です 。",
+      "gloss": "Oh, that's all right.",
+      "targets": ["お待たせしました", "アイス"],
+      "grammar": ["omachi"],
+      "choices": [
+        { "text": "お待たせしました 。 アイス $item です 。", "gloss": "Sorry to keep you waiting. Here's your iced $item_en.", "result": "success" },
+        { "text": "はい 、 アイス 。", "gloss": "Here. Iced.", "result": "success", "grade": "okay", "note": "It gets the drink across, but it's curt. Hand it over with お待たせしました (sorry to keep you waiting) and say what it is with です.", "grammar": "omachi" },
+        { "text": "いらっしゃいませ 。", "gloss": "Welcome!", "result": "npc_puzzled", "reaction": "え ？ 私 、 もう います=いる よ 。", "note": "いらっしゃいませ greets people as they come in. When you bring the order, say お待たせしました.", "grammar": "omachi" }
+      ],
+      "tiles": { "answers": [["お待たせしました 。", "アイス $item", "です 。"]], "decoys": ["いらっしゃいませ", "を", "ホット"] },
+      "blank": { "before": "", "after": "。 アイス $item です 。", "answers": ["おまたせしました"] },
+      "recast": "あの 、 アイス は … ？",
+      "next": { "success": "handover" }
+    },
+    "handover": {
+      "onlyFor": ["here", "togo"],
+      "line": "あの 、 まだ です か ？",
+      "gloss": "Um, is it ready yet?",
+      "targets": ["お待たせしました", "ごゆっくり"],
+      "grammar": ["omachi"],
+      "choices": [
+        { "text": "お待たせしました 。 $item です 。 $send 。", "gloss": "Sorry to keep you waiting. Here's your $item_en. $send_en", "result": "success" },
+        { "text": "はい 、 $item 。 どうぞ 。", "gloss": "Here. $item_en.", "result": "success", "grade": "okay", "note": "It gets the drink across, but it's curt. Hand it over with お待たせしました (sorry to keep you waiting) and say what it is with です.", "grammar": "omachi" },
+        { "text": "いらっしゃいませ 。", "gloss": "Welcome!", "result": "npc_puzzled", "reaction": "え ？ 私 、 もう います=いる よ 。", "note": "いらっしゃいませ greets people as they come in. When you bring the order, say お待たせしました.", "grammar": "omachi" }
+      ],
+      "tiles": { "answers": [["お待たせしました 。", "$item です 。", "$send 。"]], "decoys": ["いらっしゃいませ", "を", "ください"] },
+      "blank": { "before": "", "after": "。 $item です 。 $send 。", "answers": ["おまたせしました"] },
+      "recast": "あの 、 $item は … ？",
+      "next": { "success": "bye" }
+    },
+    "bye": {
+      "line": "$bye",
+      "gloss": "$bye_en",
+      "targets": [],
+      "end": true
+    }
+  }
+}

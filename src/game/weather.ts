@@ -100,7 +100,7 @@ export interface Notice {
 }
 
 /** The notices on the street's notice board (掲示板) today. */
-export function boardNotes(day: number): Notice[] {
+export function boardNotes(day: number, hiring = false): Notice[] {
   const w = weatherFor(day);
   const left = daysToFestival(day);
   const notes: Notice[] = [{ jp: `今日 の 天気 ： ${WEATHER_WORD[w]}`, en: `Today's weather: ${WEATHER_EN[w]}.` }];
@@ -110,6 +110,7 @@ export function boardNotes(day: number): Notice[] {
   } else {
     notes.push({ jp: `祭り まで あと ${DAY_COUNT[left]} 。`, en: `The festival in the park is in ${left} day${left === 1 ? '' : 's'}. There's one every 7th day.` });
   }
+  if (hiring) notes.push({ jp: 'カフェ で アルバイト 募集 中 ！ 時給 1,000 円 から 。 ゆき さん に 聞いて=聞く ください 。', en: 'Part-time help wanted at the cafe! From ¥1,000 an hour. Ask Yuki.' });
   return notes;
 }
 

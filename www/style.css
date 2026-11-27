@@ -765,3 +765,13 @@ body.pad-tab .toast { bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
 }
 .name-input:focus { outline: 3px solid #ffc06a; outline-offset: 1px; }
 .row .playing { margin-right: auto; align-self: center; }
+
+/* The cafe job: the help-wanted sign, the tally between customers, and the pay slip. */
+.job-sign { display: inline-block; margin: 4px 0 2px; padding: 6px 14px; border-radius: 8px; background: #fff8e8; border: 2px dashed #e0b860; font-size: 22px; line-height: 2; transform: rotate(-1.5deg); }
+.job-note { margin-top: 8px; }
+.shift-tally { line-height: 1.6; }
+.shift-dot { color: #d7cfe4; font-size: 18px; margin-right: 2px; }
+.shift-dot.done { color: var(--good); }
+.pay { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 6px; }
+.pay li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 12px; border-radius: 10px; background: #f6f9ff; border: 2px solid var(--line); }
+.pay .pay-total { background: #fff1e6; border-color: #ffc4a0; font-size: 18px; }

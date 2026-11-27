@@ -31,6 +31,9 @@ import ryokanBaiten from '../../data/scenarios/ryokan_baiten.json' with { type: 
 import denki from '../../data/scenarios/denki.json' with { type: 'json' };
 import maidCafe from '../../data/scenarios/maidcafe.json' with { type: 'json' };
 import arcade from '../../data/scenarios/arcade.json' with { type: 'json' };
+import jobInterview from '../../data/scenarios/job_interview.json' with { type: 'json' };
+import cafeShift from '../../data/scenarios/cafe_shift.json' with { type: 'json' };
+import shiftYuki from '../../data/scenarios/shift_yuki.json' with { type: 'json' };
 import chatterJson from '../../data/chatter.json' with { type: 'json' };
 import requestsJson from '../../data/requests.json' with { type: 'json' };
 import consequencesJson from '../../data/consequences.json' with { type: 'json' };
@@ -54,6 +57,7 @@ export const scenarios: ScenarioDef[] = [
   inviteYuki, inviteTanaka, inviteMori, inviteServer, inviteKobayashi, gift,
   ryokanCheckin, ryokanRoom, ryokanDinner, onsen, ryokanCheckout, ryokanBaiten,
   denki, maidCafe, arcade,
+  jobInterview, cafeShift, shiftYuki,
 ] as unknown as ScenarioDef[];
 export const scenarioById: Record<string, ScenarioDef> = Object.fromEntries(scenarios.map((s) => [s.id, s]));
 /** The regulars' stories and everyday requests. */
@@ -141,7 +145,7 @@ export function validateContent(defs: ScenarioDef[] = scenarios): ContentIssue[]
     }
   }
   for (const c of [...chatter.street, chatter.cat, ...Object.values(chatter.stalls)]) check(`chatter ${c.en}`, c.text, {});
-  for (let day = 1; day <= 7; day++) for (const n of [...boardNotes(day), morningNote(day)]) check(`notice day ${day}`, n.jp, {});
+  for (let day = 1; day <= 7; day++) for (const n of [...boardNotes(day, true), morningNote(day)]) check(`notice day ${day}`, n.jp, {});
   for (const s of defs) {
     if (!s.nodes[s.start]) out.push({ where: s.id, problem: `start node ${s.start} missing` });
     for (const v of s.variants) {

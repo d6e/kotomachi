@@ -406,5 +406,53 @@
   "title": "～てもらえますか",
   "note": "The て-form plus もらえますか asks someone to do something for you: 動かしてもらえますか, could you move it for me? It's softer than ～てください.",
   "example": "少し 動かして=動かす もらえます=もらえる か ？"
+ },
+ {
+  "id": "kashikomarimashita",
+  "title": "かしこまりました",
+  "note": "The humble 'certainly, understood' that staff answer an order or a request with. 分かりました is fine between colleagues, but sounds plain said to a customer.",
+  "example": "かしこまりました 。"
+ },
+ {
+  "id": "gozaimasu",
+  "title": "でございます",
+  "note": "The shop counter's very polite です: 400円でございます, あちらでございます. On its own, ございます stands in for あります: はい、ございます (yes, we have it).",
+  "example": "あちら で ございます 。"
+ },
+ {
+  "id": "omachi",
+  "title": "少々お待ちください / お待たせしました",
+  "note": "少々お待ちください (one moment, please) is for while they wait; お待たせしました (sorry to keep you waiting) is for when you bring it. Swapping them sounds odd.",
+  "example": "少々 お待ち=待つ ください 。"
+ },
+ {
+  "id": "azukaru",
+  "title": "お預かりします",
+  "note": "Taking money or a card at the till: 1,000円お預かりします (I'll take ¥1,000). Change goes back as …円のお返しです. もらいます (I'll take it) sounds rough here.",
+  "example": "1,000 円 お預かりします=預かる 。"
+ },
+ {
+  "id": "moushiwake",
+  "title": "申し訳ございません",
+  "note": "The apology staff give a customer, for something sold out, a mistake or a wait. 大変 in front makes it deeper. ごめんなさい is for friends and family.",
+  "example": "大変 申し訳ございません 。"
+ },
+ {
+  "id": "o_suru",
+  "title": "お + verb + します (humble)",
+  "note": "Staff describe what they'll do for you with お…します: お作りします (I'll make it), お預かりします (I'll take it). It lowers yourself, so it's only ever for your own actions.",
+  "example": "すぐ に お作りします=作る 。"
+ },
+ {
+  "id": "otsukaresama",
+  "title": "お疲れ様です / お疲れ様でした",
+  "note": "What colleagues say to each other: お疲れ様です when you meet at work, even at the start of a shift, and お疲れ様でした when the work is done. Friends say just お疲れ.",
+  "example": "お疲れ様でした=お疲れ様 。"
+ },
+ {
+  "id": "kara_because",
+  "title": "～から (because)",
+  "note": "Put から after a reason to say 'because': コーヒーが好きだから (because I like coffee). Add です to answer politely: 好きだからです.",
+  "example": "コーヒー が 好き だ から です 。"
  }
 ]

@@ -14,5 +14,9 @@
   { "id": "suzuki", "name": "鈴木 さん", "role": "Another guest at the ryokan, who comes every year", "listener": "someone you’ve just met" },
   { "id": "nakamura", "name": "中村 さん", "role": "Works at an electronics shop in 秋葉原", "listener": "a shop assistant" },
   { "id": "hana", "name": "はな", "role": "Waits on tables at a maid cafe in 秋葉原 (はな is her name at work)", "listener": "cafe staff" },
-  { "id": "kato", "name": "加藤 さん", "role": "Looks after the crane games at an arcade in 秋葉原", "listener": "arcade staff" }
+  { "id": "kato", "name": "加藤 さん", "role": "Looks after the crane games at an arcade in 秋葉原", "listener": "arcade staff" },
+  { "id": "tencho", "name": "店長 の 松本 さん", "role": "Manages the cafe, and interviews you for the part-time job", "listener": "the cafe's manager" },
+  { "id": "kyaku1", "name": "お客=客 さん", "role": "A customer at the cafe", "listener": "a customer" },
+  { "id": "kyaku2", "name": "お客=客 さん", "role": "A customer at the cafe", "listener": "a customer" },
+  { "id": "kyaku3", "name": "お客=客 さん", "role": "A customer at the cafe", "listener": "a customer" }
 ]

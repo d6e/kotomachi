@@ -1,0 +1,83 @@
+{
+  "id": "job_interview",
+  "title": "A job interview at the cafe",
+  "place": "cafe",
+  "npc": "tencho",
+  "maxStage": 2,
+  "start": "hello",
+  "variants": [{ "id": "cafe", "slots": {} }],
+  "nodes": {
+    "hello": {
+      "line": "はじめまして 。 店長 の 松本 です 。 アルバイト の 面接 です ね 。 どうぞ 、 座って=座る ください 。",
+      "gloss": "Nice to meet you. I'm Matsumoto, the manager. You're here for the part-time job interview, right? Please, have a seat.",
+      "targets": ["はじめまして", "店長", "アルバイト", "面接", "座る"],
+      "grammar": ["shitsurei", "tekudasai"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "失礼します=失礼する 。 よろしく お願いします=お願いする 。", "gloss": "Excuse me (as I sit). I look forward to working with you.", "result": "success" },
+        { "text": "どうも 。", "gloss": "Thanks.", "result": "success", "grade": "okay", "note": "Short and a bit offhand for an interview. As you sit down, say 失礼します, then よろしくお願いします.", "grammar": "shitsurei" },
+        { "text": "いただきます 。", "gloss": "Let's eat!", "result": "npc_amused", "reaction": "え ？ … ふふ 、 どうぞ 、 座って=座る ください 。", "note": "いただきます is for just before you eat. Sitting down in an interview, say 失礼します.", "grammar": "itadakimasu" },
+        { "text": "いらっしゃいませ 。", "gloss": "Welcome!", "result": "npc_amused", "reaction": "ふふ 、 それ は お客=客 さん に 言って=言う ください 。", "note": "いらっしゃいませ is for customers, and you'll be saying it a lot soon. In the interview, say 失礼します as you sit, then よろしくお願いします.", "grammar": "shitsurei" }
+      ],
+      "next": { "success": "why" }
+    },
+    "why": {
+      "line": "どうして うち で 働きたい=働く です か ？",
+      "gloss": "Why would you like to work here?",
+      "targets": ["働く", "どうして", "うち"],
+      "grammar": ["tai", "kara_because"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "コーヒー が 好き だ から です 。", "gloss": "Because I like coffee.", "result": "success" },
+        { "text": "お金 が ほしい 。", "gloss": "I want money.", "result": "success", "grade": "okay", "note": "Honest, but blunt for an interview: plain speech with no です, and money first. Give a reason with から: コーヒーが好きだからです.", "grammar": "kara_because" },
+        { "text": "コーヒー を 一つ お願いします=お願いする 。", "gloss": "One coffee, please.", "result": "npc_amused", "reaction": "ふふ 、 今日 は 面接 です よ 。 どうして うち で 働きたい=働く です か ？", "note": "That's an order, not a reason. 働きたい means 'want to work': answer why, with から (because).", "grammar": "kara_because" }
+      ],
+      "next": { "success": "days" }
+    },
+    "days": {
+      "line": "週 に 何日 働けます=働く か ？",
+      "gloss": "How many days a week can you work?",
+      "targets": ["週", "何日", "三日", "働く"],
+      "grammar": ["potential"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "週 三日 働けます=働く 。", "gloss": "I can work three days a week.", "result": "success" },
+        { "text": "三日 。", "gloss": "Three.", "result": "success", "grade": "okay", "note": "Understood, but a bare number is curt in an interview. Answer in a sentence: 週三日働けます (I can work three days a week).", "grammar": "potential" },
+        { "text": "三時 に 働けます=働く 。", "gloss": "I can work at three o'clock.", "result": "npc_puzzled", "reaction": "えっと 、 何時 じゃなくて 、 何日 です 。", "note": "何日 (なんにち) asks how many days; 三時 is three o'clock. Three days is 三日 (みっか): 週三日働けます.", "grammar": "potential" }
+      ],
+      "next": { "success": "experience" }
+    },
+    "experience": {
+      "line": "接客 の 経験 は あります=ある か ？",
+      "gloss": "Do you have any experience serving customers?",
+      "targets": ["接客", "経験", "頑張る"],
+      "grammar": ["ganbaru", "arimasen"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "いいえ 、 ありません=ある 。 でも 、 頑張ります=頑張る 。", "gloss": "No, I don't. But I'll do my best.", "result": "success" },
+        { "text": "ない です 。", "gloss": "Don't have any.", "result": "success", "grade": "okay", "note": "ないです is everyday speech, and it leaves it at no. In an interview, say ありません, and add でも、頑張ります (but I'll do my best).", "grammar": "arimasen" },
+        { "text": "はい 、 お客=客 さん です 。", "gloss": "Yes, I'm a customer.", "result": "npc_amused", "reaction": "ふふ 、 今日 は お客=客 さん じゃ ない です よ 。", "note": "接客の経験 is experience of serving customers. With none, say いいえ、ありません。でも、頑張ります.", "grammar": "arimasen" }
+      ],
+      "next": { "success": "hired" }
+    },
+    "hired": {
+      "line": "分かりました=分かる 。 じゃあ 、 さっそく 今日 から お願いします=お願いする 。 時給 は 1,000 円 です 。",
+      "gloss": "All right. Then can you start right away, today? The pay is ¥1,000 an hour.",
+      "targets": ["さっそく", "時給"],
+      "grammar": ["kara_from"],
+      "maxMode": 2,
+      "choices": [
+        { "text": "ありがとうございます 。 よろしく お願いします=お願いする 。", "gloss": "Thank you. I look forward to working with you.", "result": "success" },
+        { "text": "ありがとう 。", "gloss": "Thanks.", "result": "success", "grade": "okay", "note": "Plain ありがとう is for friends. To your new manager, say ありがとうございます, and よろしくお願いします to start off on the right foot.", "grammar": "plain_vs_polite" },
+        { "text": "ごちそうさまでした 。", "gloss": "Thank you for the meal.", "result": "npc_amused", "reaction": "ふふ 、 何 も 食べて=食べる いません=いる よ 。", "note": "ごちそうさまでした is for after a meal. Being offered a job, say ありがとうございます。よろしくお願いします.", "grammar": "gochisousama" }
+      ],
+      "next": { "success": "start" }
+    },
+    "start": {
+      "line": "ゆき さん が 仕事 を 教えます=教える 。 頑張って=頑張る ください 。",
+      "gloss": "Yuki will show you the ropes. Good luck!",
+      "targets": ["仕事", "教える", "頑張る"],
+      "end": true
+    }
+  }
+}

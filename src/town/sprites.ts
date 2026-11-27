@@ -383,6 +383,52 @@ export const STAFF: Record<string, StaffArt> = {
     ],
     key: staffKey({ H: 'greySh', h: 'grey', D: 'roofESh' }),
   },
+  // 店長 at the cafe, who interviews you for the job: greying hair and a dark apron over a navy shirt.
+  tencho: {
+    rows: [...SHORT_HAIR, ...FACE, '..OkCCCCCCCCkO..', '.OSOCCCcCCCCOSO.', '..OOcCCCCCCcOO..', BODY[3]!],
+    key: staffKey({ H: 'roofE', h: 'roofEHi', D: 'roofESh', C: 'frame', c: 'doorSh', k: 'navy' }),
+  },
+  // Customers you serve on a shift at the cafe. Only their faces are drawn, in the
+  // conversation box: someone from an office in a suit and tie, a student in a hoodie,
+  // and an older lady in a cardigan.
+  kyaku1: {
+    rows: [...SHORT_HAIR, ...FACE, '..OCCCWRRWCCCO..', '.OSOCCCRRCCCOSO.', '..OOcCCCCCCcOO..', BODY[3]!],
+    key: staffKey({ H: 'hairK', h: 'hairKHi', D: 'hairKSh', C: 'navy', c: 'navySh', R: 'roofA' }),
+  },
+  kyaku2: {
+    rows: [
+      ...SHORT_HAIR.slice(0, 4),
+      '.OHHHHHHHHhHHHO.',
+      '.OHHHHHHHHHHHHO.',
+      '.OHHSSHHHHSSHHO.',
+      '.OHSSSSSSSSSSHO.',
+      '.OHSSESSSSESSHO.',
+      '.OHSSESSSSESSHO.',
+      '.OHSPSSSSSSPSHO.',
+      '.OHOOSSssSSOOHO.',
+      '.OHkCCCCCCCCkHO.',
+      '.OSOCCCcCCCCOSO.',
+      '..OOcCCCCCCcOO..',
+      '...OFFO..OFFO...',
+    ],
+    key: staffKey({ C: 'roofC', c: 'roofCSh', k: 'roofCHi' }),
+  },
+  kyaku3: {
+    rows: [
+      '......OOOO......',
+      '.....OHHhHO.....',
+      '....OOHHHHOO....',
+      '..OOHHhHHHHHOO..',
+      '.OHHHHHHHHHHHHO.',
+      '.OHHHHHHHHHHHHO.',
+      ...FACE,
+      '..OkCCCCCCCCkO..',
+      '.OSOCCCcCCCCOSO.',
+      '..OOcCCCCCCcOO..',
+      BODY[3]!,
+    ],
+    key: staffKey({ H: 'grey', h: 'white', D: 'greySh', C: 'roofD', c: 'roofDSh', k: 'roofDHi' }),
+  },
   // The other stalls' keepers: a red coat at the takoyaki, a blue one at the shaved ice.
   takoyaki: {
     rows: [...HEADBAND, ...FACE, ...HAPPI],

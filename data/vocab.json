@@ -3574,5 +3574,203 @@
   "reading": "すし",
   "meaning": "sushi",
   "pos": "noun"
+ },
+ {
+  "id": "ございます",
+  "reading": "ございます",
+  "meaning": "(very polite) is, there is; でございます is the shop counter's です",
+  "pos": "set phrase"
+ },
+ {
+  "id": "申し訳ございません",
+  "reading": "もうしわけございません",
+  "meaning": "I'm very sorry (how staff apologise to a customer)",
+  "pos": "set phrase"
+ },
+ {
+  "id": "売り切れ",
+  "reading": "うりきれ",
+  "meaning": "sold out",
+  "pos": "noun"
+ },
+ {
+  "id": "大変",
+  "reading": "たいへん",
+  "meaning": "very, terribly; also 'hard going'",
+  "pos": "adverb"
+ },
+ {
+  "id": "トイレ",
+  "reading": "トイレ",
+  "meaning": "toilet, restroom",
+  "pos": "noun"
+ },
+ {
+  "id": "頼む",
+  "reading": "たのむ",
+  "meaning": "to ask for, to order",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "客",
+  "reading": "きゃく",
+  "meaning": "customer, guest; お客さん = a customer",
+  "pos": "noun"
+ },
+ {
+  "id": "あなた",
+  "reading": "あなた",
+  "meaning": "you",
+  "pos": "pronoun"
+ },
+ {
+  "id": "いただく",
+  "reading": "いただく",
+  "meaning": "to receive; to eat or drink (humble: only ever for yourself)",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "もらう",
+  "reading": "もらう",
+  "meaning": "to get, to receive",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "預かる",
+  "reading": "あずかる",
+  "meaning": "to take charge of, to look after; お預かりします = (staff) I'll take your money or card",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "お釣り",
+  "reading": "おつり",
+  "meaning": "change (the money you get back)",
+  "pos": "noun"
+ },
+ {
+  "id": "少々",
+  "reading": "しょうしょう",
+  "meaning": "a little (formal); 少々お待ちください = one moment, please",
+  "pos": "adverb"
+ },
+ {
+  "id": "お疲れ様",
+  "reading": "おつかれさま",
+  "meaning": "said between colleagues: お疲れ様です (hello, at work), お疲れ様でした (thanks for today); お疲れ among friends",
+  "pos": "set phrase"
+ },
+ {
+  "id": "店長",
+  "reading": "てんちょう",
+  "meaning": "shop manager",
+  "pos": "noun"
+ },
+ {
+  "id": "松本",
+  "reading": "まつもと",
+  "meaning": "Matsumoto (a family name): the cafe's manager",
+  "pos": "name"
+ },
+ {
+  "id": "面接",
+  "reading": "めんせつ",
+  "meaning": "interview",
+  "pos": "noun"
+ },
+ {
+  "id": "アルバイト",
+  "reading": "アルバイト",
+  "meaning": "part-time job",
+  "pos": "noun"
+ },
+ {
+  "id": "募集",
+  "reading": "ぼしゅう",
+  "meaning": "recruiting; 募集中 = now hiring",
+  "pos": "noun"
+ },
+ {
+  "id": "時給",
+  "reading": "じきゅう",
+  "meaning": "hourly pay",
+  "pos": "noun"
+ },
+ {
+  "id": "働く",
+  "reading": "はたらく",
+  "meaning": "to work",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "経験",
+  "reading": "けいけん",
+  "meaning": "experience",
+  "pos": "noun"
+ },
+ {
+  "id": "接客",
+  "reading": "せっきゃく",
+  "meaning": "serving customers",
+  "pos": "noun"
+ },
+ {
+  "id": "週",
+  "reading": "しゅう",
+  "meaning": "week; 週に三日 = three days a week",
+  "pos": "noun"
+ },
+ {
+  "id": "何日",
+  "reading": "なんにち",
+  "meaning": "how many days; what day of the month",
+  "pos": "question word"
+ },
+ {
+  "id": "三日",
+  "reading": "みっか",
+  "meaning": "three days; the 3rd of the month",
+  "pos": "noun"
+ },
+ {
+  "id": "三時",
+  "reading": "さんじ",
+  "meaning": "three o'clock",
+  "pos": "noun"
+ },
+ {
+  "id": "座る",
+  "reading": "すわる",
+  "meaning": "to sit",
+  "pos": "verb (u)"
+ },
+ {
+  "id": "お金",
+  "reading": "おかね",
+  "meaning": "money",
+  "pos": "noun"
+ },
+ {
+  "id": "よろしく",
+  "reading": "よろしく",
+  "meaning": "kindly, well; よろしくお願いします = I look forward to working with you",
+  "pos": "adverb"
+ },
+ {
+  "id": "さっそく",
+  "reading": "さっそく",
+  "meaning": "right away, without delay",
+  "pos": "adverb"
+ },
+ {
+  "id": "じゃなくて",
+  "reading": "じゃなくて",
+  "meaning": "not … but; 何時じゃなくて何日 = not what time, how many days",
+  "pos": "set phrase"
+ },
+ {
+  "id": "何時",
+  "reading": "なんじ",
+  "meaning": "what time",
+  "pos": "question word"
  }
 ]
